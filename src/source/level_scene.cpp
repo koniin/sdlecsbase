@@ -49,7 +49,7 @@ struct SpriteComponent {
 void LevelScene::initialize() {
 	Engine::logn("Init level");
  	render_buffer.init(2048);
-    Resources::sprite_sheet_load("shooter", "shooter_sprites.data");
+    Resources::sprite_sheet_load("combat_sprites", "combat_sprites.data");
 }
 
 void LevelScene::begin() {
@@ -62,7 +62,7 @@ void LevelScene::begin() {
 		Position &pos_get = em.get_component<Position>(players, ent);
 		Engine::logn("pos_get: %f", pos_get.value.x);
         
-        SpriteComponent s = SpriteComponent("shooter", "player_1");
+        SpriteComponent s = SpriteComponent("combat_sprites", "player_1");
         s.layer = 10;
         em.set_component(players, ent, s);
 	}
