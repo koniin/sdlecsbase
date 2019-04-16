@@ -1,14 +1,29 @@
 combat_sprites.png
-12
-0 bullet_1 0 0 16 16 
-1 bullet_1_b 16 0 16 16 
-2 bullet_1_w 0 16 16 16 
-3 bullet_2 0 32 12 12 
-4 bullet_2_b 12 32 12 12 
-5 bullet_2_w 24 32 12 12 
-6 lazer 36 32 1 8 
-7 lazer_b 37 32 1 8 
-8 lazer_w 38 32 1 8 
-9 player_1 16 16 16 16 
-10 player_1_b 32 0 16 16 
-11 player_1_w 32 16 16 16 
+27
+0 bullet_1 192 288 16 16 
+1 bullet_1_b 208 288 16 16 
+2 bullet_1_w 224 288 16 16 
+3 bullet_2 288 288 12 12 
+4 bullet_2_b 300 288 12 12 
+5 bullet_2_w 312 288 12 12 
+6 gun1 192 192 64 64 
+7 gun1_b 256 192 64 64 
+8 gun1_w 320 192 64 64 
+9 gun2 192 256 32 32 
+10 gun2_b 224 256 32 32 
+11 gun2_w 256 256 32 32 
+12 gun3 288 256 32 32 
+13 gun3_b 320 256 32 32 
+14 gun3_w 352 256 32 32 
+15 lazer 324 288 1 8 
+16 lazer_b 325 288 1 8 
+17 lazer_w 326 288 1 8 
+18 player_1 240 288 16 16 
+19 player_1_b 256 288 16 16 
+20 player_1_w 272 288 16 16 
+21 ship1 0 0 96 192 
+22 ship1_b 96 0 96 192 
+23 ship1_w 192 0 96 192 
+24 ship2 288 0 96 192 
+25 ship2_b 0 192 96 192 
+26 ship2_w 96 192 96 192 
