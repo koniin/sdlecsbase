@@ -842,8 +842,11 @@ namespace ECS {
 
         BaseContainer *make_empty_copy() {
             ComponentContainer *c = new ComponentContainer;
+            Engine::logn("15");
             c->items = items;
+            Engine::logn("16");
             c->items.clear();
+            Engine::logn("17");
             return c;
         }
     };
@@ -986,8 +989,7 @@ namespace ECS {
 
                 container_indexes = std::vector<size_t>(from->container_indexes);
                 has_component = std::vector<bool>(from->has_component);
-                
-                for (size_t i=0; i < from->containers.size(); i++)  {
+                for(size_t &i : container_indexes) {
                     auto c = from->containers[i]->make_empty_copy();
                     containers.push_back(c);
                 }
@@ -1161,22 +1163,25 @@ namespace ECS {
         void add_component(Entity entity, const T &component) {
             const ArcheType &a = get_archetype(entity);
             EntityData *data = archetypes[archetype_map[a._mask]];
-
+            
             ComponentMask new_mask = a._mask;
             new_mask.set(ComponentID::value<T>());
             if(!archetype_exists(new_mask)) {
+            
                 auto *d = make_copy(data);
+                Engine::logn("3");
                 d->add_container<T>();
-
+                Engine::logn("33");
                 // create the archetype
                 archetypes.push_back(d);
                 archetype_map[new_mask] = archetypes.size() - 1;
             }
 
+            Engine::logn("4");
             ArcheType new_archetype;
             new_archetype._mask = new_mask;
             auto e = create_entity(new_archetype);
-
+            Engine::logn("5");
             // copy all entity data from *data into the new archetype
 
             remove_entity(a, entity);
