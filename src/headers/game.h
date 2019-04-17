@@ -37,12 +37,14 @@ ECS::ArcheType players;
 ECS::ArcheType targets;
 ECS::ArcheType projectiles;
 
+ECS::Entity player_HACK;
+
 void spawn_player(int p) {
-	auto ent = em.create_entity(players);
-	if(em.is_alive(players, ent)) {
+	player_HACK = em.create_entity(players);
+	if(em.is_alive(players, player_HACK)) {
 		Position_T pos = { 66 };
-		em.set_component(players, ent, pos);
-		Position_T &pos_get = em.get_component<Position_T>(players, ent);
+		em.set_component(players, player_HACK, pos);
+		Position_T &pos_get = em.get_component<Position_T>(players, player_HACK);
 		Engine::logn("pos_get: %d", pos_get.x);
 	}
 	// players->add_entity(ent);
@@ -151,6 +153,9 @@ inline void test_dynamic() {
 			Engine::logn("archpos: %d", pos.x);
 		}
 	}
+
+	Damage_T d { 134 };
+	em.add_component<Damage_T>(player_HACK, d);
 
 	Engine::logn(" ---  ECS TEST END  --- ");
 }

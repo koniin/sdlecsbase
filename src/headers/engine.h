@@ -829,6 +829,7 @@ namespace ECS {
         
     struct BaseContainer {
         virtual void move(int index, int last_index) = 0;
+        virtual BaseContainer *make_empty_copy() = 0;
     };
 
     template<typename T>
@@ -838,13 +839,20 @@ namespace ECS {
         void move(int index, int last_index) override {
             items.at(index) = items.at(last_index);
         }
+
+        BaseContainer *make_empty_copy() {
+            ComponentContainer *c = new ComponentContainer;
+            c->items = items;
+            c->items.clear();
+            return c;
+        }
     };
 
     class EntityData {
         public:
             ComponentMask mask;
-            int length = 0;
             std::vector<Entity> entity;
+            int length = 0;
             struct Handle {
                 int i = -1;
             };
@@ -852,6 +860,7 @@ namespace ECS {
             template <typename ... Components>
             void allocate_entities(size_t sz) {
                 size = sz;
+                entity.reserve(size);
 
                 size_t max_components_total = 512;
 
@@ -863,7 +872,6 @@ namespace ECS {
                 for(size_t i = 0; i < max_components_total; ++i) {
                     has_component.emplace_back(false);
                 }
-                entity.reserve(size);
                 init<Components...>(sz);
             }
         
@@ -972,6 +980,24 @@ namespace ECS {
                 return match<C1>() && match<C2, Components ...>();
             }
 
+            void clone_from(EntityData *from) {
+                size = from->size;
+                entity.reserve(size);
+
+                container_indexes = std::vector<size_t>(from->container_indexes);
+                has_component = std::vector<bool>(from->has_component);
+                
+                for (size_t i=0; i < from->containers.size(); i++)  {
+                    auto c = from->containers[i]->make_empty_copy();
+                    containers.push_back(c);
+                }
+            }
+
+            template <typename C>
+            void add_container() {
+                init<C>(size);
+            }
+
         private:
             static const int invalid_handle = -1;
             std::unordered_map<EntityId, unsigned> _map;
@@ -1028,18 +1054,31 @@ namespace ECS {
         std::vector<EntityData*> archetypes;
         std::unordered_map<ComponentMask, int> archetype_map;
         std::unordered_map<EntityId, ComponentMask> entity_to_archetype;
+        
+        EntityData *make_copy(EntityData *data) {
+            EntityData *new_data = new EntityData;
+            new_data->clone_from(data);
+            return new_data;
+        }
 
         public:
         template <typename ... Components>
         ArcheType create_archetype(size_t sz) {
-            EntityData *container = new EntityData();
-            container->allocate_entities<Components...>(sz);
-            archetypes.push_back(container);
             ArcheType a;
             a._mask = create_mask<Components...>();
-            archetype_map[a._mask] = archetypes.size() - 1;
+
+            EntityData *container = new EntityData();
+            container->allocate_entities<Components...>(sz);
             container->mask = a._mask;
+            
+            archetypes.push_back(container);
+            archetype_map[a._mask] = archetypes.size() - 1;
+            
             return a;
+        }
+        
+        bool archetype_exists(ComponentMask mask) {
+            return archetype_map.find(mask) != archetype_map.end();
         }
 
         struct ContainerIterator {
@@ -1093,11 +1132,67 @@ namespace ECS {
         }
 
         template<typename T>
+        void set_component(Entity entity, const T &component) {
+            const ArcheType &a = get_archetype(entity);
+            EntityData *data = archetypes[archetype_map[a._mask]];
+            auto handle = data->get_handle(entity);
+            ASSERT_WITH_MSG(data->is_valid_handle(handle), "set_component: Invalid entity handle! Check if entity is alive first!?");
+            data->set(handle, component);
+        }
+
+        template<typename T>
         T &get_component(const ArcheType &a, Entity entity) {
             EntityData *data = archetypes[archetype_map[a._mask]];
             auto handle = data->get_handle(entity);
             ASSERT_WITH_MSG(data->is_valid_handle(handle), "get_component: Invalid entity handle! Check if entity is alive first!?");
             return data->get<T>(handle);
+        }
+
+        template<typename T>
+        T &get_component(Entity entity) {
+            const ArcheType &a = get_archetype(entity);
+            EntityData *data = archetypes[archetype_map[a._mask]];
+            auto handle = data->get_handle(entity);
+            ASSERT_WITH_MSG(data->is_valid_handle(handle), "get_component: Invalid entity handle! Check if entity is alive first!?");
+            return data->get<T>(handle);
+        }
+
+        template<typename T>
+        void add_component(Entity entity, const T &component) {
+            const ArcheType &a = get_archetype(entity);
+            EntityData *data = archetypes[archetype_map[a._mask]];
+
+            ComponentMask new_mask = a._mask;
+            new_mask.set(ComponentID::value<T>());
+            if(!archetype_exists(new_mask)) {
+                auto *d = make_copy(data);
+                d->add_container<T>();
+
+                // create the archetype
+                archetypes.push_back(d);
+                archetype_map[new_mask] = archetypes.size() - 1;
+            }
+
+            ArcheType new_archetype;
+            new_archetype._mask = new_mask;
+            auto e = create_entity(new_archetype);
+
+            // copy all entity data from *data into the new archetype
+
+            remove_entity(a, entity);
+
+            ASSERT_WITH_MSG(false, "add_component not implemented");
+        }
+
+        template<typename T>
+        void remove_component(Entity entity, const T &component) {
+
+            // Same as add but reversed ?
+            // auto d = make_copy(data)
+            // d->remove_xxx<T>();
+            // isn't it the same? but we use a mask less than? how to do that?
+
+            ASSERT_WITH_MSG(false, "remove_component not implemented");
         }
     };
 };
