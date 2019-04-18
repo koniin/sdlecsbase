@@ -830,6 +830,7 @@ namespace ECS {
     struct BaseContainer {
         virtual void move(int index, int last_index) = 0;
         virtual BaseContainer *make_empty_copy() = 0;
+        virtual void clear(size_t sz) = 0;
     };
 
     template<typename T>
@@ -840,13 +841,19 @@ namespace ECS {
             items.at(index) = items.at(last_index);
         }
 
+        void clear(size_t sz) {
+            // This only works if you want to have components without constructors
+            items.clear();
+            items.reserve(sz);
+            for(size_t i = 0; i < sz; ++i) {
+                items.emplace_back();
+            }
+        }
+
         BaseContainer *make_empty_copy() {
             ComponentContainer *c = new ComponentContainer;
-            Engine::logn("15");
             c->items = items;
-            Engine::logn("16");
-            c->items.clear();
-            Engine::logn("17");
+            c->clear(items.size());
             return c;
         }
     };
@@ -862,19 +869,7 @@ namespace ECS {
 
             template <typename ... Components>
             void allocate_entities(size_t sz) {
-                size = sz;
-                entity.reserve(size);
-
-                size_t max_components_total = 512;
-
-                containers.reserve(max_components_total);
-                for(size_t i = 0; i < max_components_total; ++i) {
-                    containers.emplace_back();
-                }
-                has_component.reserve(max_components_total);
-                for(size_t i = 0; i < max_components_total; ++i) {
-                    has_component.emplace_back(false);
-                }
+                init_data_structures(sz);
                 init<Components...>(sz);
             }
         
@@ -984,14 +979,17 @@ namespace ECS {
             }
 
             void clone_from(EntityData *from) {
-                size = from->size;
-                entity.reserve(size);
+                init_data_structures(from->size);
 
-                container_indexes = std::vector<size_t>(from->container_indexes);
-                has_component = std::vector<bool>(from->has_component);
-                for(size_t &i : container_indexes) {
+                for(size_t i = 0; i < from->has_component.size(); i++) {
+                    has_component[i] = from->has_component[i];
+                }
+                int ci = 0;
+                for(size_t &i : from->container_indexes) {
+                    container_indexes.push_back(i);
+                    ci++;
                     auto c = from->containers[i]->make_empty_copy();
-                    containers.push_back(c);
+                    containers[i] = c;
                 }
             }
 
@@ -1007,16 +1005,29 @@ namespace ECS {
             std::vector<bool> has_component;
             std::vector<BaseContainer*> containers;
             size_t size = 0;
+            
+            void init_data_structures(size_t sz) {
+                size = sz;
+                entity.reserve(size);
+
+                size_t max_components_total = 512;
+
+                containers.reserve(max_components_total);
+                for(size_t i = 0; i < max_components_total; ++i) {
+                    containers.emplace_back();
+                }
+                has_component.reserve(max_components_total);
+                for(size_t i = 0; i < max_components_total; ++i) {
+                    has_component.emplace_back(false);
+                }
+            }
 
             template <typename C>
             void init(size_t sz) {
                 auto c = new ComponentContainer<C>();
-                // This only works if you want to have components without constructors
-                c->items.reserve(sz);
-                for(size_t i = 0; i < sz; ++i) {
-                    c->items.emplace_back();
-                }
                 auto container_index = ComponentID::value<C>();
+
+                c->clear(sz);
                 container_indexes.push_back(container_index);
                 has_component[container_index] = true;
                 containers[container_index] = c;
@@ -1169,24 +1180,34 @@ namespace ECS {
             if(!archetype_exists(new_mask)) {
             
                 auto *d = make_copy(data);
-                Engine::logn("3");
                 d->add_container<T>();
-                Engine::logn("33");
+                d->mask = new_mask;
+                
                 // create the archetype
                 archetypes.push_back(d);
                 archetype_map[new_mask] = archetypes.size() - 1;
             }
 
-            Engine::logn("4");
+
             ArcheType new_archetype;
             new_archetype._mask = new_mask;
-            auto e = create_entity(new_archetype);
-            Engine::logn("5");
-            // copy all entity data from *data into the new archetype
 
-            remove_entity(a, entity);
-
+            move_entity(entity, a, new_archetype);
+            
             ASSERT_WITH_MSG(false, "add_component not implemented");
+        }
+
+        void move_entity(Entity e, ArcheType from, ArcheType to) {
+            //auto ne = create_entity(to);
+            //EntityData *froma = archetypes[archetype_map[from._mask]];
+            //EntityData *toa = archetypes[archetype_map[to._mask]];
+            
+            // copy all entity data from *data into the new archetype
+            
+            // COPY NOT IMPLEMENTED
+
+            //Engine::logn("6");
+            //remove_entity(from, e);
         }
 
         template<typename T>

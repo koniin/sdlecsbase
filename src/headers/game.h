@@ -154,8 +154,8 @@ inline void test_dynamic() {
 		}
 	}
 
-	Damage_T d { 134 };
-	em.add_component<Damage_T>(player_HACK, d);
+	//Damage_T d { 134 };
+	//em.add_component<Damage_T>(player_HACK, d);
 
 	Engine::logn(" ---  ECS TEST END  --- ");
 }

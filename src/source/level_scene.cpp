@@ -38,7 +38,7 @@ struct SpriteComponent {
         w = sprite.w;
         h = sprite.h;
         scale = 1.0f;
-        rotation = 1.0f;
+        rotation = 0.0f;
         color_r = color_g = color_b = color_a = 255;
         layer = 0;
         line = false;
@@ -62,7 +62,7 @@ void LevelScene::begin() {
 		Position &pos_get = em.get_component<Position>(players, ent);
 		Engine::logn("pos_get: %f", pos_get.value.x);
         
-        SpriteComponent s = SpriteComponent("combat_sprites", "player_1");
+        SpriteComponent s = SpriteComponent("combat_sprites", "ship1");
         s.layer = 10;
         em.set_component(players, ent, s);
 	}
