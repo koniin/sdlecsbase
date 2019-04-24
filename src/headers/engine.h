@@ -829,7 +829,6 @@ namespace ECS {
         
     struct BaseContainer {
         virtual void move(int index, int last_index) = 0;
-        virtual BaseContainer *make_empty_copy() = 0;
         virtual void clear(size_t sz) = 0;
     };
 
@@ -848,13 +847,6 @@ namespace ECS {
             for(size_t i = 0; i < sz; ++i) {
                 items.emplace_back();
             }
-        }
-
-        BaseContainer *make_empty_copy() {
-            ComponentContainer *c = new ComponentContainer;
-            c->items = items;
-            c->clear(items.size());
-            return c;
         }
     };
 
@@ -978,26 +970,6 @@ namespace ECS {
                 return match<C1>() && match<C2, Components ...>();
             }
 
-            void clone_from(EntityData *from) {
-                init_data_structures(from->size);
-
-                for(size_t i = 0; i < from->has_component.size(); i++) {
-                    has_component[i] = from->has_component[i];
-                }
-                int ci = 0;
-                for(size_t &i : from->container_indexes) {
-                    container_indexes.push_back(i);
-                    ci++;
-                    auto c = from->containers[i]->make_empty_copy();
-                    containers[i] = c;
-                }
-            }
-
-            template <typename C>
-            void add_container() {
-                init<C>(size);
-            }
-
         private:
             static const int invalid_handle = -1;
             std::unordered_map<EntityId, unsigned> _map;
@@ -1060,6 +1032,11 @@ namespace ECS {
     ComponentMask create_mask() {
         return create_mask<C1>() | create_mask<C2, Components ...>();
     }
+        
+    struct ContainerIterator {
+        std::vector<EntityData*> containers;
+        // std::vector<ArcheType> archetypes;
+    };
 
     struct ArchetypeManager {
         private:
@@ -1068,13 +1045,11 @@ namespace ECS {
         std::unordered_map<ComponentMask, int> archetype_map;
         std::unordered_map<EntityId, ComponentMask> entity_to_archetype;
         
-        EntityData *make_copy(EntityData *data) {
-            EntityData *new_data = new EntityData;
-            new_data->clone_from(data);
-            return new_data;
+        public:
+        void clear() {
+            Engine::logn("clear archetype is not implemented");
         }
 
-        public:
         template <typename ... Components>
         ArcheType create_archetype(size_t sz) {
             ArcheType a;
@@ -1089,15 +1064,6 @@ namespace ECS {
             
             return a;
         }
-        
-        bool archetype_exists(ComponentMask mask) {
-            return archetype_map.find(mask) != archetype_map.end();
-        }
-
-        struct ContainerIterator {
-            std::vector<EntityData*> containers;
-            // std::vector<ArcheType> archetypes;
-        };
 
         template <typename ... Components>
         ContainerIterator get_iterator() {
@@ -1113,6 +1079,16 @@ namespace ECS {
             return it;
         }
 
+        template<typename ... Components>
+        void iterate(std::function<void(ECS::EntityData*, const int)> f) {
+            auto ci = get_iterator<Components...>();
+            for(auto c : ci.containers) {
+                for(int i = 0; i < c->length; i++) {
+                    f(c, i);
+                }
+            }
+        }
+
         Entity create_entity(const ArcheType &a) {
             auto entity = em.create();
             archetypes[archetype_map[a._mask]]->add_entity(entity);
@@ -1121,6 +1097,17 @@ namespace ECS {
         }
 
         void remove_entity(const ArcheType &a, Entity entity) {
+            archetypes[archetype_map[a._mask]]->remove(entity);
+            entity_to_archetype.erase(entity.id);
+        }
+
+        void remove_entity(Entity entity) {
+            const ArcheType a = get_archetype(entity);
+            EntityData *d = archetypes[archetype_map[a._mask]];
+            
+            auto handle = d->get_handle(entity);
+            ASSERT_WITH_MSG(d->is_valid_handle(handle), "remove_entity: Invalid entity handle! Entity already removed!");
+
             archetypes[archetype_map[a._mask]]->remove(entity);
             entity_to_archetype.erase(entity.id);
         }
@@ -1146,7 +1133,7 @@ namespace ECS {
 
         template<typename T>
         void set_component(Entity entity, const T &component) {
-            const ArcheType &a = get_archetype(entity);
+            const ArcheType a = get_archetype(entity);
             EntityData *data = archetypes[archetype_map[a._mask]];
             auto handle = data->get_handle(entity);
             ASSERT_WITH_MSG(data->is_valid_handle(handle), "set_component: Invalid entity handle! Check if entity is alive first!?");
@@ -1168,57 +1155,6 @@ namespace ECS {
             auto handle = data->get_handle(entity);
             ASSERT_WITH_MSG(data->is_valid_handle(handle), "get_component: Invalid entity handle! Check if entity is alive first!?");
             return data->get<T>(handle);
-        }
-
-        template<typename T>
-        void add_component(Entity entity, const T &component) {
-            const ArcheType &a = get_archetype(entity);
-            EntityData *data = archetypes[archetype_map[a._mask]];
-            
-            ComponentMask new_mask = a._mask;
-            new_mask.set(ComponentID::value<T>());
-            if(!archetype_exists(new_mask)) {
-            
-                auto *d = make_copy(data);
-                d->add_container<T>();
-                d->mask = new_mask;
-                
-                // create the archetype
-                archetypes.push_back(d);
-                archetype_map[new_mask] = archetypes.size() - 1;
-            }
-
-
-            ArcheType new_archetype;
-            new_archetype._mask = new_mask;
-
-            move_entity(entity, a, new_archetype);
-            
-            ASSERT_WITH_MSG(false, "add_component not implemented");
-        }
-
-        void move_entity(Entity e, ArcheType from, ArcheType to) {
-            //auto ne = create_entity(to);
-            //EntityData *froma = archetypes[archetype_map[from._mask]];
-            //EntityData *toa = archetypes[archetype_map[to._mask]];
-            
-            // copy all entity data from *data into the new archetype
-            
-            // COPY NOT IMPLEMENTED
-
-            //Engine::logn("6");
-            //remove_entity(from, e);
-        }
-
-        template<typename T>
-        void remove_component(Entity entity, const T &component) {
-
-            // Same as add but reversed ?
-            // auto d = make_copy(data)
-            // d->remove_xxx<T>();
-            // isn't it the same? but we use a mask less than? how to do that?
-
-            ASSERT_WITH_MSG(false, "remove_component not implemented");
         }
     };
 };

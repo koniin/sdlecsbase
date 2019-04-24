@@ -14,11 +14,11 @@
 		- we could also init sound at this screen somehow so init is faster and no white screen
 */ 
 
-struct Position_T { int x; };
-struct Velocity_T { int v; };
-struct Health_T { int h; };
-struct AI_T { int a; };
-struct Damage_T { int d; };
+// struct Position_T { int x; };
+// struct Velocity_T { int v; };
+// struct Health_T { int h; };
+// struct AI_T { int a; };
+// struct Damage_T { int d; };
 
 // Mål
 // 1. Ersätta Player, Target, Projectiles etc i entities.h med ett enkelt dynamiskt API
@@ -32,40 +32,38 @@ struct Damage_T { int d; };
 //    }
 
 
-ECS::ArchetypeManager em;
-ECS::ArcheType players;
-ECS::ArcheType targets;
-ECS::ArcheType projectiles;
+// ECS::ArchetypeManager em;
+// ECS::ArcheType players;
+// ECS::ArcheType targets;
+// ECS::ArcheType projectiles;
 
-ECS::Entity player_HACK;
+// void spawn_player(int p) {
+// 	ECS::Entity player_ship = em.create_entity(players);
+// 	if(em.is_alive(players, player_ship)) {
+// 		Position_T pos = { 66 };
+// 		em.set_component(players, player_ship, pos);
+// 		Position_T &pos_get = em.get_component<Position_T>(players, player_ship);
+// 		Engine::logn("pos_get: %d", pos_get.x);
+// 	}
+// 	// players->add_entity(ent);
 
-void spawn_player(int p) {
-	player_HACK = em.create_entity(players);
-	if(em.is_alive(players, player_HACK)) {
-		Position_T pos = { 66 };
-		em.set_component(players, player_HACK, pos);
-		Position_T &pos_get = em.get_component<Position_T>(players, player_HACK);
-		Engine::logn("pos_get: %d", pos_get.x);
-	}
-	// players->add_entity(ent);
+// 	// auto handle = players->get_handle(ent);
+// 	// Position_T &pos = players->get<Position_T>(handle);
+// 	// pos.x = p;
 
-	// auto handle = players->get_handle(ent);
-	// Position_T &pos = players->get<Position_T>(handle);
-	// pos.x = p;
+// 	// auto handle2 = players->get_handle(ent);
+// 	// const Position_T pos2 = players->get<Position_T>(handle);
+// 	// Engine::logn("%d", pos2.x);
+// }
 
-	// auto handle2 = players->get_handle(ent);
-	// const Position_T pos2 = players->get<Position_T>(handle);
-	// Engine::logn("%d", pos2.x);
-}
-
-void spawn_target(int p) {
-	auto ent = em.create_entity(targets);
-	if(em.is_alive(players, ent)) {
-		Position_T pos = { 789 };
-		em.set_component(targets, ent, pos);
-	}
-	em.remove_entity(targets, ent);
-}
+// void spawn_target(int p) {
+// 	auto ent = em.create_entity(targets);
+// 	if(em.is_alive(targets, ent)) {
+// 		Position_T pos = { 789 };
+// 		em.set_component(targets, ent, pos);
+// 	}
+// 	em.remove_entity(targets, ent);
+// }
 // 	auto ent = em.create();
 // 	targets->add_entity(ent);
 // 	auto handle = targets->get_handle(ent);
@@ -98,66 +96,63 @@ void spawn_target(int p) {
 // }
 
 inline void test_dynamic() {
-	Engine::logn(" ---  ECS TEST  --- ");
+	// Engine::logn(" ---  ECS TEST  --- ");
 	
-	Engine::logn(" init players ");
-	players = em.create_archetype<Position_T, Velocity_T, Health_T>(23);
-	//players.allocate_entities<Position_T, Velocity_T, Health_T>(23);
-	Engine::logn(" init targets ");
-	targets = em.create_archetype<Position_T, Velocity_T, Health_T, AI_T>(23);
-	Engine::logn(" init projectiles ");
-	projectiles = em.create_archetype<Position_T, Velocity_T, Damage_T>(23);
+	// Engine::logn(" init players ");
+	// players = em.create_archetype<Position_T, Velocity_T, Health_T>(23);
+	// //players.allocate_entities<Position_T, Velocity_T, Health_T>(23);
+	// Engine::logn(" init targets ");
+	// targets = em.create_archetype<Position_T, Velocity_T, Health_T, AI_T>(23);
+	// Engine::logn(" init projectiles ");
+	// projectiles = em.create_archetype<Position_T, Velocity_T, Damage_T>(23);
 
-	spawn_player(555);
-	spawn_target(33);
-	// remove_target();
-	// spawn_target(77);
+	// spawn_player(555);
+	// spawn_target(33);
+	// // remove_target();
+	// // spawn_target(77);
 
-	auto ci = em.get_iterator<Velocity_T, Health_T, Position_T>();
-	// containers is a collection of 
-	for(auto c : ci.containers) {
-		if(c->length == 0) {
-			// Just for test
-			continue;
-		}
+	// auto ci = em.get_iterator<Velocity_T, Health_T, Position_T>();
+	// // containers is a collection of 
+	// for(auto c : ci.containers) {
+	// 	if(c->length == 0) {
+	// 		// Just for test
+	// 		continue;
+	// 	}
 
-		// Method one for iteration
-		auto &positions = c->get_components_by_type<Position_T>();
-		for(int i = 0; i < c->length; i++) {
-			Engine::logn("x type: %d", positions[i].x);
-		}
+	// 	// Method one for iteration
+	// 	auto &positions = c->get_components_by_type<Position_T>();
+	// 	for(int i = 0; i < c->length; i++) {
+	// 		Engine::logn("x type: %d", positions[i].x);
+	// 	}
 
-		// Method two for iteration
-		Engine::logn("length: %d", c->length);
-		for(int i = 0; i < c->length; i++) {
-			Position_T &p = c->index<Position_T>(i);
-			Engine::logn("x: %d", p.x);
-		}
+	// 	// Method two for iteration
+	// 	Engine::logn("length: %d", c->length);
+	// 	for(int i = 0; i < c->length; i++) {
+	// 		Position_T &p = c->index<Position_T>(i);
+	// 		Engine::logn("x: %d", p.x);
+	// 	}
 		
-		// Method three for iteration
-		auto a = c->entity[0];
-		auto h = c->get_handle(a);
-		if(c->is_valid_handle(h)) {
-			auto pos2 = c->get<Position_T>(h);
-			Engine::logn("x2: %d", pos2.x);
-		}
-	}
+	// 	// Method three for iteration
+	// 	auto a = c->entity[0];
+	// 	auto h = c->get_handle(a);
+	// 	if(c->is_valid_handle(h)) {
+	// 		auto pos2 = c->get<Position_T>(h);
+	// 		Engine::logn("x2: %d", pos2.x);
+	// 	}
+	// }
 
-	auto ci2 = em.get_iterator<Position_T>();
-	for(auto c : ci2.containers) {
+	// auto ci2 = em.get_iterator<Position_T>();
+	// for(auto c : ci2.containers) {
 
-		// Method four for iteration
-		for(int i = 0; i < c->length; i++) {
-			auto archetype = em.get_archetype(c->entity[i]);
-			auto &pos = em.get_component<Position_T>(archetype, c->entity[i]);
-			Engine::logn("archpos: %d", pos.x);
-		}
-	}
+	// 	// Method four for iteration
+	// 	for(int i = 0; i < c->length; i++) {
+	// 		auto archetype = em.get_archetype(c->entity[i]);
+	// 		auto &pos = em.get_component<Position_T>(archetype, c->entity[i]);
+	// 		Engine::logn("archpos: %d", pos.x);
+	// 	}
+	// }
 
-	//Damage_T d { 134 };
-	//em.add_component<Damage_T>(player_HACK, d);
-
-	Engine::logn(" ---  ECS TEST END  --- ");
+	// Engine::logn(" ---  ECS TEST END  --- ");
 }
 
 struct MenuScene : Scene {

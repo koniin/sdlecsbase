@@ -122,6 +122,7 @@ struct SpriteBufferData {
     SDL_Rect src;
     SDL_Rect dest;
     SDL_Point *center = NULL;
+    SDL_RendererFlip flip = SDL_FLIP_NONE;
     float angle;
     int layer;
     

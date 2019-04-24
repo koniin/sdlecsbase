@@ -1,89 +1,52 @@
 #include "level_scene.h"
+#include "systems.h"
+#include "level_bootstrap.h"
 #include <chrono>
 
-
-// Should be components for the engine/renderer really
-// Could be nice to have a base component library 
-// Then you can move the export function also
-// ==============================================================
-struct Position {
-    Vector2 value;
-    Vector2 last;
-
-    Position() : value(Vector2()), last(Vector2()) {}
-    Position(float x, float y) : Position(Vector2(x, y)) {}
-    Position(Vector2 pos) : value(pos), last(Vector2()) {}
-};
-
-struct SpriteComponent {
-    float scale;
-    float rotation;
-    int w, h;
-    int16_t radius;
-    int16_t color_r;
-    int16_t color_g;
-    int16_t color_b;
-    int16_t color_a;
-    size_t sprite_sheet_index;
-    std::string sprite_name;
-    int layer;
-    bool line;
-    Vector2 position;
-
-    SpriteComponent() {}
-
-    SpriteComponent(const std::string &sprite_sheet_name, std::string name) : sprite_name(name) {
-        sprite_sheet_index = Resources::sprite_sheet_index(sprite_sheet_name);
-        auto sprite = Resources::sprite_get_from_sheet(sprite_sheet_index, name);
-        w = sprite.w;
-        h = sprite.h;
-        scale = 1.0f;
-        rotation = 0.0f;
-        color_r = color_g = color_b = color_a = 255;
-        layer = 0;
-        line = false;
-    }
-};
-// ==============================================================
-
 void LevelScene::initialize() {
-	Engine::logn("Init level");
+    Engine::logn("Init level");
  	render_buffer.init(2048);
     Resources::sprite_sheet_load("combat_sprites", "combat_sprites.data");
+    LevelBootstrap::initialise(arch_manager);
 }
 
 void LevelScene::begin() {
 	Engine::logn("Begin level");
-    players = em.create_archetype<Position, SpriteComponent>(10);
-    auto ent = em.create_entity(players);
-	if(em.is_alive(players, ent)) {
-		Position pos = Position(100, 100);
-		em.set_component(players, ent, pos);
-		Position &pos_get = em.get_component<Position>(players, ent);
-		Engine::logn("pos_get: %f", pos_get.value.x);
-        
-        SpriteComponent s = SpriteComponent("combat_sprites", "ship1");
-        s.layer = 10;
-        em.set_component(players, ent, s);
-	}
+    
+    LevelBootstrap::create_player(arch_manager);
+
+    LevelBootstrap::create_enemy(arch_manager);
+    
 }
 
 void LevelScene::end() {
+    arch_manager.clear();
 	Engine::logn("end level");
 	render_buffer.clear();
 }
 
+PlayerInputSystem system_player_input;
+PlayerHandleInputSystem system_player_handle_input;
+MoveForwardSystem system_move_forward;
+TravelDistanceSystem system_travel_distance;
+LifeTimeSystem system_lifetime;
+
 void LevelScene::update() {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 	
-    counter++;
-	if(counter > 60) {
-		Engine::logn("Update level");
-		counter = 0;
-	}
 	if(Input::key_pressed(SDLK_SPACE)) {
 		Scenes::set_scene("menu");
 	}
+
+    system_player_input.update(arch_manager);
+    system_player_handle_input.update(arch_manager);
+
+    system_move_forward.update(arch_manager);
+
+    system_travel_distance.update(arch_manager);
+    
+    system_lifetime.update(arch_manager);
+    system_player_handle_input.post_update();
 
     render_export();
 
@@ -101,7 +64,16 @@ void LevelScene::render() {
 	renderer_clear();
     draw_buffer(render_buffer);
 	renderer_draw_render_target_camera();
-	// room_render_ui();
+	
+    auto ci2 = arch_manager.get_iterator<Hull, Position>();
+	for(auto c : ci2.containers) {
+        for(int i = 0; i < c->length; i++) {
+			auto &health = c->index<Hull>(i);
+            auto &pos = c->index<Position>(i);
+            draw_text_str((int)pos.value.x, gh - 20, Colors::white, std::to_string(health.amount));
+        }
+    }
+
 	renderer_flip();
 }
 
@@ -149,6 +121,14 @@ void export_sprite_data(const T &position, const T2 &sprite, SpriteBufferData &s
         spr.dest.x = spr.dest.x - (spr.dest.w / 2);
         spr.dest.y = spr.dest.y - (spr.dest.h / 2);
     //}
+
+    if(sprite.flip == 1) {
+        spr.flip = SDL_FLIP_HORIZONTAL; 
+    } else if(sprite.flip == 2) {
+        spr.flip = SDL_FLIP_VERTICAL;
+    } else {
+        spr.flip = SDL_FLIP_NONE;
+    }
 }
 
 void LevelScene::render_export() {
@@ -157,7 +137,7 @@ void LevelScene::render_export() {
     auto sprite_data_buffer = render_buffer.sprite_data_buffer;
     auto &sprite_count = render_buffer.sprite_count;
 
-    auto ci2 = em.get_iterator<Position, SpriteComponent>();
+    auto ci2 = arch_manager.get_iterator<Position, SpriteComponent>();
 	for(auto c : ci2.containers) {
         for(int i = 0; i < c->length; i++) {
 			auto &pos = c->index<Position>(i);
@@ -166,7 +146,6 @@ void LevelScene::render_export() {
             export_sprite_data(pos, sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
 		}
 	}
-    // for(int i = 0; i < _g->projectiles_player.length; ++i) {
-    //     export_sprite_data(_g->projectiles_player, i, sprite_data_buffer[sprite_count++]);
-    // }
+
+    std::sort(sprite_data_buffer, sprite_data_buffer + sprite_count);
 }
