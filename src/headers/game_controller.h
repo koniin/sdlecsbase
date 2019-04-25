@@ -34,23 +34,7 @@ namespace GameController {
     }
 
     void update() {
-        ECS::ArchetypeManager &arch_manager = Services::arch_manager();
         
-        if(arch_manager.archetype_empty(enemy_ship)) {
-            for(auto e : enemy_weapons) {
-                arch_manager.remove_entity(e);
-            }
-            enemy_weapons.clear();
-
-            return;
-        }
-        
-        if(arch_manager.archetype_empty(player_ship)) {
-            for(auto e : player_weapons) {
-                arch_manager.remove_entity(e);
-            }
-            player_weapons.clear();
-        }
     }
 
     void create_player() {
@@ -191,8 +175,24 @@ namespace GameController {
         ECS::ArchetypeManager &arch_manager = Services::arch_manager();
         auto &hull = arch_manager.get_component<Hull>(target);
         hull.amount = hull.amount - damage;
+
+        if(hull.amount <= 0) {
+            if(target.equals(player)) {
+                for(auto e : player_weapons) {
+                    arch_manager.remove_entity(e);
+                }
+                player_weapons.clear();
+                Engine::logn("player destroyed!");
+            } else if(target.equals(enemy)) {
+                for(auto e : enemy_weapons) {
+                    arch_manager.remove_entity(e);
+                }
+                enemy_weapons.clear();
+                Engine::logn("enemy destroyed!");
+            }
+        }
     }
-                
+
     void entity_miss(ECS::Entity target) {
         Engine::logn("entity missed!");
         ECS::ArchetypeManager &arch_manager = Services::arch_manager();

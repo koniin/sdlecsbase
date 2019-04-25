@@ -772,6 +772,10 @@ namespace ECS {
 
         unsigned index() const { return id & ENTITY_INDEX_MASK; }
         unsigned generation() const { return (id >> ENTITY_INDEX_BITS) & ENTITY_GENERATION_MASK; }
+
+        bool equals(Entity other) {
+            return id == other.id;
+        }
     };
 
     class ComponentID {
