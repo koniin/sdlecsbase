@@ -60,7 +60,8 @@ struct PlayerHandleInputSystem {
 
                     float distance = p.value.x + (float)gw;
                     if(RNG::range_i(0, 4) > 1) { // 40% chance to miss?
-                        distance = (LevelBootstrap::player_pos - LevelBootstrap::enemy_pos).length();
+                        auto pos = arch_manager.get_component<Position>(LevelBootstrap::enemy);
+                        distance = (LevelBootstrap::player_pos - pos.value).length();
                         Engine::logn("HIT!");
                     } else {
                         Engine::logn("MISS!");
@@ -68,16 +69,6 @@ struct PlayerHandleInputSystem {
                     arch_manager.set_component(ent, TravelDistance(distance));
                 });
 
-
-                // auto ent = arch_manager.create_entity(enemy_ship);
-                
-                // Position pos = Position((float)gw - 100, 150);
-                // arch_manager.set_component(enemy_ship, ent, pos);
-                // arch_manager.set_component(enemy_ship, ent, Hull(100));
-                // SpriteComponent s = SpriteComponent("combat_sprites", "ship2");
-                // s.layer = 10;
-                // arch_manager.set_component(enemy_ship, ent, s);
-                
 
                 // From config (depends on rendering size)
                 // const float gun_barrel_distance = player_config.gun_barrel_distance;

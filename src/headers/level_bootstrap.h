@@ -10,8 +10,8 @@ namespace LevelBootstrap {
     ECS::ArcheType weapon_archetype;
     ECS::ArcheType player_bullet;
 
-    Vector2 player_pos;
-    Vector2 enemy_pos;
+    ECS::Entity player;
+    ECS::Entity enemy;
 
     void initialise(ECS::ArchetypeManager &arch_manager) {
         player_pos = Vector2(100, 150);
@@ -43,6 +43,7 @@ namespace LevelBootstrap {
             s_weap.layer = 15;
             arch_manager.set_component(weapon, s_weap);
         }
+        player = ent;
     }
 
     void create_enemy(ECS::ArchetypeManager &arch_manager) {
@@ -64,6 +65,7 @@ namespace LevelBootstrap {
             s_weap.flip = 1;
             arch_manager.set_component(weapon, s_weap);
         }
+        enemy = ent;
     }
 }
 

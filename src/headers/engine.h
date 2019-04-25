@@ -1121,7 +1121,7 @@ namespace ECS {
         }
 
         template<typename C>
-        void test_add_component_entity(Entity entity, C component) {
+        void add_component(Entity entity, C component) {
             const ArcheType a = get_archetype(entity);
             
             ComponentMask new_mask = a._mask;

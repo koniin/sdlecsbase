@@ -43,7 +43,7 @@ void LevelScene::initialize() {
         }
     }
     
-    arch_manager.test_add_component_entity(e, TestComp2 { 66 });
+    arch_manager.add_component(e, TestComp2 { 66 });
 
     Engine::logn("\t Test (should write 42):");
     ci2 = arch_manager.get_iterator<TestComp1>();
