@@ -830,23 +830,33 @@ namespace ECS {
     struct BaseContainer {
         virtual void move(int index, int last_index) = 0;
         virtual void clear(size_t sz) = 0;
+        virtual BaseContainer *make_empty_copy() = 0;
+        virtual void copy_to(int from_index, BaseContainer* container, int to_index) = 0;
     };
 
-    template<typename T>
+    template<typename Component>
     struct ComponentContainer : BaseContainer {
-        std::vector<T> items;
+        std::vector<Component> items;
 
         void move(int index, int last_index) override {
             items.at(index) = items.at(last_index);
         }
 
-        void clear(size_t sz) {
+        void clear(size_t sz) override {
             // This only works if you want to have components without constructors
             items.clear();
             items.reserve(sz);
             for(size_t i = 0; i < sz; ++i) {
                 items.emplace_back();
             }
+        }
+
+        BaseContainer *make_empty_copy() override {
+            return new ComponentContainer<Component>();
+        }
+
+        void copy_to(int from_index, BaseContainer* container, int to_index) {
+            static_cast<ComponentContainer<Component>*>(container)->items[to_index] = items[from_index];
         }
     };
 
@@ -858,6 +868,41 @@ namespace ECS {
             struct Handle {
                 int i = -1;
             };
+
+            EntityData *clone() {
+                EntityData *d = new EntityData;
+                d->size = size;
+                d->init_data_structures(size);
+
+                d->mask = mask;
+                d->entity = entity;
+                d->length = length;
+                d->_map = _map;
+                d->container_indexes = container_indexes;
+                d->has_component = has_component;
+                
+                for(size_t &i : container_indexes) {
+                    auto c = containers[i]->make_empty_copy();
+                    c->clear(size);
+                    d->containers[i] = c;
+                }
+
+                return d;
+            }
+
+            void copy_to(Entity e, EntityData *to) {
+                auto h_from = get_handle(e);
+                auto h_to = to->get_handle(e);
+                // to->containers[i]->items[h_to.i] = containers[i]->items[h_from.i];
+                for(size_t &i : container_indexes) {
+                    containers[i]->copy_to(h_from.i, to->containers[i], h_to.i);
+                }
+            }
+
+            template <typename Component>
+            void add_container() {
+                init<Component>(size);
+            }
 
             template <typename ... Components>
             void allocate_entities(size_t sz) {
@@ -896,13 +941,7 @@ namespace ECS {
                     for(size_t &i : container_indexes) {
                         containers[i]->move(index, lastIndex);
                     }
-
-                    /*
-                    for(size_t i = 0; i < container_indexes.size(); i++) {
-                        containers[i]->move(index, lastIndex);
-                    }
-                    */
-
+                    
                     // Update map entry for the swapped entity
                     _map[lastEntity.id] = index;
                     // Remove the map entry for the destroyed entity
@@ -912,6 +951,12 @@ namespace ECS {
                     entity.pop_back();
 
                     --length;
+                }
+            }
+
+            void remove_all() {
+                for(int i = length - 1; i >= 0; i--) {
+                    remove(entity[i]);
                 }
             }
 
@@ -1048,21 +1093,66 @@ namespace ECS {
         public:
         void clear() {
             Engine::logn("clear archetype is not implemented");
+
+            // for each archetype
+
+            // go through entity data and 
+            //  d->remove_all();
         }
 
         template <typename ... Components>
         ArcheType create_archetype(size_t sz) {
-            ArcheType a;
-            a._mask = create_mask<Components...>();
+            ComponentMask mask = create_mask<Components...>();
 
             EntityData *container = new EntityData();
             container->allocate_entities<Components...>(sz);
-            container->mask = a._mask;
+            container->mask = mask;
             
             archetypes.push_back(container);
-            archetype_map[a._mask] = archetypes.size() - 1;
+            archetype_map[mask] = archetypes.size() - 1;
             
+            ArcheType a;
+            a._mask = mask;
             return a;
+        }
+
+        bool archetype_exists(ComponentMask mask) {
+            return archetype_map.find(mask) != archetype_map.end();
+        }
+
+        template<typename C>
+        void test_add_component_entity(Entity entity, C component) {
+            const ArcheType a = get_archetype(entity);
+            
+            ComponentMask new_mask = a._mask;
+            new_mask.set(ComponentID::value<C>());
+            
+            EntityData *d = archetypes[archetype_map[a._mask]];
+            EntityData *d_new = nullptr;
+
+            if(!archetype_exists(new_mask)) {
+                d_new = d->clone();
+                d_new->remove_all();
+                d_new->add_container<C>();
+                d_new->mask = new_mask;
+                d_new->add_entity(entity);
+
+                // Create archetype
+                archetypes.push_back(d_new);
+                archetype_map[new_mask] = archetypes.size() - 1;
+            } else {
+                d_new = archetypes[archetype_map[new_mask]];
+            }
+            
+            // Move entity to new archetype in mapping
+            entity_to_archetype[entity.id] = new_mask;
+
+            d->copy_to(entity, d_new);
+            
+            // Remove entity from old archetype
+            archetypes[archetype_map[a._mask]]->remove(entity);
+            
+            set_component(entity, component);
         }
 
         template <typename ... Components>

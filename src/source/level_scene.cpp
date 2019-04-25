@@ -3,11 +3,91 @@
 #include "level_bootstrap.h"
 #include <chrono>
 
+struct TestComp1 {
+    int a = 4;
+};
+
+struct TestComp2 {
+    int b = 4;
+};
+
 void LevelScene::initialize() {
     Engine::logn("Init level");
  	render_buffer.init(2048);
     Resources::sprite_sheet_load("combat_sprites", "combat_sprites.data");
     LevelBootstrap::initialise(arch_manager);
+
+    auto arch = arch_manager.create_archetype<TestComp1>(2);
+    
+    auto e = arch_manager.create_entity(arch);
+    arch_manager.set_component(e, TestComp1 { 42 });
+
+    Engine::logn("\t Test (should write 42):");
+    auto ci2 = arch_manager.get_iterator<TestComp1>();
+	for(auto c : ci2.containers) {
+        for(int i = 0; i < c->length; i++) {
+			auto &t1 = c->index<TestComp1>(i);
+            Engine::logn("%d", t1.a);
+        }
+    }
+
+    Engine::logn("\t Test (should be nothing):");
+    ci2 = arch_manager.get_iterator<TestComp1, TestComp2>();
+	for(auto c : ci2.containers) {
+        for(int i = 0; i < c->length; i++) {
+			auto &t1 = c->index<TestComp1>(i);
+            Engine::logn("%d", t1.a);
+
+            auto &t2 = c->index<TestComp2>(i);
+            Engine::logn("%d", t2.b);
+        }
+    }
+    
+    arch_manager.test_add_component_entity(e, TestComp2 { 66 });
+
+    Engine::logn("\t Test (should write 42):");
+    ci2 = arch_manager.get_iterator<TestComp1>();
+	for(auto c : ci2.containers) {
+        for(int i = 0; i < c->length; i++) {
+			auto &t1 = c->index<TestComp1>(i);
+            Engine::logn("%d", t1.a);
+        }
+    }
+
+    Engine::logn("\t Test (should write 42 and 66):");
+    ci2 = arch_manager.get_iterator<TestComp1, TestComp2>();
+	for(auto c : ci2.containers) {
+        for(int i = 0; i < c->length; i++) {
+			auto &t1 = c->index<TestComp1>(i);
+            Engine::logn("%d", t1.a);
+
+            auto &t2 = c->index<TestComp2>(i);
+            Engine::logn("%d", t2.b);
+        }
+    }
+
+    arch_manager.remove_entity(e);
+
+    Engine::logn("\t Test (should write nothing)");
+    ci2 = arch_manager.get_iterator<TestComp1>();
+	for(auto c : ci2.containers) {
+        for(int i = 0; i < c->length; i++) {
+			auto &t1 = c->index<TestComp1>(i);
+            Engine::logn("%d", t1.a);
+        }
+    }
+
+    Engine::logn("\t Test (should write nothing)");
+    ci2 = arch_manager.get_iterator<TestComp1, TestComp2>();
+	for(auto c : ci2.containers) {
+        for(int i = 0; i < c->length; i++) {
+			auto &t1 = c->index<TestComp1>(i);
+            Engine::logn("%d", t1.a);
+
+            auto &t2 = c->index<TestComp2>(i);
+            Engine::logn("%d", t2.b);
+        }
+    }
 }
 
 void LevelScene::begin() {
@@ -137,8 +217,8 @@ void LevelScene::render_export() {
     auto sprite_data_buffer = render_buffer.sprite_data_buffer;
     auto &sprite_count = render_buffer.sprite_count;
 
-    auto ci2 = arch_manager.get_iterator<Position, SpriteComponent>();
-	for(auto c : ci2.containers) {
+    auto ci = arch_manager.get_iterator<Position, SpriteComponent>();
+	for(auto c : ci.containers) {
         for(int i = 0; i < c->length; i++) {
 			auto &pos = c->index<Position>(i);
             auto &sprite = c->index<SpriteComponent>(i);

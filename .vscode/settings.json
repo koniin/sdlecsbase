@@ -62,6 +62,7 @@
         "array": "cpp",
         "iterator": "cpp",
         "set": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "cctype": "cpp"
     }
 }
