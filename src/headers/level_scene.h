@@ -13,7 +13,6 @@ class LevelScene : public Scene {
                 void render() override;
                 void unload() override;
         private:
-                ECS::ArchetypeManager arch_manager;
                 RenderBuffer render_buffer;
                 
                 void render_export();

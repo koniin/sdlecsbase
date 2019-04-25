@@ -1,106 +1,28 @@
 #include "level_scene.h"
 #include "systems.h"
-#include "level_bootstrap.h"
+#include "game_controller.h"
 #include <chrono>
 
-struct TestComp1 {
-    int a = 4;
-};
-
-struct TestComp2 {
-    int b = 4;
-};
+#include "_engine_test.h"
 
 void LevelScene::initialize() {
     Engine::logn("Init level");
  	render_buffer.init(2048);
     Resources::sprite_sheet_load("combat_sprites", "combat_sprites.data");
-    LevelBootstrap::initialise(arch_manager);
+    GameController::initialise();
 
-    auto arch = arch_manager.create_archetype<TestComp1>(2);
-    
-    auto e = arch_manager.create_entity(arch);
-    arch_manager.set_component(e, TestComp1 { 42 });
-
-    Engine::logn("\t Test (should write 42):");
-    auto ci2 = arch_manager.get_iterator<TestComp1>();
-	for(auto c : ci2.containers) {
-        for(int i = 0; i < c->length; i++) {
-			auto &t1 = c->index<TestComp1>(i);
-            Engine::logn("%d", t1.a);
-        }
-    }
-
-    Engine::logn("\t Test (should be nothing):");
-    ci2 = arch_manager.get_iterator<TestComp1, TestComp2>();
-	for(auto c : ci2.containers) {
-        for(int i = 0; i < c->length; i++) {
-			auto &t1 = c->index<TestComp1>(i);
-            Engine::logn("%d", t1.a);
-
-            auto &t2 = c->index<TestComp2>(i);
-            Engine::logn("%d", t2.b);
-        }
-    }
-    
-    arch_manager.add_component(e, TestComp2 { 66 });
-
-    Engine::logn("\t Test (should write 42):");
-    ci2 = arch_manager.get_iterator<TestComp1>();
-	for(auto c : ci2.containers) {
-        for(int i = 0; i < c->length; i++) {
-			auto &t1 = c->index<TestComp1>(i);
-            Engine::logn("%d", t1.a);
-        }
-    }
-
-    Engine::logn("\t Test (should write 42 and 66):");
-    ci2 = arch_manager.get_iterator<TestComp1, TestComp2>();
-	for(auto c : ci2.containers) {
-        for(int i = 0; i < c->length; i++) {
-			auto &t1 = c->index<TestComp1>(i);
-            Engine::logn("%d", t1.a);
-
-            auto &t2 = c->index<TestComp2>(i);
-            Engine::logn("%d", t2.b);
-        }
-    }
-
-    arch_manager.remove_entity(e);
-
-    Engine::logn("\t Test (should write nothing)");
-    ci2 = arch_manager.get_iterator<TestComp1>();
-	for(auto c : ci2.containers) {
-        for(int i = 0; i < c->length; i++) {
-			auto &t1 = c->index<TestComp1>(i);
-            Engine::logn("%d", t1.a);
-        }
-    }
-
-    Engine::logn("\t Test (should write nothing)");
-    ci2 = arch_manager.get_iterator<TestComp1, TestComp2>();
-	for(auto c : ci2.containers) {
-        for(int i = 0; i < c->length; i++) {
-			auto &t1 = c->index<TestComp1>(i);
-            Engine::logn("%d", t1.a);
-
-            auto &t2 = c->index<TestComp2>(i);
-            Engine::logn("%d", t2.b);
-        }
-    }
+    engine_test();
 }
 
 void LevelScene::begin() {
 	Engine::logn("Begin level");
-    
-    LevelBootstrap::create_player(arch_manager);
-
-    LevelBootstrap::create_enemy(arch_manager);
-    
+    GameController::create_player();
+    GameController::create_enemy();
 }
 
 void LevelScene::end() {
-    arch_manager.clear();
+    Services::arch_manager().clear();
+
 	Engine::logn("end level");
 	render_buffer.clear();
 }
@@ -110,6 +32,7 @@ PlayerHandleInputSystem system_player_handle_input;
 MoveForwardSystem system_move_forward;
 TravelDistanceSystem system_travel_distance;
 LifeTimeSystem system_lifetime;
+ProjectileHitSystem system_projectilehit;
 
 void LevelScene::update() {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
@@ -118,17 +41,19 @@ void LevelScene::update() {
 		Scenes::set_scene("menu");
 	}
 
+    ECS::ArchetypeManager &arch_manager = Services::arch_manager();
     system_player_input.update(arch_manager);
     system_player_handle_input.update(arch_manager);
 
     system_move_forward.update(arch_manager);
 
     system_travel_distance.update(arch_manager);
-    
+    system_projectilehit.update(arch_manager);
     system_lifetime.update(arch_manager);
     system_player_handle_input.post_update();
 
     render_export();
+    Services::ui().update();
 
 	std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 	auto diff = t2 - t1;
@@ -145,7 +70,8 @@ void LevelScene::render() {
     draw_buffer(render_buffer);
 	renderer_draw_render_target_camera();
 	
-    auto ci2 = arch_manager.get_iterator<Hull, Position>();
+    // Render UI
+    auto ci2 = Services::arch_manager().get_iterator<Hull, Position>();
 	for(auto c : ci2.containers) {
         for(int i = 0; i < c->length; i++) {
 			auto &health = c->index<Hull>(i);
@@ -153,6 +79,8 @@ void LevelScene::render() {
             draw_text_str((int)pos.value.x, gh - 20, Colors::white, std::to_string(health.amount));
         }
     }
+
+    Services::ui().render();
 
 	renderer_flip();
 }
@@ -217,7 +145,7 @@ void LevelScene::render_export() {
     auto sprite_data_buffer = render_buffer.sprite_data_buffer;
     auto &sprite_count = render_buffer.sprite_count;
 
-    auto ci = arch_manager.get_iterator<Position, SpriteComponent>();
+    auto ci = Services::arch_manager().get_iterator<Position, SpriteComponent>();
 	for(auto c : ci.containers) {
         for(int i = 0; i < c->length; i++) {
 			auto &pos = c->index<Position>(i);

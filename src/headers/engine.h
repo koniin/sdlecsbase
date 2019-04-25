@@ -1214,6 +1214,12 @@ namespace ECS {
         }
 
         template<typename T>
+        bool has_component(Entity entity) {
+            const ArcheType a = get_archetype(entity);
+            return a._mask.test(ComponentID::value<T>());
+        }
+
+        template<typename T>
         void set_component(const ArcheType &a, Entity entity, const T &component) {
             EntityData *data = archetypes[archetype_map[a._mask]];
             auto handle = data->get_handle(entity);

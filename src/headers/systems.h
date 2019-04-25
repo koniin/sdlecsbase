@@ -3,7 +3,42 @@
 
 #include "engine.h"
 #include "components.h"
-#include "level_bootstrap.h"
+#include "game_controller.h"
+
+/// GENERAL SYSTEMS (Reusable probably)
+/// ============================================
+struct MoveForwardSystem {
+    void update(ECS::ArchetypeManager &arch_manager) {
+        arch_manager.iterate<Position, Velocity>([](auto c, auto i) { // [this](auto c, auto i) {
+            auto &p = c->index<Position>(i);
+            p.last = p.value;
+
+            auto &v = c->index<Velocity>(i);
+
+            p.value += v.value * Time::delta_time;
+        });
+    }
+};
+
+struct LifeTimeSystem {
+    std::vector<ECS::Entity> deleted;
+
+    void update(ECS::ArchetypeManager &arch_manager) {
+        arch_manager.iterate<LifeTime>([this](auto c, auto i) { // [this](auto c, auto i) {
+            auto &l = c->index<LifeTime>(i);
+            if(l.marked_for_deletion) {
+                deleted.push_back(c->entity[i]);
+                l.marked_for_deletion = false;
+            }
+        });
+
+        for(auto e : deleted) {
+            arch_manager.remove_entity(e);
+        }
+        deleted.clear();
+    }
+};
+/// ============================================
 
 struct PlayerInputSystem {
     void update(ECS::ArchetypeManager &arch_manager) {
@@ -48,25 +83,8 @@ struct PlayerHandleInputSystem {
                 
                 pi.fire_cooldown = 2.0f; // fire_result.fire_cooldown;
 
-                post_update_commands.push_back([&]() {
-                    auto ent = arch_manager.create_entity(LevelBootstrap::player_bullet);
-                    arch_manager.set_component(ent, Position(p.value));
-                    auto sc = SpriteComponent("combat_sprites", "bullet_1");
-                    sc.layer = 12;
-                    arch_manager.set_component(ent, sc);
-
-                    auto a = Math::direction_from_angle(0) * 500;
-                    arch_manager.set_component(ent, Velocity(a));
-
-                    float distance = p.value.x + (float)gw;
-                    if(RNG::range_i(0, 4) > 1) { // 40% chance to miss?
-                        auto pos = arch_manager.get_component<Position>(LevelBootstrap::enemy);
-                        distance = (LevelBootstrap::player_pos - pos.value).length();
-                        Engine::logn("HIT!");
-                    } else {
-                        Engine::logn("MISS!");
-                    }
-                    arch_manager.set_component(ent, TravelDistance(distance));
+                post_update_commands.push_back([=]() {
+                    GameController::player_projectile_fire(p.value);
                 });
 
 
@@ -106,18 +124,6 @@ struct PlayerHandleInputSystem {
     }
 };
 
-struct MoveForwardSystem {
-    void update(ECS::ArchetypeManager &arch_manager) {
-        arch_manager.iterate<Position, Velocity>([](auto c, auto i) { // [this](auto c, auto i) {
-            auto &p = c->index<Position>(i);
-            p.last = p.value;
-
-            auto &v = c->index<Velocity>(i);
-
-            p.value += v.value * Time::delta_time;
-        });
-    }
-};
 
 struct TravelDistanceSystem {
     void update(ECS::ArchetypeManager &arch_manager) {
@@ -128,8 +134,6 @@ struct TravelDistanceSystem {
 
             auto diff = p.value - p.last;
             t.amount = t.amount + diff.length();
-            Engine::logn("%f", t.amount);
-
             if(t.amount > t.target) {
                 l.marked_for_deletion = true;
             }
@@ -137,22 +141,21 @@ struct TravelDistanceSystem {
     }
 };
 
-struct LifeTimeSystem {
-    std::vector<ECS::Entity> deleted;
-
+struct ProjectileHitSystem {
     void update(ECS::ArchetypeManager &arch_manager) {
-        arch_manager.iterate<LifeTime>([this](auto c, auto i) { // [this](auto c, auto i) {
-            auto &l = c->index<LifeTime>(i);
-            if(l.marked_for_deletion) {
-                deleted.push_back(c->entity[i]);
-                l.marked_for_deletion = false;
+        arch_manager.iterate<TravelDistance, ProjectileDamageDistance>([](auto c, auto i) { // [this](auto c, auto i) {
+            auto &t = c->index<TravelDistance>(i);
+            auto &pdd = c->index<ProjectileDamageDistance>(i);
+            
+            if(t.amount >= pdd.distance) {
+                if(pdd.hit == 1) {
+                    GameController::entity_hit(pdd.target, pdd.damage);
+                } else {
+                    GameController::entity_miss(pdd.target);
+                }
+                pdd.distance = 999999; // we don't want to trigger this again
             }
         });
-
-        for(auto e : deleted) {
-            arch_manager.remove_entity(e);
-        }
-        deleted.clear();
     }
 };
 

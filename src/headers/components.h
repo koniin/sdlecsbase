@@ -99,4 +99,11 @@ struct TravelDistance {
     TravelDistance(float t) : target(t) {}
 };
 
+struct ProjectileDamageDistance {
+    float distance = 0;
+    short hit = 0;
+    int damage = 0;
+    ECS::Entity target;
+};
+
 #endif
