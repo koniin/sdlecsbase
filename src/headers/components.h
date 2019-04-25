@@ -71,10 +71,6 @@ struct SpriteComponent {
 // Game specific components
 // ========
 
-struct ArtificalWeaponFiring {
-    float timer = 0.f;
-};
-
 struct Damage {
     int amount = 0;
 };
@@ -104,6 +100,10 @@ struct ProjectileDamageDistance {
     short hit = 0;
     int damage = 0;
     ECS::Entity target;
+};
+
+struct AIComponent {
+    float fire_cooldown = 2.0f;
 };
 
 #endif

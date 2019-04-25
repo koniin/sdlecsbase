@@ -159,29 +159,74 @@ struct ProjectileHitSystem {
     }
 };
 
-/*
-
-template<typename T>
-void system_update_life_time(T &entity_data) {
-    for(int i = 0; i < entity_data.length; i++) {
-        if(entity_data.life_time[i].ttl > 0.0f) {
-            entity_data.life_time[i].time += Time::delta_time;
-            if(!entity_data.life_time[i].marked_for_deletion && entity_data.life_time[i].time >= entity_data.life_time[i].ttl) {
-                entity_data.life_time[i].marked_for_deletion = true;
+struct RemoveNoHullEntitiesSystem {
+    void update(ECS::ArchetypeManager &arch_manager) {
+        arch_manager.iterate<Hull, LifeTime>([](auto c, auto i) { // [this](auto c, auto i) {
+            auto &h = c->index<Hull>(i);
+            if(h.amount <= 0) {
+                auto &l = c->index<LifeTime>(i);
+                l.marked_for_deletion = true;
             }
-        }
+        });
     }
-}
+};
 
-template<typename T>
-void system_remove_deleted(T &entity_data) {
-    for(int i = 0; i < entity_data.length; i++) {
-        if(entity_data.life_time[i].marked_for_deletion) {
-            entity_data.life_time[i].marked_for_deletion = false;
-            entity_data.remove(entity_data.entity[i]);
+struct AIInputSystem {
+    std::vector<std::function<void(void)>> post_update_commands;
+
+    void post_update() {
+        for(auto pc : post_update_commands) {
+            pc();
         }
+        post_update_commands.clear();
     }
-}
-*/
+
+    void update(ECS::ArchetypeManager &arch_manager) {
+        arch_manager.iterate<AIComponent, Position>([&](auto c, auto i) { // [this](auto c, auto i) {
+            auto &ai = c->index<AIComponent>(i);
+            auto &p = c->index<Position>(i);
+            ai.fire_cooldown = Math::max_f(0.0f, ai.fire_cooldown - Time::delta_time);
+
+            if(ai.fire_cooldown > 0.0f) {
+                return;
+            }
+
+            ai.fire_cooldown = 2.2f;
+
+            post_update_commands.push_back([=]() {
+                GameController::enemy_projectile_fire(p.value);
+            });
+        });
+    }
+};
+
+
+// template<typename AI, typename Enemy>
+// void system_ai_input(AI &entity_data, Enemy &entity_search_targets, Projectile &projectiles, GameAreaController *ga_ctrl) {
+//     for(int i = 0; i < entity_data.length; i++) {
+//         entity_data.ai[i].fire_cooldown = Math::max_f(0.0f, entity_data.ai[i].fire_cooldown - Time::delta_time);
+
+//         if(entity_data.ai[i].fire_cooldown > 0.0f) {
+//             continue;
+//         }
+
+//         for(int t_i = 0; t_i < entity_search_targets.length; t_i++) {
+//             const Vector2 &ai_position = entity_data.position[i].value;
+//             const Vector2 &target_position = get_position(entity_search_targets, entity_search_targets.entity[t_i]).value;
+//             if(entity_data.ai[i].fire_range > Math::distance_v(ai_position, target_position)) {
+//                 entity_data.ai[i].fire_cooldown = entity_data.weapon[i].fire_cooldown;;
+
+//                 // const Vector2 direction = Math::direction(target_position, ai_position);
+//                 float angle = Math::degrees_between_v(ai_position, target_position);
+                
+//                 //Vector2 projectile_velocity = direction * entity_data.weapon[i].projectile_speed;                
+
+//                 ProjectileSpawn p = ProjectileSpawn(ai_position, angle, entity_data.weapon[i].projectile_speed, 1, 8, 1.0f, 0, 0);
+//                 ga_ctrl->target_projectile_fire(p);
+//                 continue; // only fire at one target
+//             }
+//         }
+//     }
+// }
 
 #endif

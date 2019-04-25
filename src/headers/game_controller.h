@@ -9,7 +9,7 @@ namespace GameController {
     ECS::ArcheType player_ship;
     ECS::ArcheType enemy_ship;
     ECS::ArcheType weapon_archetype;
-    ECS::ArcheType player_bullet;
+    ECS::ArcheType projectile;
 
     ECS::Entity player;
     ECS::Entity enemy;
@@ -26,11 +26,31 @@ namespace GameController {
         player_pos = Vector2(100, 150);
         enemy_pos = Vector2((float)gw - 100, 150);
 
-        player_ship = arch_manager.create_archetype<Position, SpriteComponent, PlayerInput, Hull>(2);
-        enemy_ship = arch_manager.create_archetype<Position, SpriteComponent, Hull, ArtificalWeaponFiring>(2);
+        player_ship = arch_manager.create_archetype<Position, SpriteComponent, PlayerInput, Hull, LifeTime>(2);
+        enemy_ship = arch_manager.create_archetype<Position, SpriteComponent, Hull, AIComponent, LifeTime>(2);
         weapon_archetype = arch_manager.create_archetype<Position, SpriteComponent, Damage>(2);
 
-        player_bullet = arch_manager.create_archetype<Position, SpriteComponent, Velocity, ProjectileDamageDistance, TravelDistance, LifeTime>(100);
+        projectile = arch_manager.create_archetype<Position, SpriteComponent, Velocity, ProjectileDamageDistance, TravelDistance, LifeTime>(200);
+    }
+
+    void update() {
+        ECS::ArchetypeManager &arch_manager = Services::arch_manager();
+        
+        if(arch_manager.archetype_empty(enemy_ship)) {
+            for(auto e : enemy_weapons) {
+                arch_manager.remove_entity(e);
+            }
+            enemy_weapons.clear();
+
+            return;
+        }
+        
+        if(arch_manager.archetype_empty(player_ship)) {
+            for(auto e : player_weapons) {
+                arch_manager.remove_entity(e);
+            }
+            player_weapons.clear();
+        }
     }
 
     void create_player() {
@@ -84,6 +104,7 @@ namespace GameController {
             s_weap.flip = 1;
             arch_manager.set_component(weapon, s_weap);
 
+            arch_manager.set_component(ent, AIComponent { 2.2f });
             enemy_weapons.push_back(weapon);
         }
         enemy = ent;
@@ -91,8 +112,14 @@ namespace GameController {
 
     void player_projectile_fire(Vector2 position) {
         ECS::ArchetypeManager &arch_manager = Services::arch_manager();
+        ECS::Entity target = enemy;
+        Vector2 my_position = player_pos;
 
-        auto ent = arch_manager.create_entity(player_bullet);
+        if(!arch_manager.is_alive(target)) {
+            return;
+        }
+
+        auto ent = arch_manager.create_entity(projectile);
         arch_manager.set_component(ent, Position(position));
         auto sc = SpriteComponent("combat_sprites", "bullet_1");
         sc.layer = 12;
@@ -101,12 +128,50 @@ namespace GameController {
         auto a = Math::direction_from_angle(0) * 500;
         arch_manager.set_component(ent, Velocity(a));
 
-        auto pos = arch_manager.get_component<Position>(enemy);
-        auto distance_to_target = (player_pos - pos.value).length();
+        auto pos = arch_manager.get_component<Position>(target);
+        auto distance_to_target = (my_position - pos.value).length();
 
         ProjectileDamageDistance pdd;
         pdd.distance = distance_to_target;
-        pdd.target = enemy;
+        pdd.target = target;
+        pdd.damage = 20;
+
+        float distance = position.x + (float)gw;
+        if(RNG::range_i(0, 4) > 1) { // 40% chance to miss?
+            pdd.hit = 1; 
+            distance = distance_to_target;
+        } else {
+            pdd.hit = 0;
+        }
+
+        arch_manager.set_component(ent, pdd);
+        arch_manager.set_component(ent, TravelDistance(distance));
+    }
+
+    void enemy_projectile_fire(Vector2 position) {
+        ECS::ArchetypeManager &arch_manager = Services::arch_manager();
+        ECS::Entity target = player;
+        Vector2 my_position = enemy_pos;
+
+        if(!arch_manager.is_alive(target)) {
+            return;
+        }
+        
+        auto ent = arch_manager.create_entity(projectile);
+        arch_manager.set_component(ent, Position(position));
+        auto sc = SpriteComponent("combat_sprites", "bullet_2");
+        sc.layer = 12;
+        arch_manager.set_component(ent, sc);
+
+        auto pos = arch_manager.get_component<Position>(target);
+        auto a = Math::direction(pos.value, position) * 500;
+        arch_manager.set_component(ent, Velocity(a));
+
+        auto distance_to_target = (my_position - pos.value).length();
+
+        ProjectileDamageDistance pdd;
+        pdd.distance = distance_to_target;
+        pdd.target = target;
         pdd.damage = 20;
 
         float distance = position.x + (float)gw;

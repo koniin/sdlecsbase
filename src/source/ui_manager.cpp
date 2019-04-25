@@ -25,5 +25,4 @@ void UIManager::show_text_toast(Vector2 position, std::string text, float ttl) {
     t.ttl = ttl;
     t.timer = 0;
     _toasts.push_back(t);
-
 }

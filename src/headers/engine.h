@@ -1120,6 +1120,10 @@ namespace ECS {
             return archetype_map.find(mask) != archetype_map.end();
         }
 
+        bool archetype_empty(ArcheType &a) {
+            return archetypes[archetype_map[a._mask]]->length == 0;
+        }
+
         template<typename C>
         void add_component(Entity entity, C component) {
             const ArcheType a = get_archetype(entity);
@@ -1200,6 +1204,16 @@ namespace ECS {
 
             archetypes[archetype_map[a._mask]]->remove(entity);
             entity_to_archetype.erase(entity.id);
+        }
+
+        bool is_alive(Entity entity) {
+            bool not_found = entity_to_archetype.find(entity.id) == entity_to_archetype.end();
+            if(not_found) {
+                return false;
+            }
+            
+            ArcheType a = get_archetype(entity);
+            return is_alive(a, entity);
         }
 
         bool is_alive(const ArcheType &a, Entity entity) {
