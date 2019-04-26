@@ -1,0 +1,53 @@
+
+
+ next:
+    = Goal: multiple player weapons with different configurations and stay in ECS as much as possible
+    player 
+    - multiple weapons
+    - weapon configurations
+        - name (Blaster MK2 etc)
+        - reload time
+        - damage
+        - accuracy
+    - manual fire (display)
+        - number to press
+        - red for reloading
+        - green for ready
+        - the name
+        => 1. Blaster MK2
+        => 2. Blaster MK2 
+    
+
+	- Simple ship to ship battle
+		- stationary ships
+		- multiple weapons on each ship
+		- some buttons to click for "special weapons"
+		- hit/miss/accuracy/crit
+		- shield + armor combo (shield regenerates)
+		- borderlands weapons [ damage, accuracy, reload time | fire rate (shots/s), projectile count (for burst etc) ]
+		- borderlands shield [ regenerates slow ]
+			shield regeneration starts after x amount of time
+			so if you don't get hit it will start after some time
+			"abilities" to not take damage
+			"abilities/items" to buff shields (regeneration amount, time, start time etc)
+
+
+Click handlers
+================
+	(Note: I also want to handle mouse overs, so your method may differ if you don't)
+	I define the following components:
+	MouseOverTarget, MouseOver, ClickTarget, Clicked, ClickHandled
+
+	I have the following systems:
+	MouseOverSystem - goes through all MouseOverTarget entities and adds/removes MouseOver where appropriate
+	ClickSystem - goes through MouseOver+ClickTarget and adds Clicked if LMB was pressed.
+
+	then for each kind of clickable entity in my game I have systems like
+	CardMouseOverSystem - goes through all Card+MouseOver, (e.g. highlights the card)
+	CardClickSystem - goes through all Card+Clicked+Not(ClickHandled), does whatever it needs (this is your "OnClick" method) and adds ClickHandled. 
+    (For example, in my case it adds a Dragged component for Drag&Drop).
+
+	Oh, and the ClickSystem also cleans up Clicked+ClickHandled pairs (just removes them).
+
+	I would assume when the ECS matures you will get all but the entity-kind-specific systems built in (just like you don't have to call OnClick yourself in the UI system). 
+    Or maybe they will come up with a better method. 

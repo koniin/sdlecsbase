@@ -34,8 +34,9 @@ struct MenuScene : Scene {
 		renderer_clear();
 		// room_render();
 		renderer_draw_render_target_camera();
-		// room_render_ui();
+		
 		draw_text_centered_str((int)(gw / 2), (int)(gh / 2), Colors::white, "Press space to start!");
+		
 		renderer_flip();
 	}
 
