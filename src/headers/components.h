@@ -106,4 +106,8 @@ struct AIComponent {
     float fire_cooldown = 2.0f;
 };
 
+struct ParentComponent {
+    ECS::Entity entity;
+};
+
 #endif

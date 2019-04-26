@@ -143,15 +143,17 @@ struct TravelDistanceSystem {
 
 struct ProjectileHitSystem {
     void update(ECS::ArchetypeManager &arch_manager) {
-        arch_manager.iterate<TravelDistance, ProjectileDamageDistance>([](auto c, auto i) { // [this](auto c, auto i) {
+        arch_manager.iterate<TravelDistance, ProjectileDamageDistance>([&](auto c, auto i) { // [this](auto c, auto i) {
             auto &t = c->index<TravelDistance>(i);
             auto &pdd = c->index<ProjectileDamageDistance>(i);
             
             if(t.amount >= pdd.distance) {
                 if(pdd.hit == 1) {
-                    GameController::entity_hit(pdd.target, pdd.damage);
+                    auto &hull = arch_manager.get_component<Hull>(pdd.target);
+                    hull.amount = hull.amount - pdd.damage;
                 } else {
-                    GameController::entity_miss(pdd.target);
+                    auto &position = arch_manager.get_component<Position>(pdd.target);
+                    Services::ui().show_text_toast(position.value, "MISS!", 2.0f);
                 }
                 pdd.distance = 999999; // we don't want to trigger this again
             }
@@ -166,7 +168,35 @@ struct RemoveNoHullEntitiesSystem {
             if(h.amount <= 0) {
                 auto &l = c->index<LifeTime>(i);
                 l.marked_for_deletion = true;
+
+                Services::events().push(EntityDestroyedEvent { c->entity[i] });
             }
+        });
+    }
+};
+
+struct RemoveNoParentAliveEntitiesSystem {
+    void update(ECS::ArchetypeManager &arch_manager) {
+        arch_manager.iterate<ParentComponent, LifeTime>([&](auto c, auto i) { // [this](auto c, auto i) {
+            auto &p = c->index<ParentComponent>(i);
+
+            // if it's alive we check if it has a lifetime 
+            // and remove it if marked for deletion
+            if(arch_manager.is_alive(p.entity)) {
+                if(arch_manager.has_component<LifeTime>(p.entity)) {
+                    auto &pl = arch_manager.get_component<LifeTime>(p.entity);
+                    if(!pl.marked_for_deletion) {
+                        return;
+                    }
+                } else {
+                    return;
+                }
+            } 
+            
+            auto &l = c->index<LifeTime>(i);
+            l.marked_for_deletion = true;
+
+            Services::events().push(EntityDestroyedEvent { c->entity[i] });
         });
     }
 };

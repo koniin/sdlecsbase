@@ -20,6 +20,33 @@ namespace GameController {
     Vector2 player_pos;
     Vector2 enemy_pos;
 
+    void entity_destroyed(EntityDestroyedEvent ev) {
+        Engine::logn("recieved entity destroyed event");
+        auto target = ev.entity;
+        if(target.equals(player)) {
+            Engine::logn("player destroyed!");
+        } else if(target.equals(enemy)) {
+            Engine::logn("enemy destroyed!");
+        }
+
+        // This could be done by a "parent component - just destroy all entities where the parent is not alive anymore"
+        // ECS::ArchetypeManager &arch_manager = Services::arch_manager();
+        // auto target = ev.entity;
+        // if(target.equals(player)) {
+        //     for(auto e : player_weapons) {
+        //         arch_manager.remove_entity(e);
+        //     }
+        //     player_weapons.clear();
+        //     Engine::logn("player destroyed!");
+        // } else if(target.equals(enemy)) {
+        //     for(auto e : enemy_weapons) {
+        //         arch_manager.remove_entity(e);
+        //     }
+        //     enemy_weapons.clear();
+        //     Engine::logn("enemy destroyed!");
+        // }
+    }
+
     void initialise() {
         ECS::ArchetypeManager &arch_manager = Services::arch_manager();
 
@@ -28,9 +55,11 @@ namespace GameController {
 
         player_ship = arch_manager.create_archetype<Position, SpriteComponent, PlayerInput, Hull, LifeTime>(2);
         enemy_ship = arch_manager.create_archetype<Position, SpriteComponent, Hull, AIComponent, LifeTime>(2);
-        weapon_archetype = arch_manager.create_archetype<Position, SpriteComponent, Damage>(2);
+        weapon_archetype = arch_manager.create_archetype<Position, SpriteComponent, Damage, ParentComponent, LifeTime>(2);
 
         projectile = arch_manager.create_archetype<Position, SpriteComponent, Velocity, ProjectileDamageDistance, TravelDistance, LifeTime>(200);
+
+        Services::events().listen<EntityDestroyedEvent>(&entity_destroyed);
     }
 
     void update() {
@@ -59,6 +88,7 @@ namespace GameController {
             SpriteComponent s_weap = SpriteComponent("combat_sprites", "gun1");
             s_weap.layer = 15;
             arch_manager.set_component(weapon, s_weap);
+            arch_manager.set_component(weapon, ParentComponent { ent });
 
             player_weapons.push_back(weapon);
         }
@@ -78,6 +108,7 @@ namespace GameController {
             SpriteComponent s = SpriteComponent("combat_sprites", "ship2");
             s.layer = 10;
             arch_manager.set_component(ent, s);
+            arch_manager.set_component(ent, AIComponent { 2.2f });
 
             auto weapon = arch_manager.create_entity(weapon_archetype);
             Position p_weap = Position((float)gw - 90, 150);
@@ -87,8 +118,8 @@ namespace GameController {
             s_weap.layer = 15;
             s_weap.flip = 1;
             arch_manager.set_component(weapon, s_weap);
-
-            arch_manager.set_component(ent, AIComponent { 2.2f });
+            arch_manager.set_component(weapon, ParentComponent { ent });
+            
             enemy_weapons.push_back(weapon);
         }
         enemy = ent;
@@ -168,36 +199,6 @@ namespace GameController {
 
         arch_manager.set_component(ent, pdd);
         arch_manager.set_component(ent, TravelDistance(distance));
-    }
-
-    void entity_hit(ECS::Entity target, int damage) {
-        Engine::logn("entity hit!");
-        ECS::ArchetypeManager &arch_manager = Services::arch_manager();
-        auto &hull = arch_manager.get_component<Hull>(target);
-        hull.amount = hull.amount - damage;
-
-        if(hull.amount <= 0) {
-            if(target.equals(player)) {
-                for(auto e : player_weapons) {
-                    arch_manager.remove_entity(e);
-                }
-                player_weapons.clear();
-                Engine::logn("player destroyed!");
-            } else if(target.equals(enemy)) {
-                for(auto e : enemy_weapons) {
-                    arch_manager.remove_entity(e);
-                }
-                enemy_weapons.clear();
-                Engine::logn("enemy destroyed!");
-            }
-        }
-    }
-
-    void entity_miss(ECS::Entity target) {
-        Engine::logn("entity missed!");
-        ECS::ArchetypeManager &arch_manager = Services::arch_manager();
-        auto &position = arch_manager.get_component<Position>(target);
-        Services::ui().show_text_toast(position.value, "MISS!", 2.0f);
     }
 }
 

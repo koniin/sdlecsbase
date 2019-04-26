@@ -35,6 +35,7 @@ TravelDistanceSystem system_travel_distance;
 LifeTimeSystem system_lifetime;
 ProjectileHitSystem system_projectilehit;
 RemoveNoHullEntitiesSystem system_remove_no_hull;
+RemoveNoParentAliveEntitiesSystem system_remove_no_parent;
 
 void LevelScene::update() {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
@@ -53,7 +54,8 @@ void LevelScene::update() {
     system_travel_distance.update(arch_manager);
     system_projectilehit.update(arch_manager);
     system_remove_no_hull.update(arch_manager);
-
+    system_remove_no_parent.update(arch_manager);
+    
     system_lifetime.update(arch_manager);
 
     system_player_handle_input.post_update();
@@ -62,6 +64,7 @@ void LevelScene::update() {
     GameController::update();
 
     Services::ui().update();
+    Services::events().emit();
 
     render_export();
 
