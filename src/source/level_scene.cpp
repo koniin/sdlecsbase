@@ -21,7 +21,7 @@ void LevelScene::begin() {
 }
 
 void LevelScene::end() {
-    Services::arch_manager().clear();
+    Services::arch_manager().clear_entities();
 
 	Engine::logn("end level");
 	render_buffer.clear();
@@ -40,22 +40,15 @@ RemoveNoParentAliveEntitiesSystem system_remove_no_parent;
 void LevelScene::update() {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 	
-	if(Input::key_pressed(SDLK_SPACE)) {
-		Scenes::set_scene("menu");
-	}
-
     ECS::ArchetypeManager &arch_manager = Services::arch_manager();
     system_player_input.update(arch_manager);
     system_player_handle_input.update(arch_manager);
     system_ai_input.update(arch_manager);
-
     system_move_forward.update(arch_manager);
-
     system_travel_distance.update(arch_manager);
     system_projectilehit.update(arch_manager);
     system_remove_no_hull.update(arch_manager);
     system_remove_no_parent.update(arch_manager);
-    
     system_lifetime.update(arch_manager);
 
     system_player_handle_input.post_update();

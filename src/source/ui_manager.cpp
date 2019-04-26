@@ -10,11 +10,25 @@ void UIManager::update() {
     _toasts.erase(std::remove_if(_toasts.begin(), _toasts.end(), [](const Toast& t) { 
         return t.timer >= t.ttl;
     }), _toasts.end());
+
+	if((is_game_over || is_battle_over) && Input::key_pressed(SDLK_SPACE)) {
+		Scenes::set_scene("menu");
+        is_game_over = false;
+        is_battle_over = false;
+	}
 }
 
 void UIManager::render() {
     for(auto t : _toasts) {
         draw_text_centered_str((int)t.pos.x, (int)t.pos.y, Colors::white, t.text);
+    }
+
+    if(is_game_over) {
+        draw_text_centered_str((int)(gw / 2), (int)(gh / 2), Colors::white, "GAME OVER");
+        draw_text_centered_str((int)(gw / 2), (int)(gh / 2) + 10, Colors::white, "Press space to continue...");
+    } else if(is_battle_over) {
+        draw_text_centered_str((int)(gw / 2), (int)(gh / 2), Colors::white, "YOU ROCK!");
+        draw_text_centered_str((int)(gw / 2), (int)(gh / 2) + 10, Colors::white, "Press space to continue...");
     }
 }
 
@@ -25,4 +39,12 @@ void UIManager::show_text_toast(Vector2 position, std::string text, float ttl) {
     t.ttl = ttl;
     t.timer = 0;
     _toasts.push_back(t);
+}
+
+void UIManager::game_over() {
+    is_game_over = true;
+}
+
+void UIManager::battle_win() {
+    is_battle_over = true;
 }

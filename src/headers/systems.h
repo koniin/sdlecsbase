@@ -151,11 +151,18 @@ struct ProjectileHitSystem {
                 if(pdd.hit == 1) {
                     auto &hull = arch_manager.get_component<Hull>(pdd.target);
                     hull.amount = hull.amount - pdd.damage;
+
+                    // An event ?
+                    // Send that something took damage?
+
                 } else {
                     auto &position = arch_manager.get_component<Position>(pdd.target);
+
+                    // Maybe better as an event and anyone can react
                     Services::ui().show_text_toast(position.value, "MISS!", 2.0f);
                 }
                 pdd.distance = 999999; // we don't want to trigger this again
+                 // In a normal ecs you would probably just remove the component ;D
             }
         });
     }

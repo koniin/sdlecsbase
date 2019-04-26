@@ -25,26 +25,11 @@ namespace GameController {
         auto target = ev.entity;
         if(target.equals(player)) {
             Engine::logn("player destroyed!");
+            Services::ui().game_over();
         } else if(target.equals(enemy)) {
             Engine::logn("enemy destroyed!");
+            Services::ui().battle_win();
         }
-
-        // This could be done by a "parent component - just destroy all entities where the parent is not alive anymore"
-        // ECS::ArchetypeManager &arch_manager = Services::arch_manager();
-        // auto target = ev.entity;
-        // if(target.equals(player)) {
-        //     for(auto e : player_weapons) {
-        //         arch_manager.remove_entity(e);
-        //     }
-        //     player_weapons.clear();
-        //     Engine::logn("player destroyed!");
-        // } else if(target.equals(enemy)) {
-        //     for(auto e : enemy_weapons) {
-        //         arch_manager.remove_entity(e);
-        //     }
-        //     enemy_weapons.clear();
-        //     Engine::logn("enemy destroyed!");
-        // }
     }
 
     void initialise() {
@@ -61,7 +46,7 @@ namespace GameController {
 
         Services::events().listen<EntityDestroyedEvent>(&entity_destroyed);
     }
-
+    
     void update() {
         
     }

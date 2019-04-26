@@ -1095,13 +1095,12 @@ namespace ECS {
         std::unordered_map<EntityId, ComponentMask> entity_to_archetype;
         
         public:
-        void clear() {
-            Engine::logn("clear archetype is not implemented");
+        void clear_entities() {
+            for(auto a : archetypes) {
+                a->remove_all();
+            }
 
-            // for each archetype
-
-            // go through entity data and 
-            //  d->remove_all();
+            entity_to_archetype.clear();
         }
 
         template <typename ... Components>
