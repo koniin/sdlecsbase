@@ -3,16 +3,14 @@
  next:
     = Goal: multiple player weapons with different configurations and stay in ECS as much as possible
     player 
-    - weapon configurations
-        - name (Blaster MK2 etc)
-        - reload time
-        - damage
-        - accuracy
-    - manual fire (display)
+    - UI for manual fire
+	  => delegate to UI manager
+	  => UI manager can use arch manager directly or update ui from the controller with a model?
         - number to press
         - red for reloading
         - green for ready
         - the name
+		- reload time left as text (countdown)
         => 1. Blaster MK2
         => 2. Blaster MK2 
     

@@ -2,6 +2,10 @@
 #include "engine.h"
 #include "renderer.h"
 
+void UIManager::frame() {
+    _textElements.clear();
+}
+
 void UIManager::update() {
     // Toasts
     for(auto &t : _toasts) {
@@ -22,6 +26,13 @@ void UIManager::render() {
     for(auto t : _toasts) {
         draw_text_centered_str((int)t.pos.x, (int)t.pos.y, Colors::white, t.text);
     }
+    for(auto t : _textElements) {
+        if(t.align == UIAlign::Center) {
+            draw_text_centered_str((int)t.position.x, (int)t.position.y, t.color, t.text);
+        } else if(t.align == UIAlign::Left) {
+            draw_text_str((int)t.position.x, (int)t.position.y, t.color, t.text);
+        }
+    }
 
     if(is_game_over) {
         draw_text_centered_str((int)(gw / 2), (int)(gh / 2), Colors::white, "GAME OVER");
@@ -39,6 +50,14 @@ void UIManager::show_text_toast(Vector2 position, std::string text, float ttl) {
     t.ttl = ttl;
     t.timer = 0;
     _toasts.push_back(t);
+}
+
+void UIManager::add_element(TextElement t) {
+    _textElements.push_back(t);
+}
+
+void UIManager::add_element(ImageElement t) {
+
 }
 
 void UIManager::game_over() {

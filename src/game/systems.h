@@ -147,7 +147,6 @@ struct TravelDistanceSystem {
             auto diff = p.value - p.last;
             t.amount = t.amount + diff.length();
             if(t.amount > t.target) {
-                auto &pdd = c->index<ProjectileDamageDistance>(i);
                 l.marked_for_deletion = true;
             }
         });

@@ -72,16 +72,6 @@ void LevelScene::render() {
     draw_buffer(render_buffer);
 	renderer_draw_render_target_camera();
 	
-    // Render UI
-    auto ci2 = Services::arch_manager().get_iterator<Hull, Position>();
-	for(auto c : ci2.containers) {
-        for(int i = 0; i < c->length; i++) {
-			auto &health = c->index<Hull>(i);
-            auto &pos = c->index<Position>(i);
-            draw_text_str((int)pos.value.x, gh - 20, Colors::white, std::to_string(health.amount));
-        }
-    }
-
     Services::ui().render();
 
 	renderer_flip();
@@ -158,4 +148,35 @@ void LevelScene::render_export() {
 	}
 
     std::sort(sprite_data_buffer, sprite_data_buffer + sprite_count);
+
+    // Update UI State
+    Services::ui().frame();
+    
+    auto ci_hp = Services::arch_manager().get_iterator<Hull, Position>();
+	for(auto c : ci_hp.containers) {
+        for(int i = 0; i < c->length; i++) {
+			auto &health = c->index<Hull>(i);
+            auto &pos = c->index<Position>(i);
+            TextElement t;
+            t.color = Colors::white;
+            t.position = Point((int)pos.value.x, gh - 20);
+            t.text = std::to_string(health.amount);
+            Services::ui().add_element(t);
+        }
+    }
+
+    auto ci2 = Services::arch_manager().get_iterator<PlayerInput, InputTriggerComponent, WeaponConfigurationComponent>();
+	for(auto c : ci2.containers) {
+        for(int i = 0; i < c->length; i++) {
+			auto &input = c->index<PlayerInput>(i);
+            auto &trigger = c->index<InputTriggerComponent>(i);
+            auto &wc = c->index<WeaponConfigurationComponent>(i);
+            TextElement t;
+            t.color = input.fire_cooldown > 0.0f ? Colors::red : Colors::green;
+            t.align = UIAlign::Left;
+            t.position = Point(10, gh - 60 + i * 15);
+            t.text = Text::format("%d. %s (%.2f)", trigger.trigger, wc.name.c_str(), input.fire_cooldown);
+            Services::ui().add_element(t);
+        }
+    }
 }
