@@ -6,7 +6,7 @@ call console.bat
 
 SET OUTPUT=%~dp0bin\main.exe
 
-SET SOURCE=%~dp0src\main.cpp %~dp0src\source\*
+SET SOURCE=%~dp0src\main.cpp %~dp0src\engine\*.cpp %~dp0src\game\*.cpp
 SET SDLINC=%~dp0lib\SDL2-2.0.7\include\
 SET SDLLIB=%~dp0lib\SDL2-2.0.7\lib\x86\
 REM SET SDLLIB=%~dp0lib\SDL2-2.0.7\lib\x64\
@@ -24,7 +24,7 @@ echo.
 IF "%ARG1%"=="release" (
     echo ---- RELEASE BUILD, no optimizations or completed config ---- 
 
-    cl /EHsc %SOURCE% %SOURCEEXTERN% /I %SDLINC% /I %SDL_TTFINC% /I %~dp0src\extern\ /I %~dp0src\headers\ /link /LIBPATH:%SDLLIB% /LIBPATH:%SDL_TTFLIB% SDL2main.lib SDL2.lib SDL2_ttf.lib opengl32.lib /out:%OUTPUT% /SUBSYSTEM:CONSOLE
+    cl /EHsc %SOURCE% %SOURCEEXTERN% /I %SDLINC% /I %SDL_TTFINC% /I %~dp0src\extern\ /I %~dp0src\engine\ /I %~dp0src\game\ /link /LIBPATH:%SDLLIB% /LIBPATH:%SDL_TTFLIB% SDL2main.lib SDL2.lib SDL2_ttf.lib opengl32.lib /out:%OUTPUT% /SUBSYSTEM:CONSOLE
 
     echo ---- COMPLETED RELEASE BUILD ---- 
 ) ELSE (
@@ -43,7 +43,7 @@ IF "%ARG1%"=="release" (
     REM cl /MP /MTd /DEBUG /Zi /EHsc %SOURCE% /I %SDLINC% /I %SDL_TTFINC% /I %~dp0src\headers\ /link /LIBPATH:%SDLLIB% /LIBPATH:%SDL_TTFLIB% /LIBPATH:.\ SDL2main.lib SDL2.lib SDL2_ttf.lib opengl32.lib extern.lib /out:%OUTPUT% /SUBSYSTEM:CONSOLE
 
 	REM --- ORIGINAL BUILD ALL ---
-	cl /nologo /EHsc /W4 /MP /MTd /wd4996 /wd4100 /DEBUG /Zi %SOURCE% /I %SDLINC% /I %SDL_TTFINC% /I %SDL_IMGINC% /I %AUDIO_INC% /I %~dp0src\headers\ /link /LIBPATH:%SDLLIB% /LIBPATH:%SDL_TTFLIB% /LIBPATH:%SDL_IMGLIB% /LIBPATH:%AUDIO_LIB% SDL2main.lib SDL2.lib SDL2_ttf.lib SDL2_image.lib SDL2_mixer.lib opengl32.lib /out:%OUTPUT% /SUBSYSTEM:CONSOLE
+	cl /nologo /EHsc /W4 /MP /MTd /wd4996 /wd4100 /DEBUG /Zi %SOURCE% /I %SDLINC% /I %SDL_TTFINC% /I %SDL_IMGINC% /I %AUDIO_INC% /I %~dp0src\engine\ /I %~dp0src\game\ /link /LIBPATH:%SDLLIB% /LIBPATH:%SDL_TTFLIB% /LIBPATH:%SDL_IMGLIB% /LIBPATH:%AUDIO_LIB% SDL2main.lib SDL2.lib SDL2_ttf.lib SDL2_image.lib SDL2_mixer.lib opengl32.lib /out:%OUTPUT% /SUBSYSTEM:CONSOLE
 	
     echo ---- COMPLETED DEBUG BUILD ---- 
 )
