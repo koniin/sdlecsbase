@@ -114,4 +114,11 @@ struct InputTriggerComponent {
     int trigger = 0;
 };
 
+struct WeaponConfigurationComponent {
+    std::string name; // (Blaster MK2 etc)
+    float reload_time; // in seconds (0.2f)
+    float damage; 
+    float accuracy;
+};
+
 #endif

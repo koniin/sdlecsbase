@@ -3,7 +3,6 @@
  next:
     = Goal: multiple player weapons with different configurations and stay in ECS as much as possible
     player 
-    - multiple weapons
     - weapon configurations
         - name (Blaster MK2 etc)
         - reload time
@@ -24,6 +23,8 @@
 		- some buttons to click for "special weapons"
 		- hit/miss/accuracy/crit
 		- shield + armor combo (shield regenerates)
+		- target weapons or other ship parts that can be individually destroyed ?
+			- or add target later and just fire?
 		- borderlands weapons [ damage, accuracy, reload time | fire rate (shots/s), projectile count (for burst etc) ]
 		- borderlands shield [ regenerates slow ]
 			shield regeneration starts after x amount of time

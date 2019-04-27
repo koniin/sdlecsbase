@@ -5,6 +5,8 @@
 #include "renderer.h"
 #include "level_scene.h"
 
+#include "_engine_test.h"
+
 struct MenuScene : Scene {
 	void initialize() override {
 		Engine::logn("Init menu");
@@ -58,6 +60,8 @@ inline void game_load() {
 	Scenes::setup_scene("level", level);
 
 	Scenes::set_scene("menu");
+
+	engine_test();
 }
 
 #endif

@@ -11,11 +11,17 @@ struct TestComp2 {
     int b = 4;
 };
 
+struct Position {};
+
 void ecs_test1(ECS::ArchetypeManager &arch_manager);
 
 void engine_test() {
     ECS::ArchetypeManager arch_manager;
     
+    // for(int i = 0; i < 100; i++) {
+    //     Engine::logn("\t %f", RNG::zero_to_one());
+    // }
+
     ecs_test1(arch_manager);
 }
 

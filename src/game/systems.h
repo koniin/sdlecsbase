@@ -92,11 +92,11 @@ struct PlayerHandleInputSystem {
             auto &t = c->index<InputTriggerComponent>(i);
 
             if(pi.fire_cooldown <= 0.0f && pi.controls_pressed[t.trigger] > 0) {
-                
-                pi.fire_cooldown = 2.0f; // fire_result.fire_cooldown;
+                auto &wc = c->index<WeaponConfigurationComponent>(i);
+                pi.fire_cooldown = wc.reload_time;
 
                 post_update_commands.push_back([=]() {
-                    GameController::player_projectile_fire(p.value);
+                    GameController::player_projectile_fire(p.value, wc);
                 });
 
 
@@ -147,6 +147,7 @@ struct TravelDistanceSystem {
             auto diff = p.value - p.last;
             t.amount = t.amount + diff.length();
             if(t.amount > t.target) {
+                auto &pdd = c->index<ProjectileDamageDistance>(i);
                 l.marked_for_deletion = true;
             }
         });
@@ -162,7 +163,7 @@ struct ProjectileHitSystem {
             if(t.amount >= pdd.distance) {
                 pdd.distance = 999999; // we don't want to trigger this again
                  // In a normal ecs you would probably just remove the component ;D
-                 
+                
                 if(!arch_manager.is_alive(pdd.target)) {
                     t.target = t.target * 2;
                     return;

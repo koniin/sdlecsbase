@@ -664,6 +664,10 @@ namespace RNG {
 		std::uniform_real_distribution<float> ygen(y_min, y_max);
 		return Vector2(xgen(RNG_generator), ygen(RNG_generator));
 	}
+
+    inline float zero_to_one() {
+        return range_f(0, 1);
+    }
 }
 
 namespace Localization {

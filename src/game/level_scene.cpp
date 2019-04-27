@@ -3,15 +3,11 @@
 #include "systems.h"
 #include <chrono>
 
-#include "_engine_test.h"
-
 void LevelScene::initialize() {
     Engine::logn("Init level");
  	render_buffer.init(2048);
     Resources::sprite_sheet_load("combat_sprites", "combat_sprites.data");
     GameController::initialise();
-
-    engine_test();
 }
 
 void LevelScene::begin() {
@@ -45,8 +41,8 @@ void LevelScene::update() {
     system_player_handle_input.update(arch_manager);
     system_ai_input.update(arch_manager);
     system_move_forward.update(arch_manager);
-    system_projectilehit.update(arch_manager);
     system_travel_distance.update(arch_manager);
+    system_projectilehit.update(arch_manager);
     system_remove_no_hull.update(arch_manager);
     system_remove_no_parent.update(arch_manager);
     system_lifetime.update(arch_manager);

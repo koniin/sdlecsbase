@@ -40,8 +40,8 @@ namespace GameController {
 
         player_ship = arch_manager.create_archetype<Position, SpriteComponent, Hull, LifeTime>(2);
         enemy_ship = arch_manager.create_archetype<Position, SpriteComponent, Hull, LifeTime>(2);
-        player_weapon_archetype = arch_manager.create_archetype<PlayerInput, InputTriggerComponent, Position, SpriteComponent, Damage, ParentComponent, LifeTime>(20);
-        enemy_weapon_archetype = arch_manager.create_archetype<AIComponent, InputTriggerComponent, Position, SpriteComponent, Damage, ParentComponent, LifeTime>(20);
+        player_weapon_archetype = arch_manager.create_archetype<PlayerInput, InputTriggerComponent, Position, SpriteComponent, WeaponConfigurationComponent, ParentComponent, LifeTime>(20);
+        enemy_weapon_archetype = arch_manager.create_archetype<AIComponent, InputTriggerComponent, Position, SpriteComponent, WeaponConfigurationComponent, ParentComponent, LifeTime>(20);
 
         projectile = arch_manager.create_archetype<Position, SpriteComponent, Velocity, ProjectileDamageDistance, TravelDistance, LifeTime>(200);
 
@@ -92,7 +92,13 @@ namespace GameController {
             s_weap.flip = 1;
             arch_manager.set_component(weapon, s_weap);
             arch_manager.set_component(weapon, ParentComponent { ent });
-            arch_manager.set_component(weapon, AIComponent { 2.2f });
+            WeaponConfigurationComponent w_config;
+            w_config.accuracy = 0.8f;
+            w_config.damage = 20;
+            w_config.name = "Enemy Gun";
+            w_config.reload_time = 2.0;
+            arch_manager.set_component(weapon, w_config);
+            arch_manager.set_component(weapon, AIComponent { w_config.reload_time });
         }
         enemy = ent;
     }
@@ -107,9 +113,19 @@ namespace GameController {
         arch_manager.set_component(weapon, s_weap);
         arch_manager.set_component(weapon, ParentComponent { parent });
         arch_manager.set_component(weapon, InputTriggerComponent { trigger });
+
+        WeaponConfigurationComponent w_config;
+        w_config.accuracy = 0.8f;
+        w_config.damage = 10;
+        w_config.name = "Weapon " + std::to_string(trigger);
+        w_config.reload_time = 1.8f;
+        arch_manager.set_component(weapon, w_config);
+        PlayerInput pinput;
+        pinput.fire_cooldown = w_config.reload_time;
+        arch_manager.set_component(weapon, pinput);
     }
 
-    void player_projectile_fire(Vector2 position) {
+    void player_projectile_fire(Vector2 position, WeaponConfigurationComponent wc) {
         ECS::ArchetypeManager &arch_manager = Services::arch_manager();
         ECS::Entity target = enemy;
         Vector2 my_position = player_pos;
@@ -133,10 +149,10 @@ namespace GameController {
         ProjectileDamageDistance pdd;
         pdd.distance = distance_to_target;
         pdd.target = target;
-        pdd.damage = 20;
+        pdd.damage = (int)wc.damage;
 
         float distance = position.x + (float)gw;
-        if(RNG::range_i(0, 4) > 1) { // 40% chance to miss?
+        if(wc.accuracy >= RNG::zero_to_one()) {
             pdd.hit = 1; 
             distance = distance_to_target;
         } else {
