@@ -1,18 +1,12 @@
 
 
  next:
-    = Goal: multiple player weapons with different configurations and stay in ECS as much as possible
-    player 
-    - UI for manual fire
-	  => delegate to UI manager
-	  => UI manager can use arch manager directly or update ui from the controller with a model?
-        - number to press
-        - red for reloading
-        - green for ready
-        - the name
-		- reload time left as text (countdown)
-        => 1. Blaster MK2
-        => 2. Blaster MK2 
+    = Goal: 
+		crits (crit chance for weapons + crit damage ( formula (poe) ?))
+			- display as CRIT! instead of HIT! text
+		shield - takes damage before hull
+		regenerate shield on key press (like pots) - max usages (2 to start)
+		ship buffs (increased damage for a limited time - just one more buttons to press with cd)
     
 
 	- Simple ship to ship battle

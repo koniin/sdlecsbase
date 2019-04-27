@@ -175,7 +175,7 @@ struct ProjectileHitSystem {
                     auto &position = arch_manager.get_component<Position>(pdd.target);
                     // An event ?
                     // Send that something took damage?
-                    Services::ui().show_text_toast(position.value, "BOOM!", 1.0f);
+                    Services::ui().show_text_toast(position.value, "HIT!", 1.0f);
 
                 } else {
                     auto &position = arch_manager.get_component<Position>(pdd.target);
