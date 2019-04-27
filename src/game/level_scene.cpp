@@ -45,8 +45,8 @@ void LevelScene::update() {
     system_player_handle_input.update(arch_manager);
     system_ai_input.update(arch_manager);
     system_move_forward.update(arch_manager);
-    system_travel_distance.update(arch_manager);
     system_projectilehit.update(arch_manager);
+    system_travel_distance.update(arch_manager);
     system_remove_no_hull.update(arch_manager);
     system_remove_no_parent.update(arch_manager);
     system_lifetime.update(arch_manager);

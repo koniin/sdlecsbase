@@ -27,7 +27,7 @@ namespace GameController {
             Engine::logn("player destroyed!");
             Services::ui().game_over();
         } else if(target.equals(enemy)) {
-            Engine::logn("enemy destroyed!");
+            Engine::logn("enemy destroyed! - CONSIDER PAUSING THE ENTITIES/REMOVING PROJECTILES");
             Services::ui().battle_win();
         }
     }

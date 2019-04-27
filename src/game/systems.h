@@ -162,7 +162,9 @@ struct ProjectileHitSystem {
             if(t.amount >= pdd.distance) {
                 pdd.distance = 999999; // we don't want to trigger this again
                  // In a normal ecs you would probably just remove the component ;D
+                 
                 if(!arch_manager.is_alive(pdd.target)) {
+                    t.target = t.target * 2;
                     return;
                 }
 
@@ -170,14 +172,16 @@ struct ProjectileHitSystem {
                     auto &hull = arch_manager.get_component<Hull>(pdd.target);
                     hull.amount = hull.amount - pdd.damage;
 
+                    auto &position = arch_manager.get_component<Position>(pdd.target);
                     // An event ?
                     // Send that something took damage?
+                    Services::ui().show_text_toast(position.value, "BOOM!", 1.0f);
 
                 } else {
                     auto &position = arch_manager.get_component<Position>(pdd.target);
 
                     // Maybe better as an event and anyone can react
-                    Services::ui().show_text_toast(position.value, "MISS!", 2.0f);
+                    Services::ui().show_text_toast(position.value, "MISS!", 1.0f);
                 }
             }
         });
