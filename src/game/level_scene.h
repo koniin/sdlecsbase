@@ -14,8 +14,6 @@ class LevelScene : public Scene {
                 void unload() override;
         private:
                 RenderBuffer render_buffer;
-                
-                void render_export();
 };
 
 #endif
