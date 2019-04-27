@@ -76,7 +76,7 @@ struct Damage {
 };
 
 struct PlayerInput {
-    int fire = 0;
+    int controls_pressed[9];
     float fire_cooldown = 0.0f;
 };
 
@@ -108,6 +108,10 @@ struct AIComponent {
 
 struct ParentComponent {
     ECS::Entity entity;
+};
+
+struct InputTriggerComponent {
+    int trigger = 0;
 };
 
 #endif

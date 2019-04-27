@@ -6,16 +6,16 @@
 #include "components.h"
 
 namespace GameController {
+    void create_weapon(ECS::ArcheType &archetype, Vector2 pos, ECS::Entity &parent, int id);
+
     ECS::ArcheType player_ship;
     ECS::ArcheType enemy_ship;
-    ECS::ArcheType weapon_archetype;
+    ECS::ArcheType player_weapon_archetype;
+    ECS::ArcheType enemy_weapon_archetype;
     ECS::ArcheType projectile;
 
     ECS::Entity player;
     ECS::Entity enemy;
-
-    std::vector<ECS::Entity> player_weapons;
-    std::vector<ECS::Entity> enemy_weapons;
 
     Vector2 player_pos;
     Vector2 enemy_pos;
@@ -38,9 +38,10 @@ namespace GameController {
         player_pos = Vector2(100, 150);
         enemy_pos = Vector2((float)gw - 100, 150);
 
-        player_ship = arch_manager.create_archetype<Position, SpriteComponent, PlayerInput, Hull, LifeTime>(2);
-        enemy_ship = arch_manager.create_archetype<Position, SpriteComponent, Hull, AIComponent, LifeTime>(2);
-        weapon_archetype = arch_manager.create_archetype<Position, SpriteComponent, Damage, ParentComponent, LifeTime>(2);
+        player_ship = arch_manager.create_archetype<Position, SpriteComponent, Hull, LifeTime>(2);
+        enemy_ship = arch_manager.create_archetype<Position, SpriteComponent, Hull, LifeTime>(2);
+        player_weapon_archetype = arch_manager.create_archetype<PlayerInput, InputTriggerComponent, Position, SpriteComponent, Damage, ParentComponent, LifeTime>(20);
+        enemy_weapon_archetype = arch_manager.create_archetype<AIComponent, InputTriggerComponent, Position, SpriteComponent, Damage, ParentComponent, LifeTime>(20);
 
         projectile = arch_manager.create_archetype<Position, SpriteComponent, Velocity, ProjectileDamageDistance, TravelDistance, LifeTime>(200);
 
@@ -54,8 +55,6 @@ namespace GameController {
     void create_player() {
         ECS::ArchetypeManager &arch_manager = Services::arch_manager();
 
-        player_weapons.clear();
-
         auto ent = arch_manager.create_entity(player_ship);
         if(arch_manager.is_alive(player_ship, ent)) {
             Position pos = Position(player_pos);
@@ -66,24 +65,14 @@ namespace GameController {
             s.flip = 0;
             arch_manager.set_component(ent, s);
 
-            auto weapon = arch_manager.create_entity(weapon_archetype);
-            Position p_weap = Position(120, 150);
-            arch_manager.set_component(weapon, p_weap);
-
-            SpriteComponent s_weap = SpriteComponent("combat_sprites", "gun1");
-            s_weap.layer = 15;
-            arch_manager.set_component(weapon, s_weap);
-            arch_manager.set_component(weapon, ParentComponent { ent });
-
-            player_weapons.push_back(weapon);
+            create_weapon(player_weapon_archetype, Vector2(120, 100), ent, 0);
+            create_weapon(player_weapon_archetype, Vector2(120, 200), ent, 1);
         }
         player = ent;
     }
 
     void create_enemy() {
         ECS::ArchetypeManager &arch_manager = Services::arch_manager();
-
-        enemy_weapons.clear();
 
         auto ent = arch_manager.create_entity(enemy_ship);
         if(arch_manager.is_alive(enemy_ship, ent)) {
@@ -93,9 +82,8 @@ namespace GameController {
             SpriteComponent s = SpriteComponent("combat_sprites", "ship2");
             s.layer = 10;
             arch_manager.set_component(ent, s);
-            arch_manager.set_component(ent, AIComponent { 2.2f });
 
-            auto weapon = arch_manager.create_entity(weapon_archetype);
+            auto weapon = arch_manager.create_entity(enemy_weapon_archetype);
             Position p_weap = Position((float)gw - 90, 150);
             arch_manager.set_component(weapon, p_weap);
 
@@ -104,10 +92,21 @@ namespace GameController {
             s_weap.flip = 1;
             arch_manager.set_component(weapon, s_weap);
             arch_manager.set_component(weapon, ParentComponent { ent });
-            
-            enemy_weapons.push_back(weapon);
+            arch_manager.set_component(weapon, AIComponent { 2.2f });
         }
         enemy = ent;
+    }
+
+    void create_weapon(ECS::ArcheType &archetype, Vector2 pos, ECS::Entity &parent, int trigger) {
+        ECS::ArchetypeManager &arch_manager = Services::arch_manager();
+        auto weapon = arch_manager.create_entity(archetype);
+        Position p_weap = Position(pos);
+        arch_manager.set_component(weapon, p_weap);
+        SpriteComponent s_weap = SpriteComponent("combat_sprites", "gun1");
+        s_weap.layer = 15;
+        arch_manager.set_component(weapon, s_weap);
+        arch_manager.set_component(weapon, ParentComponent { parent });
+        arch_manager.set_component(weapon, InputTriggerComponent { trigger });
     }
 
     void player_projectile_fire(Vector2 position) {

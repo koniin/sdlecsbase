@@ -1238,6 +1238,7 @@ namespace ECS {
 
         template<typename T>
         void set_component(const ArcheType &a, Entity entity, const T &component) {
+            ASSERT_WITH_MSG(a._mask.test(ComponentID::value<T>()), "set_component: component is not defined on this entity");
             EntityData *data = archetypes[archetype_map[a._mask]];
             auto handle = data->get_handle(entity);
             ASSERT_WITH_MSG(data->is_valid_handle(handle), "set_component: Invalid entity handle! Check if entity is alive first!?");
@@ -1248,6 +1249,7 @@ namespace ECS {
         void set_component(Entity entity, const T &component) {
             const ArcheType a = get_archetype(entity);
             EntityData *data = archetypes[archetype_map[a._mask]];
+            ASSERT_WITH_MSG(a._mask.test(ComponentID::value<T>()), "set_component: component is not defined on this entity");
             auto handle = data->get_handle(entity);
             ASSERT_WITH_MSG(data->is_valid_handle(handle), "set_component: Invalid entity handle! Check if entity is alive first!?");
             data->set(handle, component);
@@ -1255,6 +1257,7 @@ namespace ECS {
 
         template<typename T>
         T &get_component(const ArcheType &a, Entity entity) {
+            ASSERT_WITH_MSG(a._mask.test(ComponentID::value<T>()), "get_component: component is not defined on this entity");
             EntityData *data = archetypes[archetype_map[a._mask]];
             auto handle = data->get_handle(entity);
             ASSERT_WITH_MSG(data->is_valid_handle(handle), "get_component: Invalid entity handle! Check if entity is alive first!?");
@@ -1264,6 +1267,7 @@ namespace ECS {
         template<typename T>
         T &get_component(Entity entity) {
             const ArcheType &a = get_archetype(entity);
+            ASSERT_WITH_MSG(a._mask.test(ComponentID::value<T>()), "get_component: component is not defined on this entity");
             EntityData *data = archetypes[archetype_map[a._mask]];
             auto handle = data->get_handle(entity);
             ASSERT_WITH_MSG(data->is_valid_handle(handle), "get_component: Invalid entity handle! Check if entity is alive first!?");

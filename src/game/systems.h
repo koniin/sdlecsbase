@@ -44,8 +44,18 @@ struct PlayerInputSystem {
     void update(ECS::ArchetypeManager &arch_manager) {
         arch_manager.iterate<PlayerInput>([](auto c, auto i) { // [this](auto c, auto i) {
             auto &pi = c->index<PlayerInput>(i);
-            pi.fire = Input::key_pressed(SDLK_1) ? 1 : 0;
+            pi.controls_pressed[0] = Input::key_pressed(SDLK_1) ? 1 : 0;
+            pi.controls_pressed[1] = Input::key_pressed(SDLK_2) ? 1 : 0;
+            pi.controls_pressed[2] = Input::key_pressed(SDLK_3) ? 1 : 0;
+            pi.controls_pressed[3] = Input::key_pressed(SDLK_4) ? 1 : 0;
+            pi.controls_pressed[4] = Input::key_pressed(SDLK_5) ? 1 : 0;
+            pi.controls_pressed[5] = Input::key_pressed(SDLK_6) ? 1 : 0;
+            pi.controls_pressed[6] = Input::key_pressed(SDLK_7) ? 1 : 0;
+            pi.controls_pressed[7] = Input::key_pressed(SDLK_8) ? 1 : 0;
+            pi.controls_pressed[8] = Input::key_pressed(SDLK_9) ? 1 : 0;
+            
             pi.fire_cooldown = Math::max_f(0.0f, pi.fire_cooldown - Time::delta_time);
+
             //     PlayerInput &pi = players.input[i];
             //     pi.move.x = pi.move.y = 0;
             //     pi.fire_x = 0;
@@ -76,10 +86,12 @@ struct PlayerHandleInputSystem {
     }
 
     void update(ECS::ArchetypeManager &arch_manager) {
-        arch_manager.iterate<PlayerInput, Position>([&](auto c, auto i) { // [this](auto c, auto i) {
+        arch_manager.iterate<PlayerInput, InputTriggerComponent, Position>([&](auto c, auto i) { // [this](auto c, auto i) {
             auto &pi = c->index<PlayerInput>(i);
             auto &p = c->index<Position>(i);
-            if(pi.fire_cooldown <= 0.0f && pi.fire > 0) {
+            auto &t = c->index<InputTriggerComponent>(i);
+
+            if(pi.fire_cooldown <= 0.0f && pi.controls_pressed[t.trigger] > 0) {
                 
                 pi.fire_cooldown = 2.0f; // fire_result.fire_cooldown;
 
@@ -148,6 +160,12 @@ struct ProjectileHitSystem {
             auto &pdd = c->index<ProjectileDamageDistance>(i);
             
             if(t.amount >= pdd.distance) {
+                pdd.distance = 999999; // we don't want to trigger this again
+                 // In a normal ecs you would probably just remove the component ;D
+                if(!arch_manager.is_alive(pdd.target)) {
+                    return;
+                }
+
                 if(pdd.hit == 1) {
                     auto &hull = arch_manager.get_component<Hull>(pdd.target);
                     hull.amount = hull.amount - pdd.damage;
@@ -161,8 +179,6 @@ struct ProjectileHitSystem {
                     // Maybe better as an event and anyone can react
                     Services::ui().show_text_toast(position.value, "MISS!", 2.0f);
                 }
-                pdd.distance = 999999; // we don't want to trigger this again
-                 // In a normal ecs you would probably just remove the component ;D
             }
         });
     }
