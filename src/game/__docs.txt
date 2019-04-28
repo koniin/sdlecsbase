@@ -8,6 +8,7 @@
 		regenerate shield on key press (like pots) - max usages (2 to start)
 		ship buffs (increased damage for a limited time - just one more buttons to press with cd)
     
+	= Maybe we should try the oo is dead style also since we wont have dynamic components
 
 	- Simple ship to ship battle
 		- stationary ships
