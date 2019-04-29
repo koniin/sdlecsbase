@@ -118,11 +118,12 @@ namespace GameController {
         p.position = Position(position);
         p.target = TargetComponent { target_ship.entity };
 
-        auto sc = SpriteComponent("combat_sprites", "bullet_1");
+        auto sc = SpriteComponent("combat_sprites", "bullet_4");
         sc.layer = 12;
-        p.sprite = sc;
         auto angle = Math::angle_between_v(p.position.value, target_position);
+        sc.rotation = angle;
         auto dir = Math::direction_from_angle(angle) * 500;
+        p.sprite = sc;
         p.velocity = Velocity(dir);
 
         auto distance_to_target = (p.position.value - target_position).length();
@@ -155,7 +156,7 @@ namespace GameController {
         Projectile p(entity_manager.create());
         p.position = Position(position);
         p.target = TargetComponent { target_ship.entity };
-        auto sc = SpriteComponent("combat_sprites", "bullet_2");
+        auto sc = SpriteComponent("combat_sprites", "bullet_3");
         sc.layer = 12;
         p.sprite = sc;
         auto angle = Math::angle_between_v(p.position.value, target_position);
