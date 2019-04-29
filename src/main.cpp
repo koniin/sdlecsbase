@@ -21,7 +21,7 @@ void input() {
 				break;
 			case SDL_WINDOWEVENT: {
 				// windowEvent(&event);
-        		break;             
+        		break;
 			} 
 			case SDL_KEYDOWN: {
 				if (event.key.keysym.sym == SDLK_ESCAPE) {

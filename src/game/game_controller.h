@@ -77,25 +77,27 @@ struct Projectile {
 };
 
 namespace GameController {
-    Vector2 player_pos;
-    Vector2 enemy_pos;
-
     const int kObjectCount = 300;
     
     EntityManager entity_manager;
     std::vector<PlayerShip> _player_ships;
     std::vector<EnemyShip> _enemy_ships;
     std::vector<Projectile> _projectiles;
+    std::vector<std::function<void(void)>> _post_update_commands;
 
     void initialize() {
-        player_pos = Vector2(100, 150);
-        enemy_pos = Vector2((float)gw - 100, 150);
-
         _player_ships.reserve(kObjectCount);
         _enemy_ships.reserve(kObjectCount);
         _projectiles.reserve(kObjectCount);
 
         // Services::events().listen<EntityDestroyedEvent>(&entity_destroyed);
+    }
+
+    void clear() {
+        _player_ships.clear();
+        _enemy_ships.clear();
+        _projectiles.clear();
+        _post_update_commands.clear();
     }
 
     // template<class Input>
@@ -178,7 +180,51 @@ namespace GameController {
         _projectiles.push_back(p);
     }
 
-    std::vector<std::function<void(void)>> post_update_commands;
+    void create_player() {
+        Vector2 position = Vector2(100, 50);
+
+        for(int i = 0; i < 10; i++) {
+            PlayerShip ship(entity_manager.create());
+            ship.position = position + Vector2(0, i * 30);
+            ship.hull = Hull(100);
+            SpriteComponent s = SpriteComponent("combat_sprites", "cs1");
+            s.layer = 10;
+            s.flip = 0;
+            ship.sprite = s;
+            ship.trigger = InputTriggerComponent { 0 };
+            WeaponConfigurationComponent w_config;
+            w_config.accuracy = 0.8f;
+            w_config.damage = 10;
+            w_config.name = "Weapon " + std::to_string(ship.trigger.trigger);
+            w_config.reload_time = 1.8f;
+            ship.weapon_config = w_config;
+            ship.input.fire_cooldown = w_config.reload_time;
+            _player_ships.push_back(ship);
+        }
+    }
+
+    void create_enemy() {
+        Vector2 position = Vector2((float)gw - 100, 50);
+
+        for(int i = 0; i < 10; i++) {
+            EnemyShip ship(entity_manager.create());
+            ship.position = position + Vector2(0, i * 30);
+            ship.hull = Hull(100);
+            SpriteComponent s = SpriteComponent("combat_sprites", "cs2");
+            s.layer = 10;
+            s.flip = 1;
+            ship.sprite = s;
+            WeaponConfigurationComponent w_config;
+            w_config.accuracy = 0.8f;
+            w_config.damage = 20;
+            w_config.name = "Enemy Gun";
+            w_config.reload_time = 2.0;
+            ship.weapon_config = w_config;
+            ship.ai = AIComponent { w_config.reload_time };
+            _enemy_ships.push_back(ship);
+        }
+    }
+
     void update() {
         for (auto &ship : _player_ships) {
             auto &pi = ship.input;
@@ -205,7 +251,7 @@ namespace GameController {
 
             auto &wc = ship.weapon_config;
             ai.fire_cooldown = wc.reload_time;;
-            post_update_commands.push_back([=]() {
+            _post_update_commands.push_back([=]() {
                 GameController::enemy_projectile_fire(p.value, wc);
             });
         }
@@ -215,14 +261,16 @@ namespace GameController {
             auto &p = ship.position;
             auto &t = ship.trigger;
 
-            if(pi.fire_cooldown <= 0.0f && pi.controls_pressed[t.trigger] > 0) {
-                auto &wc = ship.weapon_config;
-                pi.fire_cooldown = wc.reload_time;
-
-                post_update_commands.push_back([=]() {
-                    GameController::player_projectile_fire(p.value, wc);
-                });
+            if(pi.fire_cooldown > 0.0f || pi.controls_pressed[t.trigger] == 0) {
+                continue;
             }
+
+            auto &wc = ship.weapon_config;
+            pi.fire_cooldown = wc.reload_time;
+
+            _post_update_commands.push_back([=]() {
+                GameController::player_projectile_fire(p.value, wc);
+            });
         }
 
         for(auto &pr : _projectiles) {
@@ -311,47 +359,16 @@ namespace GameController {
             return p.life_time.marked_for_deletion;
         }), _projectiles.end());
 
-
-        for(auto pc : post_update_commands) {
+        for(auto pc : _post_update_commands) {
             pc();
         }
-        post_update_commands.clear();
-    }
+        _post_update_commands.clear();
 
-    void create_player() {
-        PlayerShip ship(entity_manager.create());
-        ship.position = player_pos;
-        ship.hull = Hull(100);
-        SpriteComponent s = SpriteComponent("combat_sprites", "cs1");
-        s.layer = 10;
-        s.flip = 0;
-        ship.sprite = s;
-        ship.trigger = InputTriggerComponent { 0 };
-        WeaponConfigurationComponent w_config;
-        w_config.accuracy = 0.8f;
-        w_config.damage = 10;
-        w_config.name = "Weapon " + std::to_string(ship.trigger.trigger);
-        w_config.reload_time = 1.8f;
-        ship.weapon_config = w_config;
-        _player_ships.push_back(ship);
-    }
-
-    void create_enemy() {
-        EnemyShip ship(entity_manager.create());
-        ship.position = enemy_pos;
-        ship.hull = Hull(100);
-        SpriteComponent s = SpriteComponent("combat_sprites", "cs2");
-        s.layer = 10;
-        s.flip = 1;
-        ship.sprite = s;
-        WeaponConfigurationComponent w_config;
-        w_config.accuracy = 0.8f;
-        w_config.damage = 20;
-        w_config.name = "Enemy Gun";
-        w_config.reload_time = 2.0;
-        ship.weapon_config = w_config;
-        ship.ai = AIComponent { w_config.reload_time };
-        _enemy_ships.push_back(ship);
+        if(_player_ships.size() == 0) {
+            Services::ui().game_over();
+        } else if(_enemy_ships.size() == 0) {
+            Services::ui().battle_win();
+        }
     }
 }
 
