@@ -2,13 +2,13 @@
 
  next:
     = Goal: 
-		crits (crit chance for weapons + crit damage ( formula (poe) ?))
-			- display as CRIT! instead of HIT! text
-		shield - takes damage before hull
-		regenerate shield on key press (like pots) - max usages (2 to start)
-		ship buffs (increased damage for a limited time - just one more buttons to press with cd)
-    
+		- multiple small ships
+
+
 	= Maybe we should try the oo is dead style also since we wont have dynamic components
+		- dynamic component = move the entity to another list
+		- have a linked thing in another list or add the entity reference to another list 
+		- or add an item to another list with reference to the entity somehow
 
 	- Simple ship to ship battle
 		- stationary ships

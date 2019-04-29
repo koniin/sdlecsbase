@@ -131,6 +131,7 @@ namespace Resources {
 
 	SDL_Rect &sprite_get_from_sheet(const size_t &sprite_sheet_index, const std::string &name) {
 		auto &sheet = sprite_sheets[sprite_sheet_index];
+		ASSERT_WITH_MSG(sheet.sprites_by_name.find(name) != sheet.sprites_by_name.end(), Text::format("sprite_get_from_sheet, '%s' not found", name.c_str()));
 		return sheet.sheet_sprites[sheet.sprites_by_name.at(name)].region;
 	}
 

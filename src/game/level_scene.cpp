@@ -8,7 +8,7 @@ void LevelScene::initialize() {
     Engine::logn("Init level");
  	render_buffer.init(2048);
     Resources::sprite_sheet_load("combat_sprites", "combat_sprites.data");
-    GameController::initialise();
+    GameController::initialize();
 }
 
 void LevelScene::begin() {
@@ -24,32 +24,32 @@ void LevelScene::end() {
 	render_buffer.clear();
 }
 
-PlayerInputSystem system_player_input;
-AIInputSystem system_ai_input;
-PlayerHandleInputSystem system_player_handle_input;
-MoveForwardSystem system_move_forward;
-TravelDistanceSystem system_travel_distance;
-LifeTimeSystem system_lifetime;
-ProjectileHitSystem system_projectilehit;
-RemoveNoHullEntitiesSystem system_remove_no_hull;
-RemoveNoParentAliveEntitiesSystem system_remove_no_parent;
+// PlayerInputSystem system_player_input;
+// AIInputSystem system_ai_input;
+// PlayerHandleInputSystem system_player_handle_input;
+// MoveForwardSystem system_move_forward;
+// TravelDistanceSystem system_travel_distance;
+// LifeTimeSystem system_lifetime;
+// ProjectileHitSystem system_projectilehit;
+// RemoveNoHullEntitiesSystem system_remove_no_hull;
+// RemoveNoParentAliveEntitiesSystem system_remove_no_parent;
 
 void LevelScene::update() {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 	
-    ECS::ArchetypeManager &arch_manager = Services::arch_manager();
-    system_player_input.update(arch_manager);
-    system_player_handle_input.update(arch_manager);
-    system_ai_input.update(arch_manager);
-    system_move_forward.update(arch_manager);
-    system_travel_distance.update(arch_manager);
-    system_projectilehit.update(arch_manager);
-    system_remove_no_hull.update(arch_manager);
-    system_remove_no_parent.update(arch_manager);
-    system_lifetime.update(arch_manager);
+    // ECS::ArchetypeManager &arch_manager = Services::arch_manager();
+    // system_player_input.update(arch_manager);
+    // system_player_handle_input.update(arch_manager);
+    // system_ai_input.update(arch_manager);
+    // system_move_forward.update(arch_manager);
+    // system_travel_distance.update(arch_manager);
+    // system_projectilehit.update(arch_manager);
+    // system_remove_no_hull.update(arch_manager);
+    // system_remove_no_parent.update(arch_manager);
+    // system_lifetime.update(arch_manager);
 
-    system_player_handle_input.post_update();
-    system_ai_input.post_update();
+    // system_player_handle_input.post_update();
+    // system_ai_input.post_update();
 
     GameController::update();
 

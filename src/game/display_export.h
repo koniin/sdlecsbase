@@ -14,15 +14,24 @@ void render_export(RenderBuffer &render_buffer) {
     auto sprite_data_buffer = render_buffer.sprite_data_buffer;
     auto &sprite_count = render_buffer.sprite_count;
 
-    auto ci = Services::arch_manager().get_iterator<Position, SpriteComponent>();
-	for(auto c : ci.containers) {
-        for(int i = 0; i < c->length; i++) {
-			auto &pos = c->index<Position>(i);
-            auto &sprite = c->index<SpriteComponent>(i);
+    for(size_t i = 0; i < GameController::_player_ships.size(); i++) {
+        export_sprite_data(GameController::_player_ships[i].position, GameController::_player_ships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+    }
+    for(size_t i = 0; i < GameController::_enemy_ships.size(); i++) {
+        export_sprite_data(GameController::_enemy_ships[i].position, GameController::_enemy_ships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+    }
+    for(size_t i = 0; i < GameController::_projectiles.size(); i++) {
+        export_sprite_data(GameController::_projectiles[i].position, GameController::_projectiles[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+    }
+    // auto ci = Services::arch_manager().get_iterator<Position, SpriteComponent>();
+	// for(auto c : ci.containers) {
+    //     for(int i = 0; i < c->length; i++) {
+	// 		auto &pos = c->index<Position>(i);
+    //         auto &sprite = c->index<SpriteComponent>(i);
 			
-            export_sprite_data(pos, sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
-		}
-	}
+    //         export_sprite_data(pos, sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+	// 	}
+	// }
 
     std::sort(sprite_data_buffer, sprite_data_buffer + sprite_count);
 
@@ -31,33 +40,33 @@ void render_export(RenderBuffer &render_buffer) {
 
     Services::ui().frame();
     
-    auto ci_hp = Services::arch_manager().get_iterator<Hull, Position>();
-	for(auto c : ci_hp.containers) {
-        for(int i = 0; i < c->length; i++) {
-			auto &health = c->index<Hull>(i);
-            auto &pos = c->index<Position>(i);
-            TextElement t;
-            t.color = Colors::white;
-            t.position = Point((int)pos.value.x, gh - 20);
-            t.text = std::to_string(health.amount);
-            Services::ui().add_element(t);
-        }
-    }
+    // auto ci_hp = Services::arch_manager().get_iterator<Hull, Position>();
+	// for(auto c : ci_hp.containers) {
+    //     for(int i = 0; i < c->length; i++) {
+	// 		auto &health = c->index<Hull>(i);
+    //         auto &pos = c->index<Position>(i);
+    //         TextElement t;
+    //         t.color = Colors::white;
+    //         t.position = Point((int)pos.value.x, gh - 20);
+    //         t.text = std::to_string(health.amount);
+    //         Services::ui().add_element(t);
+    //     }
+    // }
 
-    auto ci2 = Services::arch_manager().get_iterator<PlayerInput, InputTriggerComponent, WeaponConfigurationComponent>();
-	for(auto c : ci2.containers) {
-        for(int i = 0; i < c->length; i++) {
-			auto &input = c->index<PlayerInput>(i);
-            auto &trigger = c->index<InputTriggerComponent>(i);
-            auto &wc = c->index<WeaponConfigurationComponent>(i);
-            TextElement t;
-            t.color = input.fire_cooldown > 0.0f ? Colors::red : Colors::green;
-            t.align = UIAlign::Left;
-            t.position = Point(10, gh - 60 + i * 15);
-            t.text = Text::format("%d. %s (%.2f)", trigger.trigger, wc.name.c_str(), input.fire_cooldown);
-            Services::ui().add_element(t);
-        }
-    }
+    // auto ci2 = Services::arch_manager().get_iterator<PlayerInput, InputTriggerComponent, WeaponConfigurationComponent>();
+	// for(auto c : ci2.containers) {
+    //     for(int i = 0; i < c->length; i++) {
+	// 		auto &input = c->index<PlayerInput>(i);
+    //         auto &trigger = c->index<InputTriggerComponent>(i);
+    //         auto &wc = c->index<WeaponConfigurationComponent>(i);
+    //         TextElement t;
+    //         t.color = input.fire_cooldown > 0.0f ? Colors::red : Colors::green;
+    //         t.align = UIAlign::Left;
+    //         t.position = Point(10, gh - 60 + i * 15);
+    //         t.text = Text::format("%d. %s (%.2f)", trigger.trigger, wc.name.c_str(), input.fire_cooldown);
+    //         Services::ui().add_element(t);
+    //     }
+    // }
 }
 
 void export_sprite_data(const Position &position, const SpriteComponent &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets) {

@@ -1,6 +1,6 @@
 #ifndef SYSTEMS_H
 #define SYSTEMS_H
-
+/*
 #include "engine.h"
 #include "components.h"
 #include "game_controller.h"
@@ -285,5 +285,5 @@ struct AIInputSystem {
 //         }
 //     }
 // }
-
+*/
 #endif
