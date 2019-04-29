@@ -497,7 +497,7 @@ namespace Math {
         return (float)atan2(vector.y, vector.x) * RAD_TO_DEGREE;
 	}
 
-	inline float degrees_between_v(const Vector2 &a, const Vector2 &b) {
+	inline float angle_between_v(const Vector2 &a, const Vector2 &b) {
     	return atan2(b.y - a.y, b.x - a.x) * RAD_TO_DEGREE;
 	}
 
