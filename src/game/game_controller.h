@@ -34,10 +34,6 @@ struct EnemyShip {
     Hull hull;
 };
 
-struct TargetComponent {
-    ECS::Entity entity;
-};
-
 struct Projectile {
     ECS::Entity entity;
     Position position;
@@ -49,12 +45,6 @@ struct Projectile {
     TravelDistance travel;
     ProjectileDamageDistance damage;
     TargetComponent target;
-};
-
-struct ProjectileSpawn {
-    int faction;
-    Vector2 position;
-    WeaponConfigurationComponent wc;
 };
 
 namespace GameController {
@@ -69,6 +59,12 @@ namespace GameController {
     std::vector<PlayerShip> _player_ships;
     std::vector<EnemyShip> _enemy_ships;
     std::vector<Projectile> _projectiles;
+    
+    struct ProjectileSpawn {
+        int faction;
+        Vector2 position;
+        WeaponConfigurationComponent wc;
+    };
     std::vector<ProjectileSpawn> _projectile_spawns;
 
     void initialize() {

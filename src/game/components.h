@@ -122,4 +122,8 @@ struct FactionComponent {
     int faction = -1;
 };
 
+struct TargetComponent {
+    ECS::Entity entity;
+};
+
 #endif
