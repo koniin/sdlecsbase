@@ -71,15 +71,6 @@ struct SpriteComponent {
 // Game specific components
 // ========
 
-struct Damage {
-    int amount = 0;
-};
-
-struct PlayerInput {
-    int controls_pressed[9];
-    float fire_cooldown = 0.0f;
-};
-
 struct Hull {
     int amount = 0;
 
@@ -102,6 +93,11 @@ struct ProjectileDamageDistance {
     ECS::Entity target;
 };
 
+struct PlayerInput {
+    int controls_pressed[9];
+    float fire_cooldown = 0.0f;
+};
+
 struct AIComponent {
     float fire_cooldown = 2.0f;
 };
@@ -119,6 +115,11 @@ struct WeaponConfigurationComponent {
     float reload_time; // in seconds (0.2f)
     float damage; 
     float accuracy;
+    std::string projectile_type;
+};
+
+struct FactionComponent {
+    int faction = -1;
 };
 
 #endif

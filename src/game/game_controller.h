@@ -14,6 +14,7 @@ struct PlayerShip {
     LifeTime life_time;
     PlayerShip(ECS::Entity e) : entity(e) {}
 
+    FactionComponent faction;
     PlayerInput input;  
     InputTriggerComponent trigger;
     WeaponConfigurationComponent weapon_config;
@@ -27,6 +28,7 @@ struct EnemyShip {
     LifeTime life_time;
     EnemyShip(ECS::Entity e) : entity(e) {}
 
+    FactionComponent faction;
     AIComponent ai;
     WeaponConfigurationComponent weapon_config;
     Hull hull;
@@ -49,19 +51,31 @@ struct Projectile {
     TargetComponent target;
 };
 
+struct ProjectileSpawn {
+    int faction;
+    Vector2 position;
+    WeaponConfigurationComponent wc;
+};
+
 namespace GameController {
-    const int kObjectCount = 300;
+    const int c_player_count = 300;
+    const int c_enemy_count = 300;
+    const int c_projectile_count = 300;
+    const int c_projectile_spawn_count = 300;
+    const int PLAYER_FACTION = 100;
+    const int ENEMY_FACTION = 200;
     
     ECS::EntityManager entity_manager;
     std::vector<PlayerShip> _player_ships;
     std::vector<EnemyShip> _enemy_ships;
     std::vector<Projectile> _projectiles;
-    std::vector<std::function<void(void)>> _post_update_commands;
+    std::vector<ProjectileSpawn> _projectile_spawns;
 
     void initialize() {
-        _player_ships.reserve(kObjectCount);
-        _enemy_ships.reserve(kObjectCount);
-        _projectiles.reserve(kObjectCount);
+        _player_ships.reserve(c_player_count);
+        _enemy_ships.reserve(c_enemy_count);
+        _projectiles.reserve(c_projectile_count);
+        _projectile_spawns.reserve(c_projectile_spawn_count);
 
         // Services::events().listen<EntityDestroyedEvent>(&entity_destroyed);
     }
@@ -70,7 +84,7 @@ namespace GameController {
         _player_ships.clear();
         _enemy_ships.clear();
         _projectiles.clear();
-        _post_update_commands.clear();
+        _projectile_spawns.clear();
     }
 
     // template<class Input>
@@ -78,20 +92,26 @@ namespace GameController {
     //     //go.input.set();
     // }
     
-    void player_projectile_fire(Vector2 position, WeaponConfigurationComponent wc) {
-        if(_enemy_ships.size() == 0) {
-            return;
+    template<typename T> 
+    bool get_target(const std::vector<T> &targets, ECS::Entity &entity, Vector2 &target_position) {
+        if(targets.size() == 0) {
+            return false;
         }
 
-        int target = RNG::range_i(0, _enemy_ships.size() - 1);
-        auto &target_ship = _enemy_ships[target];
-        Vector2 target_position = target_ship.position.value;
+        int target = RNG::range_i(0, targets.size() - 1);
+        auto &target_ship = targets[target];
+        entity = target_ship.entity;
+        target_position = target_ship.position.value;
 
+        return true;
+    }
+
+    void projectile_fire(const ECS::Entity &target_entity, const Vector2 &position, const Vector2 &target_position, const WeaponConfigurationComponent &wc) {
         Projectile p(entity_manager.create());
         p.position = Position(position);
-        p.target = TargetComponent { target_ship.entity };
+        p.target = TargetComponent { target_entity };
 
-        auto sc = SpriteComponent("combat_sprites", "bullet_4");
+        auto sc = SpriteComponent("combat_sprites", wc.projectile_type);
         sc.layer = 12;
         auto angle = Math::angle_between_v(p.position.value, target_position);
         sc.rotation = angle;
@@ -117,48 +137,12 @@ namespace GameController {
         _projectiles.push_back(p);
     }
 
-    void enemy_projectile_fire(Vector2 position, WeaponConfigurationComponent wc) {
-        if(_player_ships.size() == 0) {
-            return;
-        }
-
-        int target = RNG::range_i(0, _player_ships.size() - 1);
-        auto &target_ship = _player_ships[target];
-        Vector2 target_position = target_ship.position.value;
-
-        Projectile p(entity_manager.create());
-        p.position = Position(position);
-        p.target = TargetComponent { target_ship.entity };
-        auto sc = SpriteComponent("combat_sprites", "bullet_3");
-        sc.layer = 12;
-        p.sprite = sc;
-        auto angle = Math::angle_between_v(p.position.value, target_position);
-        auto dir = Math::direction_from_angle(angle) * 500;
-        p.velocity = Velocity(dir);
-
-        auto distance_to_target = (p.position.value - target_position).length();
-        ProjectileDamageDistance pdd;
-        pdd.distance = distance_to_target;
-        pdd.damage = (int)wc.damage;
-
-        float distance = position.x + (float)gw;
-        if(wc.accuracy >= RNG::zero_to_one()) {
-            pdd.hit = 1; 
-            distance = distance_to_target;
-        } else {
-            pdd.hit = 0;
-        }
-        p.damage = pdd;
-        p.travel = TravelDistance(distance);
-
-        _projectiles.push_back(p);
-    }
-
     void create_player() {
         Vector2 position = Vector2(100, 50);
 
         for(int i = 0; i < 10; i++) {
             PlayerShip ship(entity_manager.create());
+            ship.faction = FactionComponent { PLAYER_FACTION };
             ship.position = position + Vector2(0, i * 30);
             ship.hull = Hull(100);
             SpriteComponent s = SpriteComponent("combat_sprites", "cs1");
@@ -171,6 +155,7 @@ namespace GameController {
             w_config.damage = 10;
             w_config.name = "Weapon " + std::to_string(ship.trigger.trigger);
             w_config.reload_time = 1.8f;
+            w_config.projectile_type = "bullet_4";
             ship.weapon_config = w_config;
             ship.input.fire_cooldown = w_config.reload_time;
             _player_ships.push_back(ship);
@@ -182,6 +167,7 @@ namespace GameController {
 
         for(int i = 0; i < 10; i++) {
             EnemyShip ship(entity_manager.create());
+            ship.faction = FactionComponent { ENEMY_FACTION };
             ship.position = position + Vector2(0, i * 30);
             ship.hull = Hull(100);
             SpriteComponent s = SpriteComponent("combat_sprites", "cs2");
@@ -193,6 +179,7 @@ namespace GameController {
             w_config.damage = 20;
             w_config.name = "Enemy Gun";
             w_config.reload_time = 2.0;
+            w_config.projectile_type = "bullet_3";
             ship.weapon_config = w_config;
             ship.ai = AIComponent { w_config.reload_time };
             _enemy_ships.push_back(ship);
@@ -225,8 +212,9 @@ namespace GameController {
 
             auto &wc = ship.weapon_config;
             ai.fire_cooldown = wc.reload_time;;
-            _post_update_commands.push_back([=]() {
-                GameController::enemy_projectile_fire(p.value, wc);
+
+            _projectile_spawns.push_back(ProjectileSpawn { 
+                ship.faction.faction, p.value, wc
             });
         }
         
@@ -242,8 +230,8 @@ namespace GameController {
             auto &wc = ship.weapon_config;
             pi.fire_cooldown = wc.reload_time;
 
-            _post_update_commands.push_back([=]() {
-                GameController::player_projectile_fire(p.value, wc);
+            _projectile_spawns.push_back(ProjectileSpawn { 
+                ship.faction.faction, p.value, wc
             });
         }
 
@@ -272,11 +260,6 @@ namespace GameController {
                 pdd.distance = 999999; // we don't want to trigger this again
                  // In a normal ecs you would probably just remove the component ;D
                 
-                // if(!arch_manager.is_alive(pdd.target)) {
-                //     t.target = t.target * 2;
-                //     return;
-                // }
-
                 if(!entity_manager.alive(pr.target.entity)) {
                     continue;
                 }
@@ -333,10 +316,18 @@ namespace GameController {
             return p.life_time.marked_for_deletion;
         }), _projectiles.end());
 
-        for(auto pc : _post_update_commands) {
-            pc();
+        for(auto pspawn : _projectile_spawns) {
+            ASSERT_WITH_MSG(pspawn.faction == PLAYER_FACTION || pspawn.faction == ENEMY_FACTION, "undefined faction occured while spawning projectile.");
+
+            ECS::Entity entity; 
+            Vector2 target_position;
+            if(pspawn.faction == PLAYER_FACTION && get_target(_enemy_ships, entity, target_position)) {    
+                GameController::projectile_fire(entity, pspawn.position, target_position, pspawn.wc);
+            } else if(pspawn.faction == ENEMY_FACTION && get_target(_player_ships, entity, target_position)) {
+                GameController::projectile_fire(entity, pspawn.position, target_position, pspawn.wc);
+            }
         }
-        _post_update_commands.clear();
+        _projectile_spawns.clear();
 
         if(_player_ships.size() == 0) {
             Services::ui().game_over();
