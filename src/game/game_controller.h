@@ -7,39 +7,12 @@
 
 #include <unordered_set>
 
-struct Entity {
-    unsigned id;
-};
-
-class EntityManager {
-    std::unordered_set<unsigned> _entities;
-    Entity _next;
- 
-    public:
-    Entity create() {
-        ++_next.id;
-        while (alive(_next)) {
-            ++_next.id;
-        }
-        _entities.insert(_next.id);
-        return _next;
-    }
-
-    bool alive(Entity e) {
-        return _entities.find(e.id) != _entities.end();
-    }
-
-    void destroy(Entity e) {
-        _entities.erase(e.id);
-    }
-};
-
 struct PlayerShip {
-    Entity entity;
+    ECS::Entity entity;
     Position position;
     SpriteComponent sprite;
     LifeTime life_time;
-    PlayerShip(Entity e) : entity(e) {}
+    PlayerShip(ECS::Entity e) : entity(e) {}
 
     PlayerInput input;  
     InputTriggerComponent trigger;
@@ -48,11 +21,11 @@ struct PlayerShip {
 };
 
 struct EnemyShip {
-    Entity entity;
+    ECS::Entity entity;
     Position position;
     SpriteComponent sprite;
     LifeTime life_time;
-    EnemyShip(Entity e) : entity(e) {}
+    EnemyShip(ECS::Entity e) : entity(e) {}
 
     AIComponent ai;
     WeaponConfigurationComponent weapon_config;
@@ -60,15 +33,15 @@ struct EnemyShip {
 };
 
 struct TargetComponent {
-    Entity entity;
+    ECS::Entity entity;
 };
 
 struct Projectile {
-    Entity entity;
+    ECS::Entity entity;
     Position position;
     SpriteComponent sprite;
     LifeTime life_time;
-    Projectile(Entity e) : entity(e) {}
+    Projectile(ECS::Entity e) : entity(e) {}
 
     Velocity velocity;
     TravelDistance travel;
@@ -79,7 +52,7 @@ struct Projectile {
 namespace GameController {
     const int kObjectCount = 300;
     
-    EntityManager entity_manager;
+    ECS::EntityManager entity_manager;
     std::vector<PlayerShip> _player_ships;
     std::vector<EnemyShip> _enemy_ships;
     std::vector<Projectile> _projectiles;
@@ -308,7 +281,7 @@ namespace GameController {
                     continue;
                 }
 
-                Entity e = pr.target.entity;
+                auto &e = pr.target.entity;
                 for(auto &ship : _player_ships) {
                     if(ship.entity.id == e.id) {
                         auto &p = pr.position;
