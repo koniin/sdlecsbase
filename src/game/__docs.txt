@@ -2,10 +2,15 @@
 
  next:
     = Goal: 
-		- multiple small ships
+		
 
 	- Simple ship to ship battle
-		- some buttons to click for "special weapons"
+		- mothership
+		- different weapons for fighter ships
+			- some buttons to click for "special weapons" / shields etc (like FTL)
+			- maybe AOE and targeted with click 
+			- guided missiles
+			- defensive measures etc
 		- hit/miss/accuracy/crit
 		- damage range for weapons? 8-12 etc
 		- shield + armor combo (shield regenerates)
@@ -15,7 +20,8 @@
 			so if you don't get hit it will start after some time
 			"abilities" to not take damage
 			"abilities/items" to buff shields (regeneration amount, time, start time etc)
-
+		- you could have different "deployment zones" like front, middle and back and that is the distance to the enemy ships
+			which could be good depending on what kind of stats the ship hans
 
 Dynamic components
 	- dynamic component = move the entity to another list

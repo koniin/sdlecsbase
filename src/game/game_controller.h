@@ -92,10 +92,6 @@ namespace GameController {
         _projectile_spawns.clear();
     }
 
-    // template<class Input>
-    // void UpdateInput(Input& go) {
-    //     //go.input.set();
-    // }
     template<typename E>
     bool entity_remove(const E& e) {
         if(e.life_time.marked_for_deletion) { 
@@ -188,7 +184,8 @@ namespace GameController {
         for(int i = 0; i < 10; i++) {
             FighterShip ship(entity_manager.create());
             ship.faction = FactionComponent { ENEMY_FACTION };
-            ship.position = position + Vector2(0, i * 30.f);
+            float y = position.y + i * 30.f;
+            ship.position = RNG::vector2(position.x - 10, position.x + 10, y - 8, y + 8);
             ship.hull = Hull(100);
             SpriteComponent s = SpriteComponent("combat_sprites", "cs2");
             s.layer = 10;
