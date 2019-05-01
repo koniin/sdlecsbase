@@ -96,7 +96,14 @@ namespace GameController {
     // void UpdateInput(Input& go) {
     //     //go.input.set();
     // }
-    
+    template<typename E>
+    bool entity_remove(const E& e) {
+        if(e.life_time.marked_for_deletion) { 
+            entity_manager.destroy(e.entity);
+        }
+        return e.life_time.marked_for_deletion;
+    }
+
     bool get_target(const int firing_faction, ECS::Entity &entity, Vector2 &target_position) {
         int target_faction = firing_faction == PLAYER_FACTION ? ENEMY_FACTION : PLAYER_FACTION;
 
@@ -150,13 +157,14 @@ namespace GameController {
         _projectiles.push_back(p);
     }
 
-    void create_player() {
+    void create_player_fighters() {
         Vector2 position = Vector2(100, 50);
 
         for(int i = 0; i < 10; i++) {
             FighterShip ship(entity_manager.create());
             ship.faction = FactionComponent { PLAYER_FACTION };
-            ship.position = position + Vector2(0, i * 30.f);
+            float y = position.y + i * 30.f;
+            ship.position = RNG::vector2(position.x - 10, position.x + 10, y - 8, y + 8);
             ship.hull = Hull(100);
             SpriteComponent s = SpriteComponent("combat_sprites", "cs1");
             s.layer = 10;
@@ -174,7 +182,7 @@ namespace GameController {
         }
     }
 
-    void create_enemy() {
+    void create_enemy_fighters() {
         Vector2 position = Vector2((float)gw - 100, 50);
 
         for(int i = 0; i < 10; i++) {
@@ -297,14 +305,15 @@ namespace GameController {
                 }
             }
         }
-        
-        _fighter_ships.erase(std::remove_if(_fighter_ships.begin(), _fighter_ships.end(), [](const FighterShip& p) { 
-            return p.hull.amount <= 0;
-        }), _fighter_ships.end());
 
-        _projectiles.erase(std::remove_if(_projectiles.begin(), _projectiles.end(), [](const Projectile& p) { 
-            return p.life_time.marked_for_deletion;
-        }), _projectiles.end());
+        for(auto &fighter : _fighter_ships) {
+            if(fighter.hull.amount <= 0) {
+                fighter.life_time.marked_for_deletion = true;
+            }
+        }
+
+        _fighter_ships.erase(std::remove_if(_fighter_ships.begin(), _fighter_ships.end(), entity_remove<FighterShip>), _fighter_ships.end());
+        _projectiles.erase(std::remove_if(_projectiles.begin(), _projectiles.end(), entity_remove<Projectile>), _projectiles.end());
 
         for(auto pspawn : _projectile_spawns) {
             ASSERT_WITH_MSG(pspawn.faction == PLAYER_FACTION || pspawn.faction == ENEMY_FACTION, "undefined faction occured while spawning projectile.");
@@ -317,11 +326,15 @@ namespace GameController {
         }
         _projectile_spawns.clear();
 
-        // if(_player_ships.size() == 0) {
-        //     Services::ui().game_over();
-        // } else if(_enemy_ships.size() == 0) {
-        //     Services::ui().battle_win();
-        // }
+        auto player_fighters = std::count_if(_fighter_ships.begin(), _fighter_ships.end(),
+                    [=](const FighterShip &ps) -> bool { return ps.faction.faction == PLAYER_FACTION; });
+        auto enemy_fighters = std::count_if(_fighter_ships.begin(), _fighter_ships.end(),
+                    [=](const FighterShip &ps) -> bool { return ps.faction.faction == ENEMY_FACTION; });
+        if(player_fighters == 0) {
+            Services::ui().game_over();
+        } else if(enemy_fighters == 0) {
+             Services::ui().battle_win();
+        }
     }
 }
 
