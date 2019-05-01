@@ -4,27 +4,23 @@
     = Goal: 
 		- multiple small ships
 
-
-	= Maybe we should try the oo is dead style also since we wont have dynamic components
-		- dynamic component = move the entity to another list
-		- have a linked thing in another list or add the entity reference to another list 
-		- or add an item to another list with reference to the entity somehow
-
 	- Simple ship to ship battle
-		- stationary ships
-		- multiple weapons on each ship
 		- some buttons to click for "special weapons"
 		- hit/miss/accuracy/crit
 		- damage range for weapons? 8-12 etc
 		- shield + armor combo (shield regenerates)
-		- target weapons or other ship parts that can be individually destroyed ?
-			- or add target later and just fire?
 		- borderlands weapons [ damage, accuracy, reload time | fire rate (shots/s), projectile count (for burst etc) ]
 		- borderlands shield [ regenerates slow ]
 			shield regeneration starts after x amount of time
 			so if you don't get hit it will start after some time
 			"abilities" to not take damage
 			"abilities/items" to buff shields (regeneration amount, time, start time etc)
+
+
+Dynamic components
+	- dynamic component = move the entity to another list
+	- have a linked thing in another list or add the entity reference to another list 
+	- or add an item to another list with reference to the entity somehow
 
 
 Click handlers

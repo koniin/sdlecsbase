@@ -14,12 +14,10 @@ void render_export(RenderBuffer &render_buffer) {
     auto sprite_data_buffer = render_buffer.sprite_data_buffer;
     auto &sprite_count = render_buffer.sprite_count;
 
-    for(size_t i = 0; i < GameController::_player_ships.size(); i++) {
-        export_sprite_data(GameController::_player_ships[i].position, GameController::_player_ships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+    for(size_t i = 0; i < GameController::_fighter_ships.size(); i++) {
+        export_sprite_data(GameController::_fighter_ships[i].position, GameController::_fighter_ships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
     }
-    for(size_t i = 0; i < GameController::_enemy_ships.size(); i++) {
-        export_sprite_data(GameController::_enemy_ships[i].position, GameController::_enemy_ships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
-    }
+    
     for(size_t i = 0; i < GameController::_projectiles.size(); i++) {
         auto &projectile = GameController::_projectiles[i];
         export_sprite_data(projectile.position, projectile.sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
@@ -41,16 +39,7 @@ void render_export(RenderBuffer &render_buffer) {
 
     Services::ui().frame();
     
-    for(auto &ship : GameController::_player_ships) {
-        auto pos = ship.position.value;
-        TextElement t;
-        t.color = Colors::white;
-        t.position = Point((int)pos.x, (int)pos.y - 12);
-        t.text = std::to_string(ship.hull.amount);
-        Services::ui().add_element(t);
-    }
-
-    for(auto &ship : GameController::_enemy_ships) {
+    for(auto &ship : GameController::_fighter_ships) {
         auto pos = ship.position.value;
         TextElement t;
         t.color = Colors::white;
