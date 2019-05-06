@@ -257,8 +257,8 @@ namespace GameController {
         
         for(auto &ship : _motherships) {
             if(ship.faction.faction == PLAYER_FACTION) {
-                if(Input::key_pressed(SDLK_1)) {
-
+                if(GInput::pressed(GInput::Action::Fire_1)) {
+                    Engine::logn("FIRE!");
                 }
             } else {
 
