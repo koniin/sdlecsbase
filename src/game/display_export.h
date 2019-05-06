@@ -14,6 +14,10 @@ void render_export(RenderBuffer &render_buffer) {
     auto sprite_data_buffer = render_buffer.sprite_data_buffer;
     auto &sprite_count = render_buffer.sprite_count;
 
+    for(size_t i = 0; i < GameController::_motherships.size(); i++) {
+        export_sprite_data(GameController::_motherships[i].position, GameController::_motherships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+    }
+
     for(size_t i = 0; i < GameController::_fighter_ships.size(); i++) {
         export_sprite_data(GameController::_fighter_ships[i].position, GameController::_fighter_ships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
     }

@@ -4,8 +4,8 @@
 #include "engine.h"
 #include "renderer.h"
 #include "level_scene.h"
-
-#include "_engine_test.h"
+#include "game_input_wrapper.h"
+// #include "_engine_test.h"
 
 struct MenuScene : Scene {
 	void initialize() override {
@@ -27,7 +27,7 @@ struct MenuScene : Scene {
 			Engine::logn("Update menu");
 			counter = 0;
 		}
-		if(Input::key_pressed(SDLK_SPACE)) {
+		if(GInput::pressed(GInput::Action::Start)) {
 			Scenes::set_scene("level");
 		}
 	}
@@ -37,7 +37,7 @@ struct MenuScene : Scene {
 		// room_render();
 		renderer_draw_render_target_camera();
 		
-		draw_text_centered_str((int)(gw / 2), (int)(gh / 2), Colors::white, "Press space to start!");
+		draw_text_centered_str((int)(gw / 2), (int)(gh / 2), Colors::white, "Press start to continue...");
 		
 		renderer_flip();
 	}
@@ -61,7 +61,7 @@ inline void game_load() {
 
 	Scenes::set_scene("menu");
 
-	engine_test();
+	// engine_test();
 }
 
 #endif

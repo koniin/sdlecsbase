@@ -13,6 +13,8 @@ void LevelScene::initialize() {
 
 void LevelScene::begin() {
 	Engine::logn("Begin level");
+    GameController::create_player_mothership();
+    GameController::create_enemy_mothership();
     GameController::create_player_fighters();
     GameController::create_enemy_fighters();
 }

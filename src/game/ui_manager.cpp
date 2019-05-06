@@ -1,6 +1,7 @@
 #include "ui_manager.h"
 #include "engine.h"
 #include "renderer.h"
+#include "game_input_wrapper.h"
 
 void UIManager::frame() {
     _textElements.clear();
@@ -15,7 +16,7 @@ void UIManager::update() {
         return t.timer >= t.ttl;
     }), _toasts.end());
 
-	if((is_game_over || is_battle_over) && Input::key_pressed(SDLK_SPACE)) {
+	if((is_game_over || is_battle_over) && GInput::pressed(GInput::Action::Start)) {
 		Scenes::set_scene("menu");
         is_game_over = false;
         is_battle_over = false;
@@ -36,10 +37,10 @@ void UIManager::render() {
 
     if(is_game_over) {
         draw_text_centered_str((int)(gw / 2), (int)(gh / 2), Colors::white, "GAME OVER");
-        draw_text_centered_str((int)(gw / 2), (int)(gh / 2) + 10, Colors::white, "Press space to continue...");
+        draw_text_centered_str((int)(gw / 2), (int)(gh / 2) + 10, Colors::white, "Press start to continue...");
     } else if(is_battle_over) {
         draw_text_centered_str((int)(gw / 2), (int)(gh / 2), Colors::white, "YOU ROCK!");
-        draw_text_centered_str((int)(gw / 2), (int)(gh / 2) + 10, Colors::white, "Press space to continue...");
+        draw_text_centered_str((int)(gw / 2), (int)(gh / 2) + 10, Colors::white, "Press start to continue...");
     }
 }
 

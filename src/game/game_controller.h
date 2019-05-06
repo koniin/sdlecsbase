@@ -4,6 +4,7 @@
 #include "engine.h"
 #include "services.h"
 #include "components.h"
+#include "game_input_wrapper.h"
 
 #include <unordered_set>
 
@@ -33,6 +34,15 @@
 //     WeaponConfigurationComponent weapon_config;
 //     Hull hull;
 // };
+
+struct MotherShip {
+    ECS::Entity entity;
+    Position position;
+    SpriteComponent sprite;
+    MotherShip(ECS::Entity e) : entity(e) {}
+
+    FactionComponent faction;
+};
 
 struct FighterShip {
     ECS::Entity entity;
@@ -68,6 +78,7 @@ namespace GameController {
     const int ENEMY_FACTION = 200;
     
     ECS::EntityManager entity_manager;
+    std::vector<MotherShip> _motherships;
     std::vector<FighterShip> _fighter_ships;
     std::vector<Projectile> _projectiles;
     
@@ -153,8 +164,34 @@ namespace GameController {
         _projectiles.push_back(p);
     }
 
+    void create_player_mothership() {
+        Vector2 position = Vector2(70, (float)gh / 2);
+
+        MotherShip ship(entity_manager.create());
+        ship.faction = FactionComponent { PLAYER_FACTION };
+        SpriteComponent s = SpriteComponent("combat_sprites", "mother1");
+        s.layer = 10;
+        s.flip = 0;
+        ship.sprite = s;
+        ship.position = position;
+        _motherships.push_back(ship);
+    }
+
+    void create_enemy_mothership() {
+        Vector2 position = Vector2((float)gw - 70, (float)gh / 2);
+
+        MotherShip ship(entity_manager.create());
+        ship.faction = FactionComponent { ENEMY_FACTION };
+        SpriteComponent s = SpriteComponent("combat_sprites", "mother2");
+        s.layer = 10;
+        s.flip = 1;
+        ship.sprite = s;
+        ship.position = position;
+        _motherships.push_back(ship);
+    }
+
     void create_player_fighters() {
-        Vector2 position = Vector2(100, 50);
+        Vector2 position = Vector2(170, 50);
 
         for(int i = 0; i < 10; i++) {
             FighterShip ship(entity_manager.create());
@@ -179,7 +216,7 @@ namespace GameController {
     }
 
     void create_enemy_fighters() {
-        Vector2 position = Vector2((float)gw - 100, 50);
+        Vector2 position = Vector2((float)gw - 170, 50);
 
         for(int i = 0; i < 10; i++) {
             FighterShip ship(entity_manager.create());
@@ -217,6 +254,16 @@ namespace GameController {
         //     pi.controls_pressed[8] = Input::key_pressed(SDLK_9) ? 1 : 0;
         //     pi.fire_cooldown = Math::max_f(0.0f, pi.fire_cooldown - Time::delta_time);
         // }
+        
+        for(auto &ship : _motherships) {
+            if(ship.faction.faction == PLAYER_FACTION) {
+                if(Input::key_pressed(SDLK_1)) {
+
+                }
+            } else {
+
+            }
+        }
 
         for (auto &ship : _fighter_ships) {
             auto &ai = ship.ai;
