@@ -9,6 +9,8 @@ void LevelScene::initialize() {
  	render_buffer.init(2048);
     Resources::sprite_sheet_load("combat_sprites", "combat_sprites.data");
     GameController::initialize();
+
+    Resources::sprite_load("background", "bkg1.png");
 }
 
 void LevelScene::begin() {
@@ -47,6 +49,7 @@ void LevelScene::update() {
 
 void LevelScene::render() {
 	renderer_clear();
+    draw_sprite(Resources::sprite_get("background"), 0, 0);
     draw_buffer(render_buffer);
 	Services::ui().render();
     renderer_draw_render_target_camera();

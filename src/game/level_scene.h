@@ -14,6 +14,7 @@ class LevelScene : public Scene {
                 void unload() override;
         private:
                 RenderBuffer render_buffer;
+                Sprite _background;
 };
 
 #endif
