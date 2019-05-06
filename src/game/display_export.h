@@ -6,7 +6,7 @@
 #include "services.h"
 #include "components.h"
 
-void export_sprite_data(const Position &position, const SpriteComponent &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets);
+void export_sprite_data(const Position &position, const SpriteRender &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets);
 
 void render_export(RenderBuffer &render_buffer) {
     render_buffer.clear();
@@ -15,16 +15,19 @@ void render_export(RenderBuffer &render_buffer) {
     auto &sprite_count = render_buffer.sprite_count;
 
     for(size_t i = 0; i < GameController::_motherships.size(); i++) {
-        export_sprite_data(GameController::_motherships[i].position, GameController::_motherships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+        auto &sprite = GameController::_motherships[i].sprite;
+        export_sprite_data(GameController::_motherships[i].position, sprite.animations[sprite.current_animation].render_data, sprite_data_buffer[sprite_count++], sprite_sheets);
     }
 
     for(size_t i = 0; i < GameController::_fighter_ships.size(); i++) {
-        export_sprite_data(GameController::_fighter_ships[i].position, GameController::_fighter_ships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+        auto &sprite = GameController::_fighter_ships[i].sprite;
+        export_sprite_data(GameController::_fighter_ships[i].position, sprite.animations[sprite.current_animation].render_data, sprite_data_buffer[sprite_count++], sprite_sheets);
     }
     
     for(size_t i = 0; i < GameController::_projectiles.size(); i++) {
         auto &projectile = GameController::_projectiles[i];
-        export_sprite_data(projectile.position, projectile.sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+        auto &sprite = projectile.sprite;
+        export_sprite_data(projectile.position, sprite.animations[sprite.current_animation].render_data, sprite_data_buffer[sprite_count++], sprite_sheets);
     }
     // auto ci = Services::arch_manager().get_iterator<Position, SpriteComponent>();
 	// for(auto c : ci.containers) {
@@ -68,7 +71,7 @@ void render_export(RenderBuffer &render_buffer) {
     // }
 }
 
-void export_sprite_data(const Position &position, const SpriteComponent &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets) {
+void export_sprite_data(const Position &position, const SpriteRender &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets) {
     // handle camera, zoom and stuff here
 
     // also we can do culling here

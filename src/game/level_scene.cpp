@@ -2,6 +2,8 @@
 #include "game_controller.h"
 #include "systems.h"
 #include "display_export.h"
+#include "particles.h"
+
 #include <chrono>
 
 void LevelScene::initialize() {
@@ -31,7 +33,7 @@ void LevelScene::update() {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 	
     GameController::update();
-
+    Particles::update(GameController::particles, Time::delta_time);
     Services::events().emit();
     Services::ui().update();
     
@@ -51,6 +53,7 @@ void LevelScene::render() {
 	renderer_clear();
     draw_sprite(Resources::sprite_get("background"), 0, 0);
     draw_buffer(render_buffer);
+    Particles::render_circles_filled(GameController::particles);
 	Services::ui().render();
     renderer_draw_render_target_camera();
 	renderer_flip();

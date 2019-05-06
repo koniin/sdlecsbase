@@ -5,35 +5,61 @@
 #include "services.h"
 #include "components.h"
 #include "game_input_wrapper.h"
+#include "particles.h"
+#include "particle_config.h"
 
 #include <unordered_set>
 
-// struct PlayerShip {
-//     ECS::Entity entity;
-//     Position position;
-//     SpriteComponent sprite;
-//     LifeTime life_time;
-//     PlayerShip(ECS::Entity e) : entity(e) {}
 
-//     FactionComponent faction;
-//     PlayerInput input;  
-//     InputTriggerComponent trigger;
-//     WeaponConfigurationComponent weapon_config;
-//     Hull hull;
-// };
+namespace SpriteAnimation {
+    // template<class Entity> 
+    // void blink_sprite(Entity &entity, float ttl, float interval) {
+    //     if(entity.blink.timer > 0)
+    //         return;
 
-// struct EnemyShip {
-//     ECS::Entity entity;
-//     Position position;
-//     SpriteComponent sprite;
-//     LifeTime life_time;
-//     EnemyShip(ECS::Entity e) : entity(e) {}
+    //     entity.blink.time_to_live = ttl;
+    //     entity.blink.interval = interval;
+    //     entity.blink.original_sprite = entity.sprite.sprite_name;
+    //     entity.blink.white_sprite = entity.sprite.sprite_name + "_w";
+    //     //b.original_sheet = entity_data.sprite[handle.i].sprite_sheet_index;
+    //     // We assume the next sheet is the white version
+    //     //b.white_sheet = entity_data.sprite[handle.i].sprite_sheet_index + 1;
+    //     entity.sprite.sprite_name = entity.blink.white_sprite;
+    // }
 
-//     FactionComponent faction;
-//     AIComponent ai;
-//     WeaponConfigurationComponent weapon_config;
-//     Hull hull;
-// };
+
+	void update_animation(SpriteComponent &ac, float dt) {
+        // auto &animation = ac.animations[ac.current_animation];
+        // if(animation.fps == 0) {
+        //     return;
+        // }
+
+		// animation.timer += dt;
+		// if(animation.timer >= animation.duration) {
+		// 	animation.frame++;
+		// 	if(animation.frame >= (int)animation.frames.size()) {
+		// 		if(animation.loop) {
+		// 			animation.frame = 0;
+		// 		} else {
+		// 			animation.frame = animation.frames.size() - 1;
+		// 		}
+		// 	}
+		// 	animation.timer = 0;
+		// }
+    }
+
+    // void draw_animation(const AnimationComponent &ac, const int x, const int y) {
+    //     auto &animation = ac.animations[ac.current];
+    //     auto sprite = Resources::sprite_get(animation.sprite_sheet);
+    //     draw_sprite_region(sprite, &animation.frames[animation.frame], x, y);
+    // }
+/*
+    void draw_animation_scaled(std::shared_ptr<Animation::AnimationComponent> a, int x, int y, float scaleX, float scaleY) {	
+        auto animation = a->current_animation->second;
+        auto sprite = Resources::getSprite(animation->sprite_sheet);
+        draw_sprite_scaled(sprite, &animation->frames[animation->frame], x, y, scaleX, scaleY);
+    }*/
+};
 
 struct MotherShip {
     ECS::Entity entity;
@@ -82,6 +108,14 @@ namespace GameController {
     std::vector<FighterShip> _fighter_ships;
     std::vector<Projectile> _projectiles;
     
+    Particles::ParticleContainer particles;
+    struct ParticleConfiguration {
+        Particles::Emitter explosion_emitter;
+        Particles::Emitter hit_emitter;
+        Particles::Emitter exhaust_emitter;
+        Particles::Emitter smoke_emitter;
+    } particle_config;
+    
     struct ProjectileSpawn {
         int faction;
         Vector2 position;
@@ -93,7 +127,8 @@ namespace GameController {
         _fighter_ships.reserve(c_fighter_count);
         _projectiles.reserve(c_projectile_count);
         _projectile_spawns.reserve(c_projectile_spawn_count);
-
+        particles = Particles::make(4096);
+        particle_emitters_configure(&particle_config);
         // Services::events().listen<EntityDestroyedEvent>(&entity_destroyed);
     }
 
@@ -101,6 +136,7 @@ namespace GameController {
         _fighter_ships.clear();
         _projectiles.clear();
         _projectile_spawns.clear();
+        Particles::clear(particles);
     }
 
     template<typename E>
@@ -139,9 +175,9 @@ namespace GameController {
         p.target = TargetComponent { target_entity };
 
         auto sc = SpriteComponent("combat_sprites", wc.projectile_type);
-        sc.layer = 12;
+        sc.set_layer(12);
         auto angle = Math::angle_between_v(p.position.value, target_position);
-        sc.rotation = angle;
+        sc.set_rotation(angle);
         auto dir = Math::direction_from_angle(angle) * 500;
         p.sprite = sc;
         p.velocity = Velocity(dir);
@@ -170,8 +206,8 @@ namespace GameController {
         MotherShip ship(entity_manager.create());
         ship.faction = FactionComponent { PLAYER_FACTION };
         SpriteComponent s = SpriteComponent("combat_sprites", "mother1");
-        s.layer = 10;
-        s.flip = 0;
+        s.set_layer(12);
+        s.set_flip(0);
         ship.sprite = s;
         ship.position = position;
         _motherships.push_back(ship);
@@ -183,8 +219,8 @@ namespace GameController {
         MotherShip ship(entity_manager.create());
         ship.faction = FactionComponent { ENEMY_FACTION };
         SpriteComponent s = SpriteComponent("combat_sprites", "mother2");
-        s.layer = 10;
-        s.flip = 1;
+        s.set_layer(10);
+        s.set_flip(1);
         ship.sprite = s;
         ship.position = position;
         _motherships.push_back(ship);
@@ -200,9 +236,20 @@ namespace GameController {
             ship.position = RNG::vector2(position.x - 10, position.x + 10, y - 8, y + 8);
             ship.hull = Hull(100);
             SpriteComponent s = SpriteComponent("combat_sprites", "cs1");
-            s.layer = 10;
-            s.flip = 0;
+            s.set_layer(10);
+            s.set_flip(0);
             ship.sprite = s;
+
+            // Add animations
+            // size_t index = Resources::sprite_sheet_index("combat_sprites");
+            // SpriteAnimation::add(ship.animation, "idle", "combat_sprites", { Resources::sprite_get_from_sheet(index, "cs1") }, 0, false);
+            // SpriteAnimation::add(ship.animation, "hit", "combat_sprites", 
+            //     { 
+            //         Resources::sprite_get_from_sheet(index, "cs1"),
+            //         Resources::sprite_get_from_sheet(index, "cs1_b"),
+            //         Resources::sprite_get_from_sheet(index, "cs1_w")
+            //     }, 15, true);
+
             WeaponConfigurationComponent w_config;
             w_config.accuracy = 0.8f;
             w_config.damage = 10;
@@ -225,9 +272,20 @@ namespace GameController {
             ship.position = RNG::vector2(position.x - 10, position.x + 10, y - 8, y + 8);
             ship.hull = Hull(100);
             SpriteComponent s = SpriteComponent("combat_sprites", "cs2");
-            s.layer = 10;
-            s.flip = 1;
+            s.set_layer(10);
+            s.set_flip(1);
             ship.sprite = s;
+
+            // Add animations
+            // size_t index = Resources::sprite_sheet_index("combat_sprites");
+            // SpriteAnimation::add(ship.animation, "idle", "combat_sprites", { Resources::sprite_get_from_sheet(index, "cs2") }, 0, false);
+            // SpriteAnimation::add(ship.animation, "hit", "combat_sprites", 
+            //     { 
+            //         Resources::sprite_get_from_sheet(index, "cs2"),
+            //         Resources::sprite_get_from_sheet(index, "cs2_b"),
+            //         Resources::sprite_get_from_sheet(index, "cs2_w")
+            //     }, 15, true);
+
             WeaponConfigurationComponent w_config;
             w_config.accuracy = 0.8f;
             w_config.damage = 20;
@@ -241,24 +299,14 @@ namespace GameController {
     }
 
     void update() {
-        // for (auto &ship : _player_ships) {
-        //     auto &pi = ship.input;
-        //     pi.controls_pressed[0] = Input::key_pressed(SDLK_1) ? 1 : 0;
-        //     pi.controls_pressed[1] = Input::key_pressed(SDLK_2) ? 1 : 0;
-        //     pi.controls_pressed[2] = Input::key_pressed(SDLK_3) ? 1 : 0;
-        //     pi.controls_pressed[3] = Input::key_pressed(SDLK_4) ? 1 : 0;
-        //     pi.controls_pressed[4] = Input::key_pressed(SDLK_5) ? 1 : 0;
-        //     pi.controls_pressed[5] = Input::key_pressed(SDLK_6) ? 1 : 0;
-        //     pi.controls_pressed[6] = Input::key_pressed(SDLK_7) ? 1 : 0;
-        //     pi.controls_pressed[7] = Input::key_pressed(SDLK_8) ? 1 : 0;
-        //     pi.controls_pressed[8] = Input::key_pressed(SDLK_9) ? 1 : 0;
-        //     pi.fire_cooldown = Math::max_f(0.0f, pi.fire_cooldown - Time::delta_time);
-        // }
-        
         for(auto &ship : _motherships) {
             if(ship.faction.faction == PLAYER_FACTION) {
                 if(GInput::pressed(GInput::Action::Fire_1)) {
                     Engine::logn("FIRE!");
+                    particle_config.smoke_emitter.position = ship.position.value;
+                    Particles::emit(particles, particle_config.smoke_emitter);
+                    particle_config.explosion_emitter.position = ship.position.value;
+                    Particles::emit(particles, particle_config.explosion_emitter);
                 }
             } else {
 
@@ -343,12 +391,39 @@ namespace GameController {
                     // An event ?
                     // Send that something took damage?
                     Services::ui().show_text_toast(p.value, "HIT!", 1.0f);
+
+                    //SpriteAnimation::set_current(fighter->animation, "hit");
                 } else {
                     // Maybe better as an event and anyone can react
                     Services::ui().show_text_toast(p.value, "MISS!", 1.0f);
                 }
             }
         }
+
+        for (auto &ship : _fighter_ships) { 
+           //  SpriteAnimation::update(ship.animation, Time::delta_time);
+        }
+
+        // for(auto &fighter : _fighter_ships) {
+        //     entity_data.blink[i].timer += Time::delta_time;
+        //     entity_data.blink[i].interval_timer += Time::delta_time;
+
+        //     if(entity_data.blink[i].timer >= entity_data.blink[i].time_to_live) {
+        //         entity_data.blink[i].timer = 0.0f;
+        //         if(entity_data.blink[i].time_to_live > 0) {
+        //             entity_data.sprite[i].sprite_name = entity_data.blink[i].original_sprite;
+        //         }
+        //         entity_data.blink[i].time_to_live = 0;
+        //         continue;
+        //     }
+            
+        //     if(entity_data.blink[i].interval_timer > entity_data.blink[i].interval) {
+        //         entity_data.sprite[i].sprite_name = 
+        //             entity_data.sprite[i].sprite_name == entity_data.blink[i].original_sprite 
+        //                 ? entity_data.blink[i].white_sprite : entity_data.blink[i].original_sprite;
+        //         entity_data.blink[i].interval_timer = 0;
+        //     }
+        // }
 
         for(auto &fighter : _fighter_ships) {
             if(fighter.hull.amount <= 0) {

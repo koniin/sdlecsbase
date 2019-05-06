@@ -33,7 +33,7 @@ struct LifeTime {
     LifeTime() {}
 };
 
-struct SpriteComponent {
+struct SpriteRender {
     float scale;
     float rotation;
     int w, h;
@@ -49,11 +49,11 @@ struct SpriteComponent {
     Vector2 position;
     short flip = 0; // 1 = Horizontal, 2 = Vertical
 
-    SpriteComponent() {}
+    SpriteRender() {}
 
-    SpriteComponent(const std::string &sprite_sheet_name, std::string name) : sprite_name(name) {
+    SpriteRender(const std::string &sprite_sheet_name, const std::string &sprite_name) : sprite_name(sprite_name) {
         sprite_sheet_index = Resources::sprite_sheet_index(sprite_sheet_name);
-        auto sprite = Resources::sprite_get_from_sheet(sprite_sheet_index, name);
+        auto sprite = Resources::sprite_get_from_sheet(sprite_sheet_index, sprite_name);
         w = sprite.w;
         h = sprite.h;
         scale = 1.0f;
@@ -64,6 +64,61 @@ struct SpriteComponent {
         flip = 0;
     }
 };
+
+struct Animation {
+    std::string identifier;
+	int frame = 0;
+	float timer = 0;
+	float fps = 3;
+	float duration = 1;
+	bool loop = false;
+
+	SpriteRender render_data;
+};
+
+struct SpriteComponent {
+    std::vector<Animation> animations;
+    size_t current_animation = 0;
+
+    SpriteComponent() {}
+
+    SpriteComponent(const std::string &sprite_sheet_name, std::string name) {
+        add_animation("__default__", name, sprite_sheet_name, 0, false);
+    }
+
+    void set_layer(int layer) {
+        animations[0].render_data.layer = layer;
+    }
+
+    void set_rotation(float rotation) {
+        animations[0].render_data.rotation = rotation;
+    }
+
+    void set_flip(short flip) {
+        animations[0].render_data.flip = flip;
+    }
+
+    void set_current_animation(std::string animation) {
+        for(size_t i = 0; i < animations.size(); i++) {
+            if(animations[i].identifier == animation) {
+                animations[i].timer = 0.0f;
+                current_animation = i; 
+                return;
+            }
+        }
+    }
+
+	void add_animation(std::string identifier, std::string sprite_name, std::string sprite_sheet_name, float fps, bool loop = false) {
+        Animation a;
+        a.render_data = SpriteRender(sprite_sheet_name, sprite_name);
+        a.identifier = identifier;
+		a.fps = fps;
+		a.duration = 1.0f / fps;
+		a.loop = loop;
+		animations.push_back(a);
+    }
+};
+
 // ==============================================================
 
 
