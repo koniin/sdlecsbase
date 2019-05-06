@@ -63,6 +63,22 @@ struct SpriteRender {
         line = false;
         flip = 0;
     }
+
+    SpriteRender(const std::string &sprite_sheet_name, const std::string &sprite_name, const SpriteRender &render) : sprite_name(sprite_name) {
+        sprite_sheet_index = Resources::sprite_sheet_index(sprite_sheet_name);
+        auto sprite = Resources::sprite_get_from_sheet(sprite_sheet_index, sprite_name);
+        w = sprite.w;
+        h = sprite.h;
+        scale = render.scale;
+        rotation = render.rotation;
+        color_r = render.color_r;
+        color_g = render.color_g;
+        color_b = render.color_b;
+        color_a = render.color_a;
+        layer = render.layer;
+        line = render.line;
+        flip = render.flip;
+    }
 };
 
 struct Animation {
@@ -77,13 +93,19 @@ struct Animation {
 };
 
 struct SpriteComponent {
+    private:
     std::vector<Animation> animations;
     size_t current_animation = 0;
 
+    public:
     SpriteComponent() {}
 
     SpriteComponent(const std::string &sprite_sheet_name, std::string name) {
         add_animation("__default__", name, sprite_sheet_name, 0, false);
+    }
+
+    const SpriteRender &get(){
+        return animations[current_animation].render_data;
     }
 
     void set_layer(int layer) {
@@ -110,7 +132,12 @@ struct SpriteComponent {
 
 	void add_animation(std::string identifier, std::string sprite_name, std::string sprite_sheet_name, float fps, bool loop = false) {
         Animation a;
-        a.render_data = SpriteRender(sprite_sheet_name, sprite_name);
+        if(animations.size() > 0) {
+            // Copy all properties from default
+            a.render_data = SpriteRender(sprite_sheet_name, sprite_name, animations[0].render_data);
+        } else {
+            a.render_data = SpriteRender(sprite_sheet_name, sprite_name);
+        }
         a.identifier = identifier;
 		a.fps = fps;
 		a.duration = 1.0f / fps;

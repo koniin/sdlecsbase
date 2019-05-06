@@ -240,6 +240,7 @@ namespace GameController {
             s.set_flip(0);
             ship.sprite = s;
 
+            
             // Add animations
             // size_t index = Resources::sprite_sheet_index("combat_sprites");
             // SpriteAnimation::add(ship.animation, "idle", "combat_sprites", { Resources::sprite_get_from_sheet(index, "cs1") }, 0, false);
@@ -330,23 +331,6 @@ namespace GameController {
             });
         }
         
-        // for (auto &ship : _player_ships) {
-        //     auto &pi = ship.input;
-        //     auto &p = ship.position;
-        //     auto &t = ship.trigger;
-
-        //     if(pi.fire_cooldown > 0.0f || pi.controls_pressed[t.trigger] == 0) {
-        //         continue;
-        //     }
-
-        //     auto &wc = ship.weapon_config;
-        //     pi.fire_cooldown = wc.reload_time;
-
-        //     _projectile_spawns.push_back(ProjectileSpawn { 
-        //         ship.faction.faction, p.value, wc
-        //     });
-        // }
-
         for(auto &pr : _projectiles) {
             pr.position.last = pr.position.value;
             pr.position.value += pr.velocity.value * Time::delta_time;

@@ -15,19 +15,16 @@ void render_export(RenderBuffer &render_buffer) {
     auto &sprite_count = render_buffer.sprite_count;
 
     for(size_t i = 0; i < GameController::_motherships.size(); i++) {
-        auto &sprite = GameController::_motherships[i].sprite;
-        export_sprite_data(GameController::_motherships[i].position, sprite.animations[sprite.current_animation].render_data, sprite_data_buffer[sprite_count++], sprite_sheets);
+        export_sprite_data(GameController::_motherships[i].position, GameController::_motherships[i].sprite.get(), sprite_data_buffer[sprite_count++], sprite_sheets);
     }
 
     for(size_t i = 0; i < GameController::_fighter_ships.size(); i++) {
-        auto &sprite = GameController::_fighter_ships[i].sprite;
-        export_sprite_data(GameController::_fighter_ships[i].position, sprite.animations[sprite.current_animation].render_data, sprite_data_buffer[sprite_count++], sprite_sheets);
+        export_sprite_data(GameController::_fighter_ships[i].position, GameController::_fighter_ships[i].sprite.get(), sprite_data_buffer[sprite_count++], sprite_sheets);
     }
     
     for(size_t i = 0; i < GameController::_projectiles.size(); i++) {
         auto &projectile = GameController::_projectiles[i];
-        auto &sprite = projectile.sprite;
-        export_sprite_data(projectile.position, sprite.animations[sprite.current_animation].render_data, sprite_data_buffer[sprite_count++], sprite_sheets);
+        export_sprite_data(projectile.position, projectile.sprite.get(), sprite_data_buffer[sprite_count++], sprite_sheets);
     }
     // auto ci = Services::arch_manager().get_iterator<Position, SpriteComponent>();
 	// for(auto c : ci.containers) {
