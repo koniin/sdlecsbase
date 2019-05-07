@@ -3,6 +3,9 @@
  next:
     = Goal: 
 		- Physics - hit & miss
+			- different arrays for hit and miss -> easier to handle
+			- old projectiles becomes misses with less info in them
+			
 
 	- Simple ship to ship battle
 		- mothership
