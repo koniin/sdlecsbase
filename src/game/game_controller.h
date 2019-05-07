@@ -27,6 +27,7 @@ struct FighterShip {
     LifeTime life_time;
     FighterShip(ECS::Entity e) : entity(e) {}
 
+    CollisionData collision;
     FactionComponent faction;
     AIComponent ai;
     WeaponConfigurationComponent weapon_config;
@@ -40,14 +41,48 @@ struct Projectile {
     LifeTime life_time;
     Projectile(ECS::Entity e) : entity(e) {}
 
+    CollisionData collision;
     Velocity velocity;
     TravelDistance travel;
     ProjectileDamageDistance damage;
     TargetComponent target;
+    FactionComponent faction;
+};
+
+struct CollisionPair {
+    ECS::Entity first;
+    ECS::Entity second;
+    float distance;
+    Vector2 collision_point;
+    bool operator<( const CollisionPair& rhs ) const { 
+        return distance < rhs.distance; 
+    }
+};
+
+struct CollisionPairs {
+    std::vector<CollisionPair> collisions;
+    int count = 0;
+    inline CollisionPair operator [](size_t i) const { return collisions[i]; }
+    inline CollisionPair & operator [](size_t i) { return collisions[i]; }
+    void allocate(size_t size) {
+        collisions.reserve(size);
+    }
+    void sort_by_distance() {
+        std::sort(collisions.begin(), collisions.end());
+    }
+    void push(ECS::Entity first, ECS::Entity second, float distance, Vector2 collision_point) {
+        collisions.push_back({ first, second, distance, collision_point });
+        count++;
+    }
+    void clear() {
+        count = 0;
+        collisions.clear();
+    }
 };
 
 namespace GameController {
-    const int c_fighter_count = 300;
+    const int c_mothership_count = 2;
+    const int c_fighter_count = 40;
     const int c_projectile_count = 300;
     const int c_projectile_spawn_count = 300;
     const int PLAYER_FACTION = 100;
@@ -78,10 +113,14 @@ namespace GameController {
     };
     std::vector<ProjectileSpawn> _projectile_spawns;
 
+    CollisionPairs collision_pairs;
+
     void initialize() {
+        _motherships.reserve(2);
         _fighter_ships.reserve(c_fighter_count);
         _projectiles.reserve(c_projectile_count);
         _projectile_spawns.reserve(c_projectile_spawn_count);
+        collision_pairs.allocate(c_fighter_count * c_projectile_count);
         particles = Particles::make(4096);
         particle_emitters_configure(&particle_config);
         // Services::events().listen<EntityDestroyedEvent>(&entity_destroyed);
@@ -135,6 +174,7 @@ namespace GameController {
         Projectile p(entity_manager.create());
         p.position = Position(position);
         p.target = TargetComponent { target_entity };
+        p.faction.faction = fighter->faction.faction == PLAYER_FACTION ? ENEMY_FACTION : PLAYER_FACTION;
 
         auto sc = SpriteComponent("combat_sprites", wc.projectile_type);
         sc.layer = 12;
@@ -158,6 +198,8 @@ namespace GameController {
         }
         p.damage = pdd;
         p.travel = TravelDistance(distance);
+
+        p.collision.radius = 8;
 
         _projectiles.push_back(p);
     }
@@ -235,6 +277,9 @@ namespace GameController {
             w_config.projectile_type = "bullet_4";
             ship.weapon_config = w_config;
             ship.ai = AIComponent { w_config.reload_time };
+
+            ship.collision.radius = 8;
+
             _fighter_ships.push_back(ship);
         }
     }
@@ -271,7 +316,46 @@ namespace GameController {
             w_config.projectile_type = "bullet_3";
             ship.weapon_config = w_config;
             ship.ai = AIComponent { w_config.reload_time };
+
+            ship.collision.radius = 8;
+
             _fighter_ships.push_back(ship);
+        }
+    }
+
+    template<typename First, typename Second>
+    void system_collisions(CollisionPairs &collision_pairs, const std::vector<First> &entity_first, const std::vector<Second> &entity_second) {
+        for(auto &first : entity_first) {
+            for(auto &second : entity_second) {
+                if(first.faction.faction == second.faction.faction) {
+                    continue;
+                }
+
+                const Vector2 p_pos = first.position.value;
+                const float projectile_radius = (float)first.collision.radius;
+                const Vector2 p_last = first.position.last;
+                const Vector2 t_pos = second.position.value;
+                const float t_radius = (float)second.collision.radius;
+
+                float dist = Math::distance_v(p_last, t_pos);
+                if(Math::intersect_circles(p_pos.x, p_pos.y, projectile_radius, t_pos.x, t_pos.y, t_radius)) {
+                    // Collision point is the point on the target circle 
+                    // that is on the edge in the direction of the projectiles 
+                    // reverse velocity
+                    Engine::logn("circle intersect");
+                    Vector2 collision_point = t_pos + (t_radius * -first.velocity.value.normal());
+                    collision_pairs.push(second.entity, second.entity, dist, collision_point);
+                    continue;
+                }
+
+                Vector2 entry_point;
+                int result = Intersects::line_circle_entry(p_last, p_pos, t_pos, t_radius, entry_point);
+                if(result == 1 || result == 2) {
+                    Vector2 collision_point = t_pos + (t_radius * first.velocity.value.normal());
+                    collision_pairs.push(first.entity, second.entity, dist, collision_point);
+                    Engine::logn("line intersect");
+                }
+            }
         }
     }
 
@@ -344,6 +428,13 @@ namespace GameController {
                 }
             }
         }
+
+        system_collisions(collision_pairs, _projectiles, _fighter_ships);
+        collision_pairs.sort_by_distance();
+        
+        COLLISION RESOLUTION !
+        
+        collision_pairs.clear();
 
         for(auto &pr : _projectiles) {
             auto &t = pr.travel;

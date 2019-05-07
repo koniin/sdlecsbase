@@ -157,6 +157,10 @@ struct SpriteComponent {
     }
 };
 
+struct CollisionData {
+    int radius = 0;
+};
+
 // ==============================================================
 
 

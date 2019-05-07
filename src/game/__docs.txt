@@ -2,7 +2,7 @@
 
  next:
     = Goal: 
-		- Mothership with one button to fire a weapon
+		- Physics - hit & miss
 
 	- Simple ship to ship battle
 		- mothership
