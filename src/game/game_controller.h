@@ -235,7 +235,14 @@ namespace GameController {
             float y = position.y + i * 30.f;
             ship.position = RNG::vector2(position.x - 10, position.x + 10, y - 8, y + 8);
             ship.hull = Hull(100);
-            SpriteComponent s = SpriteComponent("combat_sprites", "cs1");
+
+            SpriteComponent s = SpriteComponent({ 
+                Animation("idle", { { "combat_sprites", "cs1" } }, 0, false),
+                Animation("hit", { 
+                    { "combat_sprites", "cs1_b" },
+                    { "combat_sprites", "cs1_w" }
+                },  3, false)
+            });
             s.layer = 10;
             s.flip = 0;
             ship.sprite = s;
@@ -272,7 +279,13 @@ namespace GameController {
             float y = position.y + i * 30.f;
             ship.position = RNG::vector2(position.x - 10, position.x + 10, y - 8, y + 8);
             ship.hull = Hull(100);
-            SpriteComponent s = SpriteComponent("combat_sprites", "cs2");
+            SpriteComponent s = SpriteComponent({ 
+                Animation("idle", { { "combat_sprites", "cs2" } }, 0, false),
+                Animation("hit", { 
+                    { "combat_sprites", "cs2_b" },
+                    { "combat_sprites", "cs2_w" }
+                },  3, false)
+            });
             s.layer = 10;
             s.flip = 1;
             ship.sprite = s;

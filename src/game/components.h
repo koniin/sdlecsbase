@@ -64,20 +64,17 @@ struct Animation {
 
     std::vector<AnimationFrame> _frames;
 
-    static Animation make(const std::string &identifier, const std::vector<AnimationFrame> &frames, const float fps, const bool loop) {
-        Animation a;
-        a._identifier = identifier;
-        a._frame = 0;
-        a._timer = 0.0f;
-        a._fps = fps;
+    Animation(const std::string &identifier, const std::vector<AnimationFrame> &frames, const float fps, const bool loop) {
+        _identifier = identifier;
+        _frame = 0;
+        _timer = 0.0f;
+        _fps = fps;
         if(fps > 0) {
-            a._duration = 1.0f / fps;
+            _duration = 1.0f / fps;
         }
-        a._loop = loop;
+        _loop = loop;
         
-        a._frames = frames;
-        
-        return a;
+        _frames = frames;
     }
 
     void update(float dt) {
@@ -110,12 +107,11 @@ struct SpriteComponent {
     SpriteComponent() {}
 
     SpriteComponent(const std::string &sprite_sheet_name, std::string sprite_name) {
-        Animation a = Animation::make("", { { sprite_sheet_name, sprite_name } }, 0, false);
-        animations.push_back(a);
+        animations.push_back(Animation("_____ONE_____", { { sprite_sheet_name, sprite_name } }, 0, false));
     }
 
-    SpriteComponent(Animation animation) {
-        animations.push_back(animation);
+    SpriteComponent(const std::vector<Animation> anims) {
+        animations = anims;
     }
 
     const AnimationFrame &get_current_frame() const {
@@ -123,15 +119,15 @@ struct SpriteComponent {
         return animation._frames[animation._frame];
     }
 
-    // void set_current_animation(std::string animation) {
-    //     for(size_t i = 0; i < animations.size(); i++) {
-    //         if(animations[i].identifier == animation) {
-    //             animations[i].timer = 0.0f;
-    //             current_animation = i; 
-    //             return;
-    //         }
-    //     }
-    // }
+    void set_current_animation(std::string animation) {
+        for(size_t i = 0; i < animations.size(); i++) {
+            if(animations[i]._identifier == animation) {
+                animations[i]._timer = 0.0f;
+                current_animation = i;
+                return;
+            }
+        }
+    }
 
 	// void add_animation(std::string identifier, std::string sprite_name, std::string sprite_sheet_name, float fps, bool loop = false) {
     //     Animation a;
