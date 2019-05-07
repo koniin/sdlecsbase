@@ -41,6 +41,18 @@ namespace GInput {
         return (action == Action::Start && Input::key_pressed(SDLK_SPACE)) 
             || Input::key_pressed(input_map[action]);
     }
+
+    inline int pressed_weapon_id() {
+        if(pressed(GInput::Action::Fire_1)) {
+            return 1;
+        } else if(pressed(GInput::Action::Fire_2)) {
+            return 2;
+        } else if(pressed(GInput::Action::Fire_3)) {
+            return 3;
+        }
+
+        return -1;
+    }
 }
 
 #endif

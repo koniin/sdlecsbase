@@ -17,6 +17,7 @@ struct MotherShip {
     MotherShip(ECS::Entity e) : entity(e) {}
 
     FactionComponent faction;
+    MultiWeaponComponent weapons;
 };
 
 struct FighterShip {
@@ -68,7 +69,12 @@ namespace GameController {
     struct ProjectileSpawn {
         int faction;
         Vector2 position;
+        ECS::Entity target;
         WeaponConfigurationComponent wc;
+        float delay = 0;
+
+        // Always last
+        float timer = 0;
     };
     std::vector<ProjectileSpawn> _projectile_spawns;
 
@@ -96,7 +102,7 @@ namespace GameController {
         return e.life_time.marked_for_deletion;
     }
 
-    bool get_random_target(const int firing_faction, ECS::Entity &entity, Vector2 &target_position) {
+    bool get_random_target(const int firing_faction, ECS::Entity &entity) {
         int target_faction = firing_faction == PLAYER_FACTION ? ENEMY_FACTION : PLAYER_FACTION;
 
         std::vector<FighterShip*> matches;
@@ -113,12 +119,19 @@ namespace GameController {
         int target = RNG::range_i(0, matches.size() - 1);
         auto target_ship = matches[target];
         entity = target_ship->entity;
-        target_position = target_ship->position.value;
 
         return true;
     }
 
-    void projectile_fire(const ECS::Entity &target_entity, const Vector2 &position, const Vector2 &target_position, const WeaponConfigurationComponent &wc) {
+    void spawn_projectile(const ECS::Entity &target_entity, const Vector2 &position, const WeaponConfigurationComponent &wc) {
+        auto &e = target_entity;
+        auto fighter = std::find_if(_fighter_ships.begin(), _fighter_ships.end(),
+            [=](const FighterShip &ps) -> bool { return ps.entity.id == e.id; });
+        if(fighter == _fighter_ships.end()) {
+            return;
+        }
+        Vector2 target_position = fighter->position.value;
+
         Projectile p(entity_manager.create());
         p.position = Position(position);
         p.target = TargetComponent { target_entity };
@@ -159,6 +172,18 @@ namespace GameController {
         s.flip = 0;
         ship.sprite = s;
         ship.position = position;
+
+        WeaponConfigurationComponent w_config;
+        w_config.accuracy = 0.8f;
+        w_config.damage = 10;
+        w_config.name = "Mothership blast cannon";
+        w_config.reload_time = 3.0f;
+        w_config.projectile_type = "bullet_3";
+        w_config.projectile_count = 8;
+        w_config.burst_delay = 0.1f;
+
+        ship.weapons.add(w_config);
+
         _motherships.push_back(ship);
     }
 
@@ -252,13 +277,26 @@ namespace GameController {
 
     void update() {
         for(auto &ship : _motherships) {
+            for(auto &timer : ship.weapons._reload_timer) {
+                timer += Time::delta_time;
+            }
+            
             if(ship.faction.faction == PLAYER_FACTION) {
-                if(GInput::pressed(GInput::Action::Fire_1)) {
-                    Engine::logn("FIRE!");
-                    particle_config.smoke_emitter.position = ship.position.value;
-                    Particles::emit(particles, particle_config.smoke_emitter);
-                    particle_config.explosion_emitter.position = ship.position.value;
-                    Particles::emit(particles, particle_config.explosion_emitter);
+                int weapon_id = GInput::pressed_weapon_id();
+                if(ship.weapons.can_fire(weapon_id)) {
+                    ECS::Entity target_entity;
+                    if(get_random_target(ship.faction.faction, target_entity)) {
+                        const auto &wc = ship.weapons.get_config(weapon_id);
+                        
+                        // fire burst at same target
+                        if(wc.burst_delay > 0) {
+                            for(size_t i = 0; i < wc.projectile_count; i++) {
+                                _projectile_spawns.push_back(ProjectileSpawn { 
+                                    ship.faction.faction, ship.position.value, target_entity, wc, i * wc.burst_delay
+                                });
+                            }
+                        }
+                    }
                 }
             } else {
 
@@ -277,9 +315,12 @@ namespace GameController {
             auto &wc = ship.weapon_config;
             ai.fire_cooldown = wc.reload_time;;
 
-            _projectile_spawns.push_back(ProjectileSpawn { 
-                ship.faction.faction, p.value, wc
-            });
+            ECS::Entity target_entity;
+            if(get_random_target(ship.faction.faction, target_entity)) {
+                _projectile_spawns.push_back(ProjectileSpawn { 
+                    ship.faction.faction, p.value, target_entity, wc
+                });
+            }
         }
         
         for(auto &pr : _projectiles) {
@@ -295,7 +336,12 @@ namespace GameController {
             auto diff = p.value - p.last;
             t.amount = t.amount + diff.length();
             if(t.amount > t.target) {
-                l.marked_for_deletion = true;
+                const float outside_range = (float)gw * 2;
+                if(!entity_manager.alive(pr.target.entity) && t.target <= outside_range) {
+                    t.target = outside_range;
+                } else {
+                    l.marked_for_deletion = true;
+                }
             }
         }
 
@@ -326,7 +372,10 @@ namespace GameController {
                     // An event ?
                     // Send that something took damage?
                     Services::ui().show_text_toast(p.value, "HIT!", 1.0f);
-
+                    
+                    particle_config.smoke_emitter.position = fighter->position.value;
+                    Particles::emit(particles, particle_config.smoke_emitter);
+                
                     fighter->sprite.set_current_animation("hit", "idle");
                     //fighter->sprite.set_current_animation("hit");
                     //SpriteAnimation::set_current(fighter->animation, "hit");
@@ -343,29 +392,10 @@ namespace GameController {
            //  SpriteAnimation::update(ship.animation, Time::delta_time);
         }
 
-        // for(auto &fighter : _fighter_ships) {
-        //     entity_data.blink[i].timer += Time::delta_time;
-        //     entity_data.blink[i].interval_timer += Time::delta_time;
-
-        //     if(entity_data.blink[i].timer >= entity_data.blink[i].time_to_live) {
-        //         entity_data.blink[i].timer = 0.0f;
-        //         if(entity_data.blink[i].time_to_live > 0) {
-        //             entity_data.sprite[i].sprite_name = entity_data.blink[i].original_sprite;
-        //         }
-        //         entity_data.blink[i].time_to_live = 0;
-        //         continue;
-        //     }
-            
-        //     if(entity_data.blink[i].interval_timer > entity_data.blink[i].interval) {
-        //         entity_data.sprite[i].sprite_name = 
-        //             entity_data.sprite[i].sprite_name == entity_data.blink[i].original_sprite 
-        //                 ? entity_data.blink[i].white_sprite : entity_data.blink[i].original_sprite;
-        //         entity_data.blink[i].interval_timer = 0;
-        //     }
-        // }
-
         for(auto &fighter : _fighter_ships) {
             if(fighter.hull.amount <= 0) {
+                particle_config.explosion_emitter.position = fighter.position.value;
+                Particles::emit(particles, particle_config.explosion_emitter);
                 fighter.life_time.marked_for_deletion = true;
             }
         }
@@ -373,17 +403,17 @@ namespace GameController {
         _fighter_ships.erase(std::remove_if(_fighter_ships.begin(), _fighter_ships.end(), entity_remove<FighterShip>), _fighter_ships.end());
         _projectiles.erase(std::remove_if(_projectiles.begin(), _projectiles.end(), entity_remove<Projectile>), _projectiles.end());
 
-        for(auto pspawn : _projectile_spawns) {
+        for(auto &pspawn : _projectile_spawns) {
             ASSERT_WITH_MSG(pspawn.faction == PLAYER_FACTION || pspawn.faction == ENEMY_FACTION, "undefined faction occured while spawning projectile.");
 
-            ECS::Entity entity; 
-            Vector2 target_position;
-            if(get_random_target(pspawn.faction, entity, target_position)) {    
-                GameController::projectile_fire(entity, pspawn.position, target_position, pspawn.wc);
+            pspawn.timer += Time::delta_time;
+            if(pspawn.timer >= pspawn.delay) {
+                GameController::spawn_projectile(pspawn.target, pspawn.position, pspawn.wc);
             }
         }
-        _projectile_spawns.clear();
-
+        _projectile_spawns.erase(std::remove_if(_projectile_spawns.begin(), _projectile_spawns.end(), 
+            [=](const ProjectileSpawn &projectile_spawn) -> bool { return projectile_spawn.timer >= projectile_spawn.delay; }), _projectile_spawns.end());
+        
         auto player_fighters = std::count_if(_fighter_ships.begin(), _fighter_ships.end(),
                     [=](const FighterShip &ps) -> bool { return ps.faction.faction == PLAYER_FACTION; });
         auto enemy_fighters = std::count_if(_fighter_ships.begin(), _fighter_ships.end(),

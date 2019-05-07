@@ -209,6 +209,8 @@ struct WeaponConfigurationComponent {
     float damage; 
     float accuracy;
     std::string projectile_type;
+    int projectile_count = 1;
+    float burst_delay = 0.0f;
 };
 
 struct FactionComponent {
@@ -217,6 +219,30 @@ struct FactionComponent {
 
 struct TargetComponent {
     ECS::Entity entity;
+};
+
+struct MultiWeaponComponent {
+    std::vector<WeaponConfigurationComponent> _weapons;
+    std::vector<float> _reload_timer;
+    
+    void add(WeaponConfigurationComponent wc) {
+        _weapons.push_back(wc);
+        _reload_timer.push_back(0.f);
+    }
+
+    bool can_fire(int id) {
+        size_t index = id - 1;
+        if(index < 0 || index > _weapons.size() - 1) {
+            return false;
+        }
+        return _reload_timer[index] > _weapons[index].reload_time;
+    }
+
+    WeaponConfigurationComponent get_config(int id) {
+        size_t index = id - 1;
+        _reload_timer[index] = 0.f;
+        return _weapons[index];
+    }
 };
 
 #endif
