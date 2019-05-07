@@ -47,6 +47,8 @@ void LevelScene::update() {
 	std::string frame_duration_ms = "update time ms: " + std::to_string(duration_ms);
 	FrameLog::log(frame_duration_mu);
 	FrameLog::log(frame_duration_ms);
+
+    FrameLog::log("projectiles: " + std::to_string(GameController::_projectiles.size()));
 }
 
 void LevelScene::render() {

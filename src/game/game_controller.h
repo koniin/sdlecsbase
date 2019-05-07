@@ -337,7 +337,7 @@ namespace GameController {
             t.amount = t.amount + diff.length();
             if(t.amount > t.target) {
                 const float outside_range = (float)gw * 2;
-                if(!entity_manager.alive(pr.target.entity) && t.target <= outside_range) {
+                if(!entity_manager.alive(pr.target.entity) && t.target < outside_range) {
                     t.target = outside_range;
                 } else {
                     l.marked_for_deletion = true;
