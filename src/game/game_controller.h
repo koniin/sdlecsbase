@@ -147,7 +147,7 @@ namespace GameController {
         return e.life_time.marked_for_deletion;
     }
 
-    bool get_target(const int firing_faction, ECS::Entity &entity, Vector2 &target_position) {
+    bool get_random_target(const int firing_faction, ECS::Entity &entity, Vector2 &target_position) {
         int target_faction = firing_faction == PLAYER_FACTION ? ENEMY_FACTION : PLAYER_FACTION;
 
         std::vector<FighterShip*> matches;
@@ -175,9 +175,9 @@ namespace GameController {
         p.target = TargetComponent { target_entity };
 
         auto sc = SpriteComponent("combat_sprites", wc.projectile_type);
-        sc.set_layer(12);
+        sc.layer = 12;
         auto angle = Math::angle_between_v(p.position.value, target_position);
-        sc.set_rotation(angle);
+        sc.rotation = angle;
         auto dir = Math::direction_from_angle(angle) * 500;
         p.sprite = sc;
         p.velocity = Velocity(dir);
@@ -206,8 +206,8 @@ namespace GameController {
         MotherShip ship(entity_manager.create());
         ship.faction = FactionComponent { PLAYER_FACTION };
         SpriteComponent s = SpriteComponent("combat_sprites", "mother1");
-        s.set_layer(12);
-        s.set_flip(0);
+        s.layer = 12;
+        s.flip = 0;
         ship.sprite = s;
         ship.position = position;
         _motherships.push_back(ship);
@@ -219,8 +219,8 @@ namespace GameController {
         MotherShip ship(entity_manager.create());
         ship.faction = FactionComponent { ENEMY_FACTION };
         SpriteComponent s = SpriteComponent("combat_sprites", "mother2");
-        s.set_layer(10);
-        s.set_flip(1);
+        s.layer = 10;
+        s.flip = 1;
         ship.sprite = s;
         ship.position = position;
         _motherships.push_back(ship);
@@ -236,11 +236,11 @@ namespace GameController {
             ship.position = RNG::vector2(position.x - 10, position.x + 10, y - 8, y + 8);
             ship.hull = Hull(100);
             SpriteComponent s = SpriteComponent("combat_sprites", "cs1");
-            s.set_layer(10);
-            s.set_flip(0);
+            s.layer = 10;
+            s.flip = 0;
             ship.sprite = s;
 
-            
+
             // Add animations
             // size_t index = Resources::sprite_sheet_index("combat_sprites");
             // SpriteAnimation::add(ship.animation, "idle", "combat_sprites", { Resources::sprite_get_from_sheet(index, "cs1") }, 0, false);
@@ -273,8 +273,8 @@ namespace GameController {
             ship.position = RNG::vector2(position.x - 10, position.x + 10, y - 8, y + 8);
             ship.hull = Hull(100);
             SpriteComponent s = SpriteComponent("combat_sprites", "cs2");
-            s.set_layer(10);
-            s.set_flip(1);
+            s.layer = 10;
+            s.flip = 1;
             ship.sprite = s;
 
             // Add animations
@@ -376,6 +376,7 @@ namespace GameController {
                     // Send that something took damage?
                     Services::ui().show_text_toast(p.value, "HIT!", 1.0f);
 
+                    //fighter->sprite.set_current_animation("hit");
                     //SpriteAnimation::set_current(fighter->animation, "hit");
                 } else {
                     // Maybe better as an event and anyone can react
@@ -385,6 +386,7 @@ namespace GameController {
         }
 
         for (auto &ship : _fighter_ships) { 
+            // ship.animation.update(Time::delta_time);
            //  SpriteAnimation::update(ship.animation, Time::delta_time);
         }
 
@@ -423,7 +425,7 @@ namespace GameController {
 
             ECS::Entity entity; 
             Vector2 target_position;
-            if(get_target(pspawn.faction, entity, target_position)) {    
+            if(get_random_target(pspawn.faction, entity, target_position)) {    
                 GameController::projectile_fire(entity, pspawn.position, target_position, pspawn.wc);
             }
         }

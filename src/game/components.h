@@ -33,9 +33,7 @@ struct LifeTime {
     LifeTime() {}
 };
 
-struct SpriteRender {
-    float scale;
-    float rotation;
+struct AnimationFrame {
     int w, h;
     int16_t radius;
     int16_t color_r;
@@ -44,52 +42,58 @@ struct SpriteRender {
     int16_t color_a;
     size_t sprite_sheet_index;
     std::string sprite_name;
-    int layer;
-    bool line;
-    Vector2 position;
-    short flip = 0; // 1 = Horizontal, 2 = Vertical
+    
+    AnimationFrame() {}
 
-    SpriteRender() {}
-
-    SpriteRender(const std::string &sprite_sheet_name, const std::string &sprite_name) : sprite_name(sprite_name) {
+    AnimationFrame(const std::string &sprite_sheet_name, const std::string &sprite_name) : sprite_name(sprite_name) {
         sprite_sheet_index = Resources::sprite_sheet_index(sprite_sheet_name);
         auto sprite = Resources::sprite_get_from_sheet(sprite_sheet_index, sprite_name);
         w = sprite.w;
         h = sprite.h;
-        scale = 1.0f;
-        rotation = 0.0f;
         color_r = color_g = color_b = color_a = 255;
-        layer = 0;
-        line = false;
-        flip = 0;
-    }
-
-    SpriteRender(const std::string &sprite_sheet_name, const std::string &sprite_name, const SpriteRender &render) : sprite_name(sprite_name) {
-        sprite_sheet_index = Resources::sprite_sheet_index(sprite_sheet_name);
-        auto sprite = Resources::sprite_get_from_sheet(sprite_sheet_index, sprite_name);
-        w = sprite.w;
-        h = sprite.h;
-        scale = render.scale;
-        rotation = render.rotation;
-        color_r = render.color_r;
-        color_g = render.color_g;
-        color_b = render.color_b;
-        color_a = render.color_a;
-        layer = render.layer;
-        line = render.line;
-        flip = render.flip;
     }
 };
 
 struct Animation {
-    std::string identifier;
-	int frame = 0;
-	float timer = 0;
-	float fps = 3;
-	float duration = 1;
-	bool loop = false;
+    std::string _identifier;
+	size_t _frame = 0;
+	float _timer = 0;
+	float _fps = 3;
+	float _duration = 1;
+	bool _loop = false;
 
-	SpriteRender render_data;
+    std::vector<AnimationFrame> _frames;
+
+    static Animation make(const std::string &identifier, const std::vector<AnimationFrame> &frames, const float fps, const bool loop) {
+        Animation a;
+        a._identifier = identifier;
+        a._frame = 0;
+        a._timer = 0.0f;
+        a._fps = fps;
+        if(fps > 0) {
+            a._duration = 1.0f / fps;
+        }
+        a._loop = loop;
+        
+        a._frames = frames;
+        
+        return a;
+    }
+
+    void update(float dt) {
+        _timer += dt;
+		if(_timer >= _duration) {
+			_frame++;
+			if(_frame >= _frames.size()) {
+				if(_loop) {
+					_frame = 0;
+				} else {
+					_frame = _frames.size() - 1;
+				}
+			}
+			_timer = 0;
+		}
+    }
 };
 
 struct SpriteComponent {
@@ -98,51 +102,55 @@ struct SpriteComponent {
     size_t current_animation = 0;
 
     public:
+    int layer = 0;
+    float scale = 1.0f;
+    float rotation = 0.0f;
+    short flip = 0; // 1 = Horizontal, 2 = Vertical
+
     SpriteComponent() {}
 
-    SpriteComponent(const std::string &sprite_sheet_name, std::string name) {
-        add_animation("__default__", name, sprite_sheet_name, 0, false);
+    SpriteComponent(const std::string &sprite_sheet_name, std::string sprite_name) {
+        Animation a = Animation::make("", { { sprite_sheet_name, sprite_name } }, 0, false);
+        animations.push_back(a);
     }
 
-    const SpriteRender &get(){
-        return animations[current_animation].render_data;
+    SpriteComponent(Animation animation) {
+        animations.push_back(animation);
     }
 
-    void set_layer(int layer) {
-        animations[0].render_data.layer = layer;
+    const AnimationFrame &get_current_frame() const {
+        auto &animation = animations[current_animation];
+        return animation._frames[animation._frame];
     }
 
-    void set_rotation(float rotation) {
-        animations[0].render_data.rotation = rotation;
-    }
+    // void set_current_animation(std::string animation) {
+    //     for(size_t i = 0; i < animations.size(); i++) {
+    //         if(animations[i].identifier == animation) {
+    //             animations[i].timer = 0.0f;
+    //             current_animation = i; 
+    //             return;
+    //         }
+    //     }
+    // }
 
-    void set_flip(short flip) {
-        animations[0].render_data.flip = flip;
-    }
+	// void add_animation(std::string identifier, std::string sprite_name, std::string sprite_sheet_name, float fps, bool loop = false) {
+    //     Animation a;
+    //     if(animations.size() > 0) {
+    //         // Copy all properties from default
+    //         a.frames.push_back(SpriteRender(sprite_sheet_name, sprite_name, animations[0].frames[0].render_data));
+    //     } else {
+    //         a.frames.push_back(SpriteRender(sprite_sheet_name, sprite_name));
+    //     }
+    //     a.identifier = identifier;
+	// 	a.fps = fps;
+	// 	a.duration = 1.0f / fps;
+	// 	a.loop = loop;
+	// 	animations.push_back(a);
+    // }
 
-    void set_current_animation(std::string animation) {
-        for(size_t i = 0; i < animations.size(); i++) {
-            if(animations[i].identifier == animation) {
-                animations[i].timer = 0.0f;
-                current_animation = i; 
-                return;
-            }
-        }
-    }
-
-	void add_animation(std::string identifier, std::string sprite_name, std::string sprite_sheet_name, float fps, bool loop = false) {
-        Animation a;
-        if(animations.size() > 0) {
-            // Copy all properties from default
-            a.render_data = SpriteRender(sprite_sheet_name, sprite_name, animations[0].render_data);
-        } else {
-            a.render_data = SpriteRender(sprite_sheet_name, sprite_name);
-        }
-        a.identifier = identifier;
-		a.fps = fps;
-		a.duration = 1.0f / fps;
-		a.loop = loop;
-		animations.push_back(a);
+    void update_animation(float dt) {
+        auto &animation = animations[current_animation];
+		animation.update(dt);
     }
 };
 

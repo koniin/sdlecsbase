@@ -51,7 +51,9 @@ void LevelScene::update() {
 
 void LevelScene::render() {
 	renderer_clear();
+    // Render Background
     draw_sprite(Resources::sprite_get("background"), 0, 0);
+    
     draw_buffer(render_buffer);
     Particles::render_circles_filled(GameController::particles);
 	Services::ui().render();

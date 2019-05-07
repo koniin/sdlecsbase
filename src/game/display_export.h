@@ -6,7 +6,7 @@
 #include "services.h"
 #include "components.h"
 
-void export_sprite_data(const Position &position, const SpriteRender &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets);
+void export_sprite_data(const Position &position, const SpriteComponent &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets);
 
 void render_export(RenderBuffer &render_buffer) {
     render_buffer.clear();
@@ -15,27 +15,18 @@ void render_export(RenderBuffer &render_buffer) {
     auto &sprite_count = render_buffer.sprite_count;
 
     for(size_t i = 0; i < GameController::_motherships.size(); i++) {
-        export_sprite_data(GameController::_motherships[i].position, GameController::_motherships[i].sprite.get(), sprite_data_buffer[sprite_count++], sprite_sheets);
+        export_sprite_data(GameController::_motherships[i].position, GameController::_motherships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
     }
 
     for(size_t i = 0; i < GameController::_fighter_ships.size(); i++) {
-        export_sprite_data(GameController::_fighter_ships[i].position, GameController::_fighter_ships[i].sprite.get(), sprite_data_buffer[sprite_count++], sprite_sheets);
+        export_sprite_data(GameController::_fighter_ships[i].position, GameController::_fighter_ships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
     }
     
     for(size_t i = 0; i < GameController::_projectiles.size(); i++) {
         auto &projectile = GameController::_projectiles[i];
-        export_sprite_data(projectile.position, projectile.sprite.get(), sprite_data_buffer[sprite_count++], sprite_sheets);
+        export_sprite_data(projectile.position, projectile.sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
     }
-    // auto ci = Services::arch_manager().get_iterator<Position, SpriteComponent>();
-	// for(auto c : ci.containers) {
-    //     for(int i = 0; i < c->length; i++) {
-	// 		auto &pos = c->index<Position>(i);
-    //         auto &sprite = c->index<SpriteComponent>(i);
-			
-    //         export_sprite_data(pos, sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
-	// 	}
-	// }
-
+    
     std::sort(sprite_data_buffer, sprite_data_buffer + sprite_count);
 
     // Update UI State
@@ -68,7 +59,7 @@ void render_export(RenderBuffer &render_buffer) {
     // }
 }
 
-void export_sprite_data(const Position &position, const SpriteRender &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets) {
+void export_sprite_data(const Position &position, const SpriteComponent &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets) {
     // handle camera, zoom and stuff here
 
     // also we can do culling here
@@ -83,8 +74,9 @@ void export_sprite_data(const Position &position, const SpriteRender &sprite, Sp
 
     const auto &camera = get_camera();
 
-    auto &sheet = sprite_sheets->at(sprite.sprite_sheet_index);
-    auto &region = sheet.sheet_sprites[sheet.sprites_by_name.at(sprite.sprite_name)].region;
+    auto &sprite_frame = sprite.get_current_frame();
+    auto &sheet = sprite_sheets->at(sprite_frame.sprite_sheet_index);
+    auto &region = sheet.sheet_sprites[sheet.sprites_by_name.at(sprite_frame.sprite_name)].region;
 
     spr.tex = Resources::sprite_get(sheet.sprite_sheet_name)->image;
     spr.src = region;
@@ -101,8 +93,8 @@ void export_sprite_data(const Position &position, const SpriteRender &sprite, Sp
         spr.dest.x = (int16_t)(position.value.x - camera.x);
         spr.dest.y = (int16_t)(position.value.y - camera.y);
 
-        spr.dest.w = sprite.w;
-        spr.dest.h = sprite.h;
+        spr.dest.w = sprite_frame.w;
+        spr.dest.h = sprite_frame.h;
 
         spr.dest.x = spr.dest.x - (spr.dest.w / 2);
         spr.dest.y = spr.dest.y - (spr.dest.h / 2);
