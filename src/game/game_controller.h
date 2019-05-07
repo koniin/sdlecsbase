@@ -10,57 +10,6 @@
 
 #include <unordered_set>
 
-
-namespace SpriteAnimation {
-    // template<class Entity> 
-    // void blink_sprite(Entity &entity, float ttl, float interval) {
-    //     if(entity.blink.timer > 0)
-    //         return;
-
-    //     entity.blink.time_to_live = ttl;
-    //     entity.blink.interval = interval;
-    //     entity.blink.original_sprite = entity.sprite.sprite_name;
-    //     entity.blink.white_sprite = entity.sprite.sprite_name + "_w";
-    //     //b.original_sheet = entity_data.sprite[handle.i].sprite_sheet_index;
-    //     // We assume the next sheet is the white version
-    //     //b.white_sheet = entity_data.sprite[handle.i].sprite_sheet_index + 1;
-    //     entity.sprite.sprite_name = entity.blink.white_sprite;
-    // }
-
-
-	void update_animation(SpriteComponent &ac, float dt) {
-        // auto &animation = ac.animations[ac.current_animation];
-        // if(animation.fps == 0) {
-        //     return;
-        // }
-
-		// animation.timer += dt;
-		// if(animation.timer >= animation.duration) {
-		// 	animation.frame++;
-		// 	if(animation.frame >= (int)animation.frames.size()) {
-		// 		if(animation.loop) {
-		// 			animation.frame = 0;
-		// 		} else {
-		// 			animation.frame = animation.frames.size() - 1;
-		// 		}
-		// 	}
-		// 	animation.timer = 0;
-		// }
-    }
-
-    // void draw_animation(const AnimationComponent &ac, const int x, const int y) {
-    //     auto &animation = ac.animations[ac.current];
-    //     auto sprite = Resources::sprite_get(animation.sprite_sheet);
-    //     draw_sprite_region(sprite, &animation.frames[animation.frame], x, y);
-    // }
-/*
-    void draw_animation_scaled(std::shared_ptr<Animation::AnimationComponent> a, int x, int y, float scaleX, float scaleY) {	
-        auto animation = a->current_animation->second;
-        auto sprite = Resources::getSprite(animation->sprite_sheet);
-        draw_sprite_scaled(sprite, &animation->frames[animation->frame], x, y, scaleX, scaleY);
-    }*/
-};
-
 struct MotherShip {
     ECS::Entity entity;
     Position position;
@@ -239,24 +188,19 @@ namespace GameController {
             SpriteComponent s = SpriteComponent({ 
                 Animation("idle", { { "combat_sprites", "cs1" } }, 0, false),
                 Animation("hit", { 
-                    { "combat_sprites", "cs1_b" },
+                    { "combat_sprites", "cs1" },
+                    { "combat_sprites", "cs1_w" },
+                    { "combat_sprites", "cs1" },
+                    { "combat_sprites", "cs1_w" },
+                    { "combat_sprites", "cs1" },
+                    { "combat_sprites", "cs1_w" },
+                    { "combat_sprites", "cs1" },
                     { "combat_sprites", "cs1_w" }
-                },  3, false)
+                },  6, false)
             });
             s.layer = 10;
             s.flip = 0;
             ship.sprite = s;
-
-
-            // Add animations
-            // size_t index = Resources::sprite_sheet_index("combat_sprites");
-            // SpriteAnimation::add(ship.animation, "idle", "combat_sprites", { Resources::sprite_get_from_sheet(index, "cs1") }, 0, false);
-            // SpriteAnimation::add(ship.animation, "hit", "combat_sprites", 
-            //     { 
-            //         Resources::sprite_get_from_sheet(index, "cs1"),
-            //         Resources::sprite_get_from_sheet(index, "cs1_b"),
-            //         Resources::sprite_get_from_sheet(index, "cs1_w")
-            //     }, 15, true);
 
             WeaponConfigurationComponent w_config;
             w_config.accuracy = 0.8f;
@@ -282,23 +226,17 @@ namespace GameController {
             SpriteComponent s = SpriteComponent({ 
                 Animation("idle", { { "combat_sprites", "cs2" } }, 0, false),
                 Animation("hit", { 
+                    { "combat_sprites", "cs2" },
+                    { "combat_sprites", "cs2_w" },
                     { "combat_sprites", "cs2_b" },
-                    { "combat_sprites", "cs2_w" }
-                },  3, false)
+                    { "combat_sprites", "cs2_w"}, 
+                    { "combat_sprites", "cs2" },
+                    { "combat_sprites", "cs2_w"}
+                },  12, false)
             });
             s.layer = 10;
             s.flip = 1;
             ship.sprite = s;
-
-            // Add animations
-            // size_t index = Resources::sprite_sheet_index("combat_sprites");
-            // SpriteAnimation::add(ship.animation, "idle", "combat_sprites", { Resources::sprite_get_from_sheet(index, "cs2") }, 0, false);
-            // SpriteAnimation::add(ship.animation, "hit", "combat_sprites", 
-            //     { 
-            //         Resources::sprite_get_from_sheet(index, "cs2"),
-            //         Resources::sprite_get_from_sheet(index, "cs2_b"),
-            //         Resources::sprite_get_from_sheet(index, "cs2_w")
-            //     }, 15, true);
 
             WeaponConfigurationComponent w_config;
             w_config.accuracy = 0.8f;
@@ -389,6 +327,7 @@ namespace GameController {
                     // Send that something took damage?
                     Services::ui().show_text_toast(p.value, "HIT!", 1.0f);
 
+                    fighter->sprite.set_current_animation("hit", "idle");
                     //fighter->sprite.set_current_animation("hit");
                     //SpriteAnimation::set_current(fighter->animation, "hit");
                 } else {
@@ -399,6 +338,7 @@ namespace GameController {
         }
 
         for (auto &ship : _fighter_ships) { 
+            ship.sprite.update_animation(Time::delta_time);
             // ship.animation.update(Time::delta_time);
            //  SpriteAnimation::update(ship.animation, Time::delta_time);
         }

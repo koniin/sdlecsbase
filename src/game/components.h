@@ -61,20 +61,26 @@ struct Animation {
 	float _fps = 3;
 	float _duration = 1;
 	bool _loop = false;
+    bool _completed = false;
 
     std::vector<AnimationFrame> _frames;
 
     Animation(const std::string &identifier, const std::vector<AnimationFrame> &frames, const float fps, const bool loop) {
         _identifier = identifier;
-        _frame = 0;
-        _timer = 0.0f;
         _fps = fps;
         if(fps > 0) {
             _duration = 1.0f / fps;
         }
         _loop = loop;
-        
         _frames = frames;
+
+        restart();
+    }
+
+    void restart() {
+        _frame = 0;
+        _timer = 0.0f;
+        _completed = false;
     }
 
     void update(float dt) {
@@ -85,6 +91,7 @@ struct Animation {
 				if(_loop) {
 					_frame = 0;
 				} else {
+                    _completed = true;
 					_frame = _frames.size() - 1;
 				}
 			}
@@ -98,6 +105,8 @@ struct SpriteComponent {
     std::vector<Animation> animations;
     size_t current_animation = 0;
 
+    int _next_animation = -1;
+
     public:
     int layer = 0;
     float scale = 1.0f;
@@ -107,7 +116,7 @@ struct SpriteComponent {
     SpriteComponent() {}
 
     SpriteComponent(const std::string &sprite_sheet_name, std::string sprite_name) {
-        animations.push_back(Animation("_____ONE_____", { { sprite_sheet_name, sprite_name } }, 0, false));
+        animations.push_back(Animation("_____DEFAULT_____", { { sprite_sheet_name, sprite_name } }, 0, false));
     }
 
     SpriteComponent(const std::vector<Animation> anims) {
@@ -122,31 +131,29 @@ struct SpriteComponent {
     void set_current_animation(std::string animation) {
         for(size_t i = 0; i < animations.size(); i++) {
             if(animations[i]._identifier == animation) {
-                animations[i]._timer = 0.0f;
+                animations[i].restart();
                 current_animation = i;
                 return;
             }
         }
     }
 
-	// void add_animation(std::string identifier, std::string sprite_name, std::string sprite_sheet_name, float fps, bool loop = false) {
-    //     Animation a;
-    //     if(animations.size() > 0) {
-    //         // Copy all properties from default
-    //         a.frames.push_back(SpriteRender(sprite_sheet_name, sprite_name, animations[0].frames[0].render_data));
-    //     } else {
-    //         a.frames.push_back(SpriteRender(sprite_sheet_name, sprite_name));
-    //     }
-    //     a.identifier = identifier;
-	// 	a.fps = fps;
-	// 	a.duration = 1.0f / fps;
-	// 	a.loop = loop;
-	// 	animations.push_back(a);
-    // }
+    void set_current_animation(std::string animation, std::string next_animation) {
+        set_current_animation(animation);
+        for(size_t i = 0; i < animations.size(); i++) {
+            if(animations[i]._identifier == next_animation) {
+                _next_animation = i;
+            }
+        }
+    }
 
     void update_animation(float dt) {
         auto &animation = animations[current_animation];
 		animation.update(dt);
+        if(animation._completed && _next_animation >= 0) {
+            set_current_animation(animations[_next_animation]._identifier);
+            _next_animation = -1;
+        }
     }
 };
 
