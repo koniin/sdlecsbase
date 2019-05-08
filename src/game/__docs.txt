@@ -2,10 +2,8 @@
 
  next:
     = Goal: 
-		- Physics - hit & miss
-			- different arrays for hit and miss -> easier to handle
-			- old projectiles becomes misses with less info in them
-			
+		- weapons -> easier config / more dynamic events
+		- make fighters use multi weapon component
 
 	- Simple ship to ship battle
 		- mothership

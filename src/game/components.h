@@ -196,6 +196,30 @@ struct InputTriggerComponent {
     int trigger = 0;
 };
 
+struct ProjectilePayLoad {
+	float accuracy;
+	int radius;
+
+    float damage;
+};
+
+struct ProjectileSpawn {
+    int faction;
+    Vector2 position;
+    ECS::Entity target;
+    float projectile_speed;
+	std::string projectile_type;
+    ProjectilePayLoad payload;
+    float delay = 0;
+    // Always last
+    float timer = 0;
+};
+
+struct Targeting {
+    virtual bool get_one_target(const int &exclude_faction, ECS::Entity &entity) = 0;
+    virtual bool get_targets(const int &exclude_faction, const size_t &count, std::vector<ECS::Entity> &targets) = 0;
+};
+
 struct WeaponConfigurationComponent {
     std::string name; // (Blaster MK2 etc)
     float reload_time; // in seconds (0.2f)
@@ -204,8 +228,35 @@ struct WeaponConfigurationComponent {
     std::string projectile_type;
     int projectile_count = 1;
     float burst_delay = 0.0f;
-    float radius = 8.0f;
+    int radius = 8;
     float projectile_speed = 500.0f;
+
+    std::shared_ptr<Targeting> targeting;
+
+    void make_spawns(const int &faction, const Vector2 &position, std::vector<ProjectileSpawn> &spawns) {
+        ProjectileSpawn spawn;
+        spawn.faction = faction;
+        spawn.position = position;
+        spawn.projectile_speed = projectile_speed;
+        spawn.projectile_type = projectile_type;
+        
+        ProjectilePayLoad payload;
+        payload.accuracy = accuracy;
+        payload.radius = radius;
+        payload.damage = damage;
+
+        spawn.payload = payload;
+
+        ECS::Entity target_entity;
+        if(targeting->get_one_target(faction, target_entity)) {
+            spawn.target = target_entity;
+            
+            for(int i = 0; i < projectile_count; i++) {
+                spawn.delay = i * burst_delay;
+                spawns.push_back(spawn);
+            }
+        }
+    }
 };
 
 struct FactionComponent {
@@ -238,6 +289,53 @@ struct MultiWeaponComponent {
         _reload_timer[index] = 0.f;
         return _weapons[index];
     }
+};
+
+struct MotherShip {
+    ECS::Entity entity;
+    Position position;
+    SpriteComponent sprite;
+    MotherShip(ECS::Entity e) : entity(e) {}
+
+    FactionComponent faction;
+    MultiWeaponComponent weapons;
+};
+
+struct FighterShip {
+    ECS::Entity entity;
+    Position position;
+    SpriteComponent sprite;
+    LifeTime life_time;
+    FighterShip(ECS::Entity e) : entity(e) {}
+
+    CollisionData collision;
+    FactionComponent faction;
+    AIComponent ai;
+    WeaponConfigurationComponent weapon_config;
+    Hull hull;
+};
+
+struct Projectile {
+    ECS::Entity entity;
+    Position position;
+    SpriteComponent sprite;
+    LifeTime life_time;
+    Projectile(ECS::Entity e) : entity(e) {}
+
+    CollisionData collision;
+    Velocity velocity;
+    ProjectileDamage damage;
+    FactionComponent faction;
+};
+
+struct ProjectileMiss {
+    ECS::Entity entity;    
+    Position position;
+    SpriteComponent sprite;
+    LifeTime life_time;
+    ProjectileMiss(ECS::Entity e) : entity(e) {}
+
+    Velocity velocity;
 };
 
 #endif
