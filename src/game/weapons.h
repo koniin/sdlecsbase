@@ -84,10 +84,6 @@ struct ValueModifier : WeaponModifier {
         _value = value;
     }
 
-    ~ValueModifier() {
-        Engine::logn("WEAPON MODIFIER DESTROYED");
-    }
-
     void modify(Weapon &weapon) {
         switch(_property) {
             case WeaponProperty::ReloadTime: {
