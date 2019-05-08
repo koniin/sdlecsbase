@@ -7,6 +7,7 @@
 #include "game_input_wrapper.h"
 #include "particles.h"
 #include "particle_config.h"
+#include "creator.h"
 
 #include <unordered_set>
 
@@ -186,16 +187,7 @@ namespace GameController {
         return true;
     }
 
-    void spawn_projectile(const ECS::Entity &target_entity, const Vector2 &position, const WeaponConfigurationComponent &wc) {
-        auto &e = target_entity;
-        auto fighter = std::find_if(_fighter_ships.begin(), _fighter_ships.end(),
-            [=](const FighterShip &ps) -> bool { return ps.entity.id == e.id; });
-        if(fighter == _fighter_ships.end()) {
-            return;
-        }
-        
-        Vector2 target_position = fighter->position.value;
-        auto angle = Math::angle_between_v(position, target_position);
+    void spawn_projectile(int faction, const float angle, const Vector2 &start_position, const WeaponConfigurationComponent &wc, ECS::Entity &target_entity) {
         auto velocity = Math::direction_from_angle(angle) * 500;
         
         auto sc = SpriteComponent("combat_sprites", wc.projectile_type);
@@ -205,15 +197,15 @@ namespace GameController {
         float chance = RNG::zero_to_one();
         if(wc.accuracy < chance) {
             ProjectileMiss p(entity_manager.create());
-            p.position = Position(position);
+            p.position = Position(start_position);
             p.velocity = Velocity(velocity);
             p.sprite = sc;
             _projectile_missed.push_back(p);
         } else {
             Projectile p(entity_manager.create());
-            p.position = Position(position);
+            p.position = Position(start_position);
             p.target = TargetComponent { target_entity };
-            p.faction.faction = fighter->faction.faction == PLAYER_FACTION ? ENEMY_FACTION : PLAYER_FACTION;
+            p.faction.faction = faction;
             p.damage.damage = (int)wc.damage;
             
             p.sprite = sc;
@@ -571,7 +563,16 @@ namespace GameController {
 
             pspawn.timer += Time::delta_time;
             if(pspawn.timer >= pspawn.delay) {
-                GameController::spawn_projectile(pspawn.target, pspawn.position, pspawn.wc);
+
+                auto fighter = std::find_if(_fighter_ships.begin(), _fighter_ships.end(),
+                    [=](const FighterShip &ps) -> bool { return ps.entity.id == pspawn.target.id; });
+                if(fighter == _fighter_ships.end()) {
+                    continue;
+                }
+                
+                Vector2 target_position = fighter->position.value;
+                auto angle = Math::angle_between_v(pspawn.position, target_position);
+                GameController::spawn_projectile(pspawn.faction, angle, pspawn.position, pspawn.wc, pspawn.target);
             }
         }
         _projectile_spawns.erase(std::remove_if(_projectile_spawns.begin(), _projectile_spawns.end(), 
