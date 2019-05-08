@@ -3,6 +3,7 @@
  next:
     = Goal: 
 		- weapons -> easier config / more dynamic events
+		- simplify =>     weaponComponent.add_modifier(new ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.5f));
 		- make fighters use multi weapon component
 
 	- Simple ship to ship battle

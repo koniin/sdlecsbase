@@ -7,7 +7,6 @@
 #include "game_input_wrapper.h"
 #include "particles.h"
 #include "particle_config.h"
-#include "creator.h"
 
 #include <unordered_set>
 
@@ -204,17 +203,15 @@ namespace GameController {
         ship.sprite = s;
         ship.position = position;
 
-        WeaponConfigurationComponent w_config;
-        w_config.accuracy = 0.8f;
-        w_config.damage = 10;
-        w_config.name = "Mothership blast cannon";
-        w_config.reload_time = 3.0f;
-        w_config.projectile_type = "bullet_3";
-        w_config.projectile_count = 8;
-        w_config.burst_delay = 0.1f;
-        w_config.targeting = _random_targeter;
+        WeaponComponent weaponComponent = WeaponComponent("Mothership blast cannon", _random_targeter, ProjectileType::Bullet);
+        weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.5f)));
+        weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Damage, 5)));
+        weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ReloadTime, 3.0f)));
+        //weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<ProjectileType>("temp", WeaponProperty::Projectile_Type, )));
+        weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Projectile_Count, 7)));
+        weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::BurstDelay, 0.1f)));
 
-        ship.weapons.add(w_config);
+        ship.weapons.add(weaponComponent);
 
         _motherships.push_back(ship);
     }
@@ -259,15 +256,18 @@ namespace GameController {
             s.flip = 0;
             ship.sprite = s;
 
-            WeaponConfigurationComponent w_config;
-            w_config.accuracy = 0.8f;
-            w_config.damage = 10;
-            w_config.name = "Player Gun";
-            w_config.reload_time = 1.0f;
-            w_config.projectile_type = "bullet_4";
-            w_config.targeting = _random_targeter;
-            ship.weapon_config = w_config;
-            ship.ai = AIComponent { w_config.reload_time };
+            
+            WeaponComponent weaponComponent = WeaponComponent("Player Gun", _random_targeter, ProjectileType::SmallBullet);
+            weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.3f)));
+            weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Damage, 5)));
+            // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<float>("temp", WeaponProperty::ReloadTime, 1.0f)));
+            //weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<ProjectileType>("temp", WeaponProperty::Projectile_Type, )));
+            // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<int>("temp", WeaponProperty::Projectile_Count, 0)));
+            // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<float>("temp", WeaponProperty::BurstDelay, 0.1f)));
+
+            ship.weapon_config = weaponComponent;
+
+            ship.ai = AIComponent { weaponComponent.get_weapon().reload_time };
 
             ship.collision.radius = 8;
 
@@ -299,15 +299,17 @@ namespace GameController {
             s.flip = 1;
             ship.sprite = s;
 
-            WeaponConfigurationComponent w_config;
-            w_config.accuracy = 0.8f;
-            w_config.damage = 20;
-            w_config.name = "Enemy Gun";
-            w_config.reload_time = 2.0;
-            w_config.projectile_type = "bullet_3";
-            w_config.targeting = _random_targeter;
-            ship.weapon_config = w_config;
-            ship.ai = AIComponent { w_config.reload_time };
+            WeaponComponent weaponComponent = WeaponComponent("Enemy Gun", _random_targeter, ProjectileType::Bullet);
+            weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.3f)));
+            weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Damage, 15)));
+            weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ReloadTime, 2.0f)));
+            // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<ProjectileType>("temp", WeaponProperty::Projectile_Type, )));
+            // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<int>("temp", WeaponProperty::Projectile_Count, 0)));
+            // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<float>("temp", WeaponProperty::BurstDelay, 0.1f)));
+
+            ship.weapon_config = weaponComponent;
+
+            ship.ai = AIComponent { weaponComponent.get_weapon().reload_time };
 
             ship.collision.radius = 8;
 
@@ -432,7 +434,7 @@ namespace GameController {
             }
 
             auto &wc = ship.weapon_config;
-            ai.fire_cooldown = wc.reload_time;;
+            ai.fire_cooldown = wc.get_weapon().reload_time;
             ship.weapon_config.make_spawns(ship.faction.faction, ship.position.value, _projectile_spawns);
         }
         

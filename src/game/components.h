@@ -2,6 +2,7 @@
 #define COMPONENTS_H
 
 #include "engine.h"
+#include "weapons.h"
 
 // Should be components for the engine/renderer really
 // Could be nice to have a base component library 
@@ -216,49 +217,54 @@ struct ProjectileSpawn {
     float timer = 0;
 };
 
-struct Targeting {
-    struct Target {
-        ECS::Entity entity;
-        Vector2 position;
-    };
+struct WeaponComponent {
+    private:
+    Weapon _weapon;
+    std::shared_ptr<Targeting> _targeting;
+    std::vector<std::shared_ptr<WeaponModifier>> _weaponModifiers;
 
-    virtual bool get_one_target(const int &exclude_faction, Target &target) = 0;
-    virtual bool get_targets(const int &exclude_faction, const size_t &count, std::vector<Target> &targets) = 0;
-};
+    public:
+    WeaponComponent() {}
+    WeaponComponent(std::string name, std::shared_ptr<Targeting> targeting, ProjectileType type) : _targeting(targeting) {
+        _weapon.name = name;
+        _weapon.projectile_type = type;
+    }
+    
+    void add_modifier(std::shared_ptr<WeaponModifier> modifier) {
+        _weaponModifiers.push_back(modifier);
+        //_weaponModifiers.push_back(modifier);
+    }
 
-struct WeaponConfigurationComponent {
-    std::string name; // (Blaster MK2 etc)
-    float reload_time; // in seconds (0.2f)
-    float damage; 
-    float accuracy;
-    std::string projectile_type;
-    int projectile_count = 1;
-    float burst_delay = 0.0f;
-    int radius = 8;
-    float projectile_speed = 500.0f;
-
-    std::shared_ptr<Targeting> targeting;
+    Weapon get_weapon() {
+        Weapon w = _weapon; // Make a copy
+        for(auto &modifier : _weaponModifiers) {
+            modifier->modify(_weapon);
+        }
+        return w;
+    }
 
     void make_spawns(const int &faction, const Vector2 &position, std::vector<ProjectileSpawn> &spawns) {
+        Weapon weapon = get_weapon();
+
         ProjectileSpawn spawn;
         spawn.faction = faction;
         spawn.position = position;
-        spawn.projectile_speed = projectile_speed;
-        spawn.projectile_type = projectile_type;
+        spawn.projectile_speed = weapon.projectile_speed;
+        spawn.projectile_type = get_projectile_sprite(weapon.projectile_type);
         
         ProjectilePayLoad payload;
-        payload.accuracy = accuracy;
-        payload.radius = radius;
-        payload.damage = damage;
+        payload.accuracy = weapon.accuracy;
+        payload.radius = weapon.radius;
+        payload.damage = weapon.damage;
 
         spawn.payload = payload;
 
         Targeting::Target target;
-        if(targeting->get_one_target(faction, target)) {
-            for(int i = 0; i < projectile_count; i++) {
+        if(_targeting->get_one_target(faction, target)) {
+            for(int i = 0; i < weapon.projectile_count; i++) {
                 spawn.target = target.entity;
                 spawn.target_position = target.position;
-                spawn.delay = i * burst_delay;
+                spawn.delay = i * weapon.burst_delay;
                 spawns.push_back(spawn);
             }
         }
@@ -274,10 +280,10 @@ struct TargetComponent {
 };
 
 struct MultiWeaponComponent {
-    std::vector<WeaponConfigurationComponent> _weapons;
+    std::vector<WeaponComponent> _weapons;
     std::vector<float> _reload_timer;
     
-    void add(WeaponConfigurationComponent wc) {
+    void add(WeaponComponent wc) {
         _weapons.push_back(wc);
         _reload_timer.push_back(0.f);
     }
@@ -287,10 +293,10 @@ struct MultiWeaponComponent {
         if(index < 0 || index > _weapons.size() - 1) {
             return false;
         }
-        return _reload_timer[index] > _weapons[index].reload_time;
+        return _reload_timer[index] > _weapons[index].get_weapon().reload_time;
     }
 
-    WeaponConfigurationComponent get_config(int id) {
+    WeaponComponent get_config(int id) {
         size_t index = id - 1;
         _reload_timer[index] = 0.f;
         return _weapons[index];
@@ -317,7 +323,7 @@ struct FighterShip {
     CollisionData collision;
     FactionComponent faction;
     AIComponent ai;
-    WeaponConfigurationComponent weapon_config;
+    WeaponComponent weapon_config;
     Hull hull;
 };
 
