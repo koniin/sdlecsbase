@@ -206,6 +206,7 @@ struct ProjectilePayLoad {
 struct ProjectileSpawn {
     int faction;
     Vector2 position;
+    Vector2 target_position;
     ECS::Entity target;
     float projectile_speed;
 	std::string projectile_type;
@@ -216,8 +217,13 @@ struct ProjectileSpawn {
 };
 
 struct Targeting {
-    virtual bool get_one_target(const int &exclude_faction, ECS::Entity &entity) = 0;
-    virtual bool get_targets(const int &exclude_faction, const size_t &count, std::vector<ECS::Entity> &targets) = 0;
+    struct Target {
+        ECS::Entity entity;
+        Vector2 position;
+    };
+
+    virtual bool get_one_target(const int &exclude_faction, Target &target) = 0;
+    virtual bool get_targets(const int &exclude_faction, const size_t &count, std::vector<Target> &targets) = 0;
 };
 
 struct WeaponConfigurationComponent {
@@ -247,11 +253,11 @@ struct WeaponConfigurationComponent {
 
         spawn.payload = payload;
 
-        ECS::Entity target_entity;
-        if(targeting->get_one_target(faction, target_entity)) {
-            spawn.target = target_entity;
-            
+        Targeting::Target target;
+        if(targeting->get_one_target(faction, target)) {
             for(int i = 0; i < projectile_count; i++) {
+                spawn.target = target.entity;
+                spawn.target_position = target.position;
                 spawn.delay = i * burst_delay;
                 spawns.push_back(spawn);
             }

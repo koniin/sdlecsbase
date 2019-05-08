@@ -79,7 +79,7 @@ namespace GameController {
     CollisionPairs collision_pairs;
 
     struct RandomTargeter : Targeting {
-        bool get_one_target(const int &exclude_faction, ECS::Entity &entity) override {
+        bool get_one_target(const int &exclude_faction, Targeting::Target &target) override {
             int target_faction = exclude_faction == PLAYER_FACTION ? ENEMY_FACTION : PLAYER_FACTION;
 
             std::vector<FighterShip*> matches;
@@ -93,14 +93,15 @@ namespace GameController {
                 return false;
             }
             
-            int target = RNG::range_i(0, matches.size() - 1);
-            auto target_ship = matches[target];
-            entity = target_ship->entity;
+            int target_index = RNG::range_i(0, matches.size() - 1);
+            auto target_ship = matches[target_index];
+            target.entity = target_ship->entity;
+            target.position = target_ship->position.value;
 
             return true;
         }
 
-        bool get_targets(const int &exclude_faction, const size_t &count, std::vector<ECS::Entity> &targets) override {
+        bool get_targets(const int &exclude_faction, const size_t &count, std::vector<Targeting::Target> &targets) override {
             ASSERT_WITH_MSG(false, "get_targets is not implemented!");
             return false;
             // int target_faction = exclude_faction == PLAYER_FACTION ? ENEMY_FACTION : PLAYER_FACTION;
@@ -159,14 +160,7 @@ namespace GameController {
     }
     
     void spawn_projectile(ProjectileSpawn &spawn) {
-        auto fighter = std::find_if(_fighter_ships.begin(), _fighter_ships.end(),
-            [=](const FighterShip &ps) -> bool { return ps.entity.id == spawn.target.id; });
-        if(fighter == _fighter_ships.end()) {
-            return;
-        }
-        
-        Vector2 target_position = fighter->position.value;
-        const float angle = Math::angle_between_v(spawn.position, target_position);
+        const float angle = Math::angle_between_v(spawn.position, spawn.target_position);
         const int &faction = spawn.faction;
         const Vector2 &start_position = spawn.position;
         const ProjectilePayLoad &payload = spawn.payload;
