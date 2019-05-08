@@ -175,19 +175,8 @@ struct Hull {
     Hull(const int n) : amount(n) {}
 };
 
-struct TravelDistance {
-    float amount = 0;
-    float target = 0;
-
-    TravelDistance() {}
-    TravelDistance(float t) : target(t) {}
-};
-
-struct ProjectileDamageDistance {
-    float distance = 0;
-    short hit = 0;
+struct ProjectileDamage {
     int damage = 0;
-    ECS::Entity target;
 };
 
 struct PlayerInput {

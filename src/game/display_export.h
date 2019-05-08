@@ -8,15 +8,23 @@
 
 void export_sprite_data(const Position &position, const SpriteComponent &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets);
 
+template<typename T>
+void export_entities(std::vector<T> &entities, SpriteBufferData *sprite_data_buffer, std::vector<SpriteSheet> *sprite_sheets, int &sprite_count) {
+    for(size_t i = 0; i < entities.size(); i++) {
+        export_sprite_data(entities[i].position, entities[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+    }
+}
+
 void render_export(RenderBuffer &render_buffer) {
     render_buffer.clear();
     auto *sprite_sheets = &Resources::get_sprite_sheets();
     auto sprite_data_buffer = render_buffer.sprite_data_buffer;
     auto &sprite_count = render_buffer.sprite_count;
 
-    for(size_t i = 0; i < GameController::_motherships.size(); i++) {
-        export_sprite_data(GameController::_motherships[i].position, GameController::_motherships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
-    }
+    export_entities(GameController::_motherships, sprite_data_buffer, sprite_sheets, sprite_count);
+    // for(size_t i = 0; i < GameController::_motherships.size(); i++) {
+    //     export_sprite_data(GameController::_motherships[i].position, GameController::_motherships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+    // }
 
     for(size_t i = 0; i < GameController::_fighter_ships.size(); i++) {
         export_sprite_data(GameController::_fighter_ships[i].position, GameController::_fighter_ships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
@@ -24,6 +32,11 @@ void render_export(RenderBuffer &render_buffer) {
     
     for(size_t i = 0; i < GameController::_projectiles.size(); i++) {
         auto &projectile = GameController::_projectiles[i];
+        export_sprite_data(projectile.position, projectile.sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+    }
+
+    for(size_t i = 0; i < GameController::_projectile_missed.size(); i++) {
+        auto &projectile = GameController::_projectile_missed[i];
         export_sprite_data(projectile.position, projectile.sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
     }
     

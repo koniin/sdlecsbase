@@ -780,6 +780,9 @@ namespace ECS {
         bool equals(Entity other) {
             return id == other.id;
         }
+        const bool equals(const Entity &other) const {
+            return id == other.id;
+        }
     };
 
     class ComponentID {

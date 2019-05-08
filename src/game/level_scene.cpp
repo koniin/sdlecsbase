@@ -49,6 +49,7 @@ void LevelScene::update() {
 	FrameLog::log(frame_duration_ms);
 
     FrameLog::log("projectiles: " + std::to_string(GameController::_projectiles.size()));
+    FrameLog::log("projectiles missed: " + std::to_string(GameController::_projectile_missed.size()));
 }
 
 void LevelScene::render() {
