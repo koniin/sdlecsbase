@@ -205,6 +205,7 @@ struct WeaponConfigurationComponent {
     int projectile_count = 1;
     float burst_delay = 0.0f;
     float radius = 8.0f;
+    float projectile_speed = 500.0f;
 };
 
 struct FactionComponent {

@@ -187,8 +187,8 @@ namespace GameController {
         return true;
     }
 
-    void spawn_projectile(int faction, const float angle, const Vector2 &start_position, const WeaponConfigurationComponent &wc, ECS::Entity &target_entity) {
-        auto velocity = Math::direction_from_angle(angle) * 500;
+    void spawn_projectile(const int &faction, const float &angle, const Vector2 &start_position, const WeaponConfigurationComponent &wc, const ECS::Entity &target_entity) {
+        auto velocity = Math::direction_from_angle(angle) * wc.projectile_speed;
         
         auto sc = SpriteComponent("combat_sprites", wc.projectile_type);
         sc.layer = PROJECTILE_LAYER;
