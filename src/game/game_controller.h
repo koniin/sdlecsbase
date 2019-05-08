@@ -211,12 +211,7 @@ namespace GameController {
             p.sprite = sc;
             p.velocity = Velocity(velocity);
 
-            // auto distance_to_target = (p.position.value - target_position).length();
-            // ProjectileDamage pd;
-            // pd.damage = (int)wc.damage;
-            // p.damage = pd;
-
-            p.collision.radius = 8;
+            p.collision.radius = wc.radius;
 
             _projectiles.push_back(p);
         }

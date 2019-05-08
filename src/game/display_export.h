@@ -26,19 +26,22 @@ void render_export(RenderBuffer &render_buffer) {
     //     export_sprite_data(GameController::_motherships[i].position, GameController::_motherships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
     // }
 
-    for(size_t i = 0; i < GameController::_fighter_ships.size(); i++) {
-        export_sprite_data(GameController::_fighter_ships[i].position, GameController::_fighter_ships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
-    }
+    export_entities(GameController::_fighter_ships, sprite_data_buffer, sprite_sheets, sprite_count);
+    // for(size_t i = 0; i < GameController::_fighter_ships.size(); i++) {
+    //     export_sprite_data(GameController::_fighter_ships[i].position, GameController::_fighter_ships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+    // }
     
-    for(size_t i = 0; i < GameController::_projectiles.size(); i++) {
-        auto &projectile = GameController::_projectiles[i];
-        export_sprite_data(projectile.position, projectile.sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
-    }
+    export_entities(GameController::_projectiles, sprite_data_buffer, sprite_sheets, sprite_count);
+    // for(size_t i = 0; i < GameController::_projectiles.size(); i++) {
+    //     auto &projectile = GameController::_projectiles[i];
+    //     export_sprite_data(projectile.position, projectile.sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+    // }
 
-    for(size_t i = 0; i < GameController::_projectile_missed.size(); i++) {
-        auto &projectile = GameController::_projectile_missed[i];
-        export_sprite_data(projectile.position, projectile.sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
-    }
+    export_entities(GameController::_projectile_missed, sprite_data_buffer, sprite_sheets, sprite_count);
+    // for(size_t i = 0; i < GameController::_projectile_missed.size(); i++) {
+    //     auto &projectile = GameController::_projectile_missed[i];
+    //     export_sprite_data(projectile.position, projectile.sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+    // }
     
     std::sort(sprite_data_buffer, sprite_data_buffer + sprite_count);
 
