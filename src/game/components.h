@@ -185,7 +185,7 @@ struct PlayerInput {
     float fire_cooldown = 0.0f;
 };
 
-struct AIComponent {
+struct AutomaticFireComponent {
     float fire_cooldown = 2.0f;
 };
 
@@ -279,31 +279,54 @@ struct TargetComponent {
 };
 
 struct MultiWeaponComponent {
+    private:
     std::vector<WeaponComponent> _weapons;
+    std::vector<bool> _manual_control;
     std::vector<float> _reload_timer;
+    std::vector<int> _ids;
     
-    void add(WeaponComponent wc) {
+    public:
+    void add(WeaponComponent wc, bool manual = false) {
+        _ids.push_back(_weapons.size());
         _weapons.push_back(wc);
         _reload_timer.push_back(0.f);
+        _manual_control.push_back(manual);
+    }
+
+    std::vector<int> &ids() {
+        return _ids;
+    }
+
+    bool is_manual(int id) {
+        return _manual_control[id];
+    }
+
+    void update_reload_timer(float dt) {
+        for(auto &timer : _reload_timer) {
+            timer += Time::delta_time;
+        }    
+    }
+
+    Weapon get_weapon(int id) {
+        return _weapons[id].get_weapon();
+    }
+
+    float get_reload_timer(int id) {
+        return _reload_timer[id];
     }
 
     bool can_fire(int id) {
-        size_t index = id - 1;
-        if(index < 0 || index > _weapons.size() - 1) {
+        size_t index = id;
+        if(index < 0 || index >= _weapons.size()) {
             return false;
         }
         return _reload_timer[index] > _weapons[index].get_weapon().reload_time;
     }
 
     void fire(int id, int faction, Vector2 position, std::vector<ProjectileSpawn> &projectile_spawns) {
-        size_t index = id - 1;
-         _weapons[index].make_spawns(faction, position, projectile_spawns);
-    }
-    
-    WeaponComponent &get_config(int id) {
-        size_t index = id - 1;
-        _reload_timer[index] = 0.f;
-        return _weapons[index];
+        size_t index = id;
+         _weapons[index].make_spawns(faction, position, projectile_spawns);    
+         _reload_timer[index] = 0.0f;
     }
 };
 
@@ -326,8 +349,8 @@ struct FighterShip {
 
     CollisionData collision;
     FactionComponent faction;
-    AIComponent ai;
-    WeaponComponent weapon_config;
+    AutomaticFireComponent automatic_fire;
+    MultiWeaponComponent weapons;
     Hull hull;
 };
 

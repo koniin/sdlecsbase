@@ -44,11 +44,11 @@ namespace GInput {
 
     inline int pressed_weapon_id() {
         if(pressed(GInput::Action::Fire_1)) {
-            return 1;
+            return 0;
         } else if(pressed(GInput::Action::Fire_2)) {
-            return 2;
+            return 1;
         } else if(pressed(GInput::Action::Fire_3)) {
-            return 3;
+            return 2;
         }
 
         return -1;

@@ -2,9 +2,6 @@
 
  next:
     = Goal: 
-		- Fix bug with reload time for Mothership weapon
-			=> seems to increase all the time, somewhere its a reference where it shouldnt be?
-		- simplify =>     weaponComponent.add_modifier(new ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.5f));
 		- make fighters use multi weapon component
 
 	- Simple ship to ship battle

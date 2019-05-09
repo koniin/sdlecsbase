@@ -61,16 +61,18 @@ void render_export(RenderBuffer &render_buffer) {
 
     for(auto &ship : GameController::_motherships) {
         if(ship.faction.faction == GameController::PLAYER_FACTION) {
-            for(size_t i = 0; i < ship.weapons._weapons.size(); i++) {
-                auto weapon = ship.weapons._weapons[i].get_weapon();
-
+            int i = 0;
+            for(auto weapon_id : ship.weapons.ids()) {
+                auto weapon = ship.weapons.get_weapon(weapon_id);
+                auto reload_timer = ship.weapons.get_reload_timer(weapon_id);
                 TextElement t;
-                t.color = ship.weapons._reload_timer[i] < weapon.reload_time ? Colors::red : Colors::green;
+                t.color = reload_timer < weapon.reload_time ? Colors::red : Colors::green;
                 t.align = UIAlign::Left;
                 t.position = Point(10, gh - 60 + i * 15);
-                float reload_time = weapon.reload_time - ship.weapons._reload_timer[i];
+                float reload_time = weapon.reload_time - reload_timer;
                 t.text = Text::format("%d. %s (%.2f)", i + 1, weapon.name.c_str(), reload_time > 0.f ? reload_time : 0);
                 Services::ui().add_element(t);
+                i++;
             }
         }
     }
