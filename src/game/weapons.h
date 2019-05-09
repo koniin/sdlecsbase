@@ -31,37 +31,6 @@ struct Weapon {
     float projectile_speed = 500.0f;
 };
 
-struct WeaponModifier {
-    virtual void modify(Weapon &weapon) = 0;
-};
-
-// struct AccuracyModifier : WeaponModifier {
-//     float _value;
-//     AccuracyModifier(std::string name, float value) {
-//         _name = name;
-//         _value = value;
-//     }
-
-//     void modify(Weapon &weapon) {
-//         weapon.accuracy += _value;
-//     }
-// };
-
-// struct FloatValueModifier : WeaponModifier {
-//     std::string _value_name;
-//     float _value;
-//     FloatValueModifier(std::string name, std::string value_name, float value) {
-//         _name = name;
-//         _value_name = value_name;
-//         _value = value;
-//     }
-
-//     void modify(Weapon &weapon) {
-//         weapon.accuracy += _value;
-//     }
-// };
-
-
 enum WeaponProperty {
     Accuracy,
     ReloadTime,
@@ -71,6 +40,10 @@ enum WeaponProperty {
     BurstDelay,
     Radius,
     ProjectileSpeed
+};
+
+struct WeaponModifier {
+    virtual void modify(Weapon &weapon) = 0;
 };
 
 template<typename T>
@@ -94,10 +67,10 @@ struct ValueModifier : WeaponModifier {
                 weapon.damage += _value;
                 return;
             }
-            // case WeaponProperty::Projectile_Type: {
-            //     weapon.projectile_type = static_cast<ProjectileType>(_value);
-            //     return;
-            // }
+            case WeaponProperty::Projectile_Type: {
+                weapon.projectile_type = (ProjectileType)((int)(_value));
+                return;
+            }
             case WeaponProperty::Accuracy: {
                 weapon.accuracy += _value;
                 return;
@@ -117,10 +90,10 @@ struct ValueModifier : WeaponModifier {
 std::string get_projectile_sprite(ProjectileType type) {
     switch(type) {
         case ProjectileType::Bullet: {
-            return "bullet_4";
+            return "bullet_3";
         }
         case ProjectileType::SmallBullet: {
-            return "bullet_3";
+            return "bullet_4";
         }
     }
     ASSERT_WITH_MSG(false, "ProjectileType not implemented!");

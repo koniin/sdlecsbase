@@ -232,7 +232,6 @@ struct WeaponComponent {
     
     void add_modifier(std::shared_ptr<WeaponModifier> modifier) {
         _weaponModifiers.push_back(modifier);
-        //_weaponModifiers.push_back(modifier);
     }
 
     Weapon get_weapon() {
