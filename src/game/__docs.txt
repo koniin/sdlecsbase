@@ -9,6 +9,9 @@
 		- display shield with hull like  100 / 100 (hull / shield)
 		- gfx for shield ( something above with blend or in front etc )
 
+	- weapons 
+		- missiles, goes in an arc and accelerates
+		- laser, a line to the target
 
 	- Simple ship to ship battle
 		- different weapons for fighter ships
