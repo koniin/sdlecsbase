@@ -160,6 +160,15 @@ struct SpriteComponent {
 
 struct CollisionData {
     int radius = 0;
+    Rectangle aabb;
+
+    CollisionData() {}
+    CollisionData(int r) {
+        radius = r;
+    }
+    CollisionData(int w, int h) {
+        aabb = Rectangle(0, 0, w, h);
+    }
 };
 
 // ==============================================================
@@ -336,8 +345,10 @@ struct MotherShip {
     SpriteComponent sprite;
     MotherShip(ECS::Entity e) : entity(e) {}
 
+    CollisionData collision;
     FactionComponent faction;
     MultiWeaponComponent weapons;
+    Hull hull;
 };
 
 struct FighterShip {

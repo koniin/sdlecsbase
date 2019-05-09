@@ -186,7 +186,7 @@ namespace GameController {
             p.sprite = sc;
             p.velocity = Velocity(velocity);
 
-            p.collision.radius = payload.radius;
+            p.collision = CollisionData(payload.radius);
 
             _projectiles.push_back(p);
         }
@@ -197,11 +197,23 @@ namespace GameController {
 
         MotherShip ship(entity_manager.create());
         ship.faction = FactionComponent { PLAYER_FACTION };
-        SpriteComponent s = SpriteComponent("combat_sprites", "mother1");
+        SpriteComponent s = SpriteComponent({ 
+                Animation("idle", { { "combat_sprites", "mother1" } }, 0, false),
+                Animation("hit", { 
+                    { "combat_sprites", "mother1_w" },
+                    { "combat_sprites", "mother1" },
+                    { "combat_sprites", "mother1_w" },
+                    { "combat_sprites", "mother1" },
+                    { "combat_sprites", "mother1_w" },
+                    { "combat_sprites", "mother1" },
+                    { "combat_sprites", "mother1_w" }
+                },  8, false)
+            });
         s.layer = MOTHERSHIP_LAYER;
         s.flip = 0;
         ship.sprite = s;
         ship.position = position;
+        ship.hull = Hull(1000);
 
         WeaponComponent weaponComponent = WeaponComponent("Mothership blast cannon", _random_targeter, ProjectileType::Bullet);
         weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.5f)));
@@ -213,6 +225,10 @@ namespace GameController {
 
         ship.weapons.add(weaponComponent, true);
 
+        auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
+        auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, "mother1");
+        ship.collision = CollisionData(rect.w, rect.h);
+
         _motherships.push_back(ship);
     }
 
@@ -221,11 +237,29 @@ namespace GameController {
 
         MotherShip ship(entity_manager.create());
         ship.faction = FactionComponent { ENEMY_FACTION };
-        SpriteComponent s = SpriteComponent("combat_sprites", "mother2");
+        SpriteComponent s = SpriteComponent({ 
+                Animation("idle", { { "combat_sprites", "mother2" } }, 0, false),
+                Animation("hit", { 
+                    { "combat_sprites", "mother2_w" },
+                    { "combat_sprites", "mother2" },
+                    { "combat_sprites", "mother2_w" },
+                    { "combat_sprites", "mother2" },
+                    { "combat_sprites", "mother2_w" },
+                    { "combat_sprites", "mother2" },
+                    { "combat_sprites", "mother2_w" }
+                },  8, false)
+            });
+        
         s.layer = MOTHERSHIP_LAYER;
         s.flip = 1;
         ship.sprite = s;
         ship.position = position;
+        ship.hull = Hull(1000);
+
+        auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
+        auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, "mother2");
+        ship.collision = CollisionData(rect.w, rect.h);
+
         _motherships.push_back(ship);
     }
 
@@ -242,7 +276,6 @@ namespace GameController {
             SpriteComponent s = SpriteComponent({ 
                 Animation("idle", { { "combat_sprites", "cs1" } }, 0, false),
                 Animation("hit", { 
-                    { "combat_sprites", "cs1" },
                     { "combat_sprites", "cs1_w" },
                     { "combat_sprites", "cs1" },
                     { "combat_sprites", "cs1_w" },
@@ -265,7 +298,9 @@ namespace GameController {
 
             ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
 
-            ship.collision.radius = 8;
+            auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
+            auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, "cs1");
+            ship.collision = CollisionData(rect.w, rect.h);
 
             _fighter_ships.push_back(ship);
         }
@@ -283,9 +318,8 @@ namespace GameController {
             SpriteComponent s = SpriteComponent({ 
                 Animation("idle", { { "combat_sprites", "cs2" } }, 0, false),
                 Animation("hit", { 
-                    { "combat_sprites", "cs2" },
                     { "combat_sprites", "cs2_w" },
-                    { "combat_sprites", "cs2_b" },
+                    { "combat_sprites", "cs2" },
                     { "combat_sprites", "cs2_w"}, 
                     { "combat_sprites", "cs2" },
                     { "combat_sprites", "cs2_w"}
@@ -307,7 +341,9 @@ namespace GameController {
 
             ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
 
-            ship.collision.radius = 8;
+            auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
+            auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, "cs2");
+            ship.collision = CollisionData(rect.w, rect.h);
 
             _fighter_ships.push_back(ship);
         }
@@ -359,29 +395,36 @@ namespace GameController {
                 }
 
                 const Vector2 p_pos = first.position.value;
-                const float projectile_radius = (float)first.collision.radius;
+                const float first_radius = (float)first.collision.radius;
                 const Vector2 p_last = first.position.last;
                 const Vector2 t_pos = second.position.value;
-                const float t_radius = (float)second.collision.radius;
-
-                float dist = Math::distance_v(p_last, t_pos);
-                if(Math::intersect_circles(p_pos.x, p_pos.y, projectile_radius, t_pos.x, t_pos.y, t_radius)) {
-                    // Collision point is the point on the target circle 
-                    // that is on the edge in the direction of the projectiles 
-                    // reverse velocity
-                    //Engine::logn("circle intersect");
-                    Vector2 collision_point = t_pos + (t_radius * -first.velocity.value.normal());
+                if(Math::intersect_circle_AABB(p_pos.x, p_pos.y, first_radius, t_pos.x, t_pos.y, (float)second.collision.aabb.w, (float)second.collision.aabb.h)) {
+                    float dist = Math::distance_v(p_last, t_pos);
+                    Vector2 collision_point;
                     collision_pairs.push(first.entity, second.entity, dist, collision_point);
-                    continue;
                 }
 
-                Vector2 entry_point;
-                int result = Intersects::line_circle_entry(p_last, p_pos, t_pos, t_radius, entry_point);
-                if(result == 1 || result == 2) {
-                    Vector2 collision_point = t_pos + (t_radius * first.velocity.value.normal());
-                    collision_pairs.push(first.entity, second.entity, dist, collision_point);
-                    Engine::logn("line intersect");
-                }
+                // const Vector2 t_pos = second.position.value;
+                // const float t_radius = (float)second.collision.radius;
+                // if(Math::intersect_circles(p_pos.x, p_pos.y, first_radius, t_pos.x, t_pos.y, t_radius)) {
+                //     // Collision point is the point on the target circle 
+                //     // that is on the edge in the direction of the projectiles 
+                //     // reverse velocity
+                //     //Engine::logn("circle intersect");
+                //     float dist = Math::distance_v(p_last, t_pos);
+                //     Vector2 collision_point = t_pos + (t_radius * -first.velocity.value.normal());
+                //     collision_pairs.push(first.entity, second.entity, dist, collision_point);
+                //     continue;
+                // }
+
+                // Vector2 entry_point;
+                // int result = Intersects::line_circle_entry(p_last, p_pos, t_pos, t_radius, entry_point);
+                // if(result == 1 || result == 2) {
+                //     float dist = Math::distance_v(p_last, t_pos);
+                //     Vector2 collision_point = t_pos + (t_radius * first.velocity.value.normal());
+                //     collision_pairs.push(first.entity, second.entity, dist, collision_point);
+                //     Engine::logn("line intersect");
+                // }
             }
         }
     }
@@ -400,6 +443,24 @@ namespace GameController {
         particle_config.smoke_emitter.position = fighter.position.value;
         Particles::emit(particles, particle_config.smoke_emitter);
         fighter.sprite.set_current_animation("hit", "idle");
+        //fighter->sprite.set_current_animation("hit");
+        //SpriteAnimation::set_current(fighter->animation, "hit");
+    }
+
+    void collision_handle(Projectile &projectile, MotherShip &mothership, const CollisionPair &entities) {
+        auto &p = projectile.position;
+        
+        projectile.life_time.marked_for_deletion = true;
+
+        auto &hull = mothership.hull;
+        hull.amount = hull.amount - projectile.damage.damage;
+        // An event ?
+        // Send that something took damage?
+        Services::ui().show_text_toast(p.value, "HIT!", 1.0f);
+        
+        particle_config.smoke_emitter.position = mothership.position.value;
+        Particles::emit(particles, particle_config.smoke_emitter);
+        mothership.sprite.set_current_animation("hit", "idle");
         //fighter->sprite.set_current_animation("hit");
         //SpriteAnimation::set_current(fighter->animation, "hit");
     }
@@ -445,8 +506,16 @@ namespace GameController {
         system_collision_resolution(collision_pairs, _projectiles, _fighter_ships);
         collision_pairs.clear();
 
+        system_collisions(collision_pairs, _projectiles, _motherships);
+        system_collision_resolution(collision_pairs, _projectiles, _motherships);
+        collision_pairs.clear();
+
         // Animation system
         for (auto &ship : _fighter_ships) { 
+            ship.sprite.update_animation(Time::delta_time);
+        }
+        // Animation system
+        for (auto &ship : _motherships) { 
             ship.sprite.update_animation(Time::delta_time);
         }
 

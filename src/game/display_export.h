@@ -60,6 +60,15 @@ void render_export(RenderBuffer &render_buffer) {
     }
 
     for(auto &ship : GameController::_motherships) {
+        auto pos = ship.position.value;
+        TextElement t;
+        t.color = Colors::white;
+        t.position = Point((int)pos.x, (int)pos.y - 12);
+        t.text = std::to_string(ship.hull.amount);
+        Services::ui().add_element(t);
+    }
+
+    for(auto &ship : GameController::_motherships) {
         if(ship.faction.faction == GameController::PLAYER_FACTION) {
             int i = 0;
             for(auto weapon_id : ship.weapons.ids()) {

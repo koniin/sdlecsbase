@@ -285,6 +285,21 @@ struct Rectangle {
         return y + h;
     }
 
+    void set_position(const Point &p) {
+        x = p.x;
+        y = p.y;
+    }
+
+    void set_position(const Vector2 &v) {
+        x = (int)v.x;
+        y = (int)v.y;
+    }
+
+    void set_position(const int &xx, const int &yy) {
+        x = xx;
+        y = yy;
+    }
+
 	bool intersects(Rectangle &r2) {
         return !(r2.left() > right()
                  || r2.right() < left()
@@ -567,6 +582,13 @@ namespace Math {
 
 	inline bool intersect_circle_AABB(const float &cx, const float &cy, const float &radius, const Rectangle &rect) {
 		AABB_f aa = { (float)rect.x, (float)rect.x + rect.w, (float)rect.y, rect.y + (float)rect.h };
+		float delta_x = cx - Math::max_f(aa.left, Math::min_f(cx, aa.right));
+		float delta_y = cy - Math::max_f(aa.bottom, Math::min_f(cy, aa.top));
+		return (delta_x * delta_x + delta_y * delta_y) < (radius * radius);
+	}
+
+    inline bool intersect_circle_AABB(const float &cx, const float &cy, const float &radius, const float &x, const float &y, const float &w, const float &h) {
+		AABB_f aa = { x, x + w, y, y + h };
 		float delta_x = cx - Math::max_f(aa.left, Math::min_f(cx, aa.right));
 		float delta_y = cy - Math::max_f(aa.bottom, Math::min_f(cy, aa.top));
 		return (delta_x * delta_x + delta_y * delta_y) < (radius * radius);

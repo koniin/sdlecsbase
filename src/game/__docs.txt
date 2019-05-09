@@ -2,7 +2,9 @@
 
  next:
     = Goal: 
-		- make fighters use multi weapon component
+		- fire at mothership if any
+		- game over when mothership is dead
+
 
 	- Simple ship to ship battle
 		- mothership
