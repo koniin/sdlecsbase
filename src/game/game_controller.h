@@ -418,7 +418,7 @@ namespace GameController {
             if(ship.faction.faction == PLAYER_FACTION) {
                 int weapon_id = GInput::pressed_weapon_id();
                 if(ship.weapons.can_fire(weapon_id)) {
-                    ship.weapons.get_config(weapon_id).make_spawns(ship.faction.faction, ship.position.value, _projectile_spawns);
+                    ship.weapons.fire(weapon_id, ship.faction.faction, ship.position.value, _projectile_spawns);
                 }
             } else {
 

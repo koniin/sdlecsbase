@@ -237,8 +237,8 @@ struct WeaponComponent {
 
     Weapon get_weapon() {
         Weapon w = _weapon; // Make a copy
-        for(auto &modifier : _weaponModifiers) {
-            modifier->modify(_weapon);
+        for(auto modifier : _weaponModifiers) {
+            modifier->modify(w);
         }
         return w;
     }
@@ -296,7 +296,12 @@ struct MultiWeaponComponent {
         return _reload_timer[index] > _weapons[index].get_weapon().reload_time;
     }
 
-    WeaponComponent get_config(int id) {
+    void fire(int id, int faction, Vector2 position, std::vector<ProjectileSpawn> &projectile_spawns) {
+        size_t index = id - 1;
+         _weapons[index].make_spawns(faction, position, projectile_spawns);
+    }
+    
+    WeaponComponent &get_config(int id) {
         size_t index = id - 1;
         _reload_timer[index] = 0.f;
         return _weapons[index];
