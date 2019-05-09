@@ -347,6 +347,7 @@ struct MotherShip {
     ECS::Entity entity;
     Position position;
     SpriteComponent sprite;
+    LifeTime life_time;
     MotherShip(ECS::Entity e) : entity(e) {}
 
     CollisionData collision;

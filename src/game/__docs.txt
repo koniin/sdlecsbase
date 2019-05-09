@@ -2,12 +2,10 @@
 
  next:
     = Goal: 
-		- fire at mothership if any
 		- game over when mothership is dead
 
 
 	- Simple ship to ship battle
-		- mothership
 		- different weapons for fighter ships
 			- some buttons to click for "special weapons" / shields etc (like FTL)
 			- maybe AOE and targeted with click 

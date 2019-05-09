@@ -108,9 +108,8 @@ namespace GameController {
                 target.position = target_ship->position.value;
                 return true;
             }
-            
 
-            return true;
+            return false;
         }
 
         bool get_targets(const int &exclude_faction, const size_t &count, std::vector<Targeting::Target> &targets) override {
@@ -507,6 +506,17 @@ namespace GameController {
         }
     }
 
+    template<typename Entity>
+    void system_destroy_explode_entities(std::vector<Entity> &entities) {
+        for(auto &entity : entities) {
+            if(entity.hull.amount <= 0) {
+                particle_config.explosion_emitter.position = entity.position.value;
+                Particles::emit(particles, particle_config.explosion_emitter);
+                entity.life_time.marked_for_deletion = true;
+            }
+        }
+    }
+
     void update() {
         system_weapons(_motherships);
         system_weapons(_fighter_ships);
@@ -531,21 +541,16 @@ namespace GameController {
         for (auto &ship : _motherships) { 
             ship.sprite.update_animation(Time::delta_time);
         }
-
-        // Destroy dead ships system
-        for(auto &fighter : _fighter_ships) {
-            if(fighter.hull.amount <= 0) {
-                particle_config.explosion_emitter.position = fighter.position.value;
-                Particles::emit(particles, particle_config.explosion_emitter);
-                fighter.life_time.marked_for_deletion = true;
-            }
-        }
-
+        
+        system_destroy_explode_entities(_fighter_ships);
+        system_destroy_explode_entities(_motherships);
+        
         system_remove_outside(_projectiles);
         system_remove_outside(_projectile_missed);
 
         // Remove entities with no lifetime left
         _fighter_ships.erase(std::remove_if(_fighter_ships.begin(), _fighter_ships.end(), entity_remove<FighterShip>), _fighter_ships.end());
+        _motherships.erase(std::remove_if(_motherships.begin(), _motherships.end(), entity_remove<MotherShip>), _motherships.end());
         _projectiles.erase(std::remove_if(_projectiles.begin(), _projectiles.end(), entity_remove<Projectile>), _projectiles.end());
         _projectile_missed.erase(std::remove_if(_projectile_missed.begin(), _projectile_missed.end(), entity_remove<ProjectileMiss>), _projectile_missed.end());
 
@@ -565,14 +570,20 @@ namespace GameController {
         
 
         // Handle game over and battle win !
-        auto player_fighters = std::count_if(_fighter_ships.begin(), _fighter_ships.end(),
-                    [=](const FighterShip &ps) -> bool { return ps.faction.faction == PLAYER_FACTION; });
-        auto enemy_fighters = std::count_if(_fighter_ships.begin(), _fighter_ships.end(),
-                    [=](const FighterShip &ps) -> bool { return ps.faction.faction == ENEMY_FACTION; });
-
-        if(player_fighters == 0) {
+        auto player_count = 0;
+        auto enemy_count = 0;
+        for(auto &ship : _fighter_ships) {
+            if(ship.faction.faction == PLAYER_FACTION) player_count++;
+            if(ship.faction.faction == ENEMY_FACTION) enemy_count++;
+        }
+        for(auto &ship : _motherships) {
+            if(ship.faction.faction == PLAYER_FACTION) player_count++;
+            if(ship.faction.faction == ENEMY_FACTION) enemy_count++;
+        }
+        
+        if(player_count == 0) {
             Services::ui().game_over();
-        } else if(enemy_fighters == 0) {
+        } else if(enemy_count == 0) {
              Services::ui().battle_win();
         }
     }
