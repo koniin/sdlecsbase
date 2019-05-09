@@ -2,7 +2,7 @@
 
  next:
     = Goal: 
-		- game over when mothership is dead
+		
 
 
 	- Simple ship to ship battle
