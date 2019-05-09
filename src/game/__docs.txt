@@ -2,7 +2,12 @@
 
  next:
     = Goal: 
-		
+	- shields (takes damage first and can regenerate)
+		- regen amount / regen timer
+		- Hull needs to be defense or something
+ 		- aka bucklew event based damage dealing
+		- display shield with hull like  100 / 100 (hull / shield)
+		- gfx for shield ( something above with blend or in front etc )
 
 
 	- Simple ship to ship battle
