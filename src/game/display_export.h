@@ -85,20 +85,6 @@ void render_export(RenderBuffer &render_buffer) {
             }
         }
     }
-    // auto ci2 = Services::arch_manager().get_iterator<PlayerInput, InputTriggerComponent, WeaponConfigurationComponent>();
-	// for(auto c : ci2.containers) {
-    //     for(int i = 0; i < c->length; i++) {
-	// 		auto &input = c->index<PlayerInput>(i);
-    //         auto &trigger = c->index<InputTriggerComponent>(i);
-    //         auto &wc = c->index<WeaponConfigurationComponent>(i);
-    //         TextElement t;
-    //         t.color = input.fire_cooldown > 0.0f ? Colors::red : Colors::green;
-    //         t.align = UIAlign::Left;
-    //         t.position = Point(10, gh - 60 + i * 15);
-    //         t.text = Text::format("%d. %s (%.2f)", trigger.trigger, wc.name.c_str(), input.fire_cooldown);
-    //         Services::ui().add_element(t);
-    //     }
-    // }
 }
 
 void export_sprite_data(const Position &position, const SpriteComponent &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets) {

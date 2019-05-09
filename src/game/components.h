@@ -130,6 +130,10 @@ struct SpriteComponent {
     }
 
     void set_current_animation(std::string animation) {
+        if(animations[current_animation]._identifier == animation) {
+            return;
+        }
+
         for(size_t i = 0; i < animations.size(); i++) {
             if(animations[i]._identifier == animation) {
                 animations[i].restart();

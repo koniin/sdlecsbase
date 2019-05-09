@@ -87,15 +87,28 @@ namespace GameController {
                     matches.push_back(&f);
                 }
             }
-
-            if(matches.size() == 0) {
-                return false;
+            if(matches.size() > 0) {
+                int target_index = RNG::range_i(0, matches.size() - 1);
+                auto target_ship = matches[target_index];
+                target.entity = target_ship->entity;
+                target.position = target_ship->position.value;
+                return true;
             }
             
-            int target_index = RNG::range_i(0, matches.size() - 1);
-            auto target_ship = matches[target_index];
-            target.entity = target_ship->entity;
-            target.position = target_ship->position.value;
+            std::vector<MotherShip*> m_matches;
+            for(auto &f : _motherships) {
+                if(f.faction.faction == target_faction) {
+                    m_matches.push_back(&f);
+                }
+            }
+            if(m_matches.size() > 0) {
+                int target_index = RNG::range_i(0, m_matches.size() - 1);
+                auto target_ship = m_matches[target_index];
+                target.entity = target_ship->entity;
+                target.position = target_ship->position.value;
+                return true;
+            }
+            
 
             return true;
         }
