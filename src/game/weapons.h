@@ -87,7 +87,20 @@ struct ValueModifier : WeaponModifier {
     }
 };
 
-std::string get_projectile_sprite(ProjectileType type) {
+int weapon_get_radius(ProjectileType type) {
+    switch(type) {
+        case ProjectileType::Bullet: {
+            return 6;
+        }
+        case ProjectileType::SmallBullet: {
+            return 5;
+        }
+    }
+    ASSERT_WITH_MSG(false, "ProjectileType not implemented!");
+    return 0;
+}
+
+std::string weapon_projectile_sprite(ProjectileType type) {
     switch(type) {
         case ProjectileType::Bullet: {
             return "bullet_3";

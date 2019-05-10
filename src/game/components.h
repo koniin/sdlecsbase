@@ -210,6 +210,14 @@ struct InputTriggerComponent {
     int trigger = 0;
 };
 
+struct FactionComponent {
+    int faction = -1;
+};
+
+struct TargetComponent {
+    ECS::Entity entity;
+};
+
 struct ProjectilePayLoad {
 	float accuracy;
 	int radius;
@@ -241,6 +249,8 @@ struct WeaponComponent {
     WeaponComponent(std::string name, std::shared_ptr<Targeting> targeting, ProjectileType type) : _targeting(targeting) {
         _weapon.name = name;
         _weapon.projectile_type = type;
+
+        _weapon.radius = weapon_get_radius(type);
     }
     
     void add_modifier(std::shared_ptr<WeaponModifier> modifier) {
@@ -262,7 +272,7 @@ struct WeaponComponent {
         spawn.faction = faction;
         spawn.position = position;
         spawn.projectile_speed = weapon.projectile_speed;
-        spawn.projectile_type = get_projectile_sprite(weapon.projectile_type);
+        spawn.projectile_type = weapon_projectile_sprite(weapon.projectile_type);
         
         ProjectilePayLoad payload;
         payload.accuracy = weapon.accuracy;
@@ -281,14 +291,6 @@ struct WeaponComponent {
             }
         }
     }
-};
-
-struct FactionComponent {
-    int faction = -1;
-};
-
-struct TargetComponent {
-    ECS::Entity entity;
 };
 
 struct MultiWeaponComponent {
