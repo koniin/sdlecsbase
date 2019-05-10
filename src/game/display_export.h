@@ -33,6 +33,11 @@ void render_export(RenderBuffer &render_buffer) {
     
     export_entities(GameController::_projectiles, sprite_data_buffer, sprite_sheets, sprite_count);
     // for(size_t i = 0; i < GameController::_projectiles.size(); i++) {
+
+    //     export_sprite_data(GameController::_projectiles[i].position, GameController::_projectiles[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
+    // }
+    
+    // for(size_t i = 0; i < GameController::_projectiles.size(); i++) {
     //     auto &projectile = GameController::_projectiles[i];
     //     export_sprite_data(projectile.position, projectile.sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
     // }
@@ -112,12 +117,12 @@ void export_sprite_data(const Position &position, const SpriteComponent &sprite,
     spr.angle = sprite.rotation;
     spr.layer = sprite.layer;
 
-    // if(entity_data.sprite[i].line) {
-    //     spr.dest.x = (int16_t)(entity_data.sprite[i].position.x - camera.x);
-    //     spr.dest.y = (int16_t)(entity_data.sprite[i].position.y - camera.y);
-    //     spr.dest.w = entity_data.sprite[i].w;
-    //     spr.dest.h = entity_data.sprite[i].h;
-    // } else {
+    if(sprite.line) {
+         spr.dest.x = (int16_t)(position.last.x - camera.x);
+         spr.dest.y = (int16_t)(position.last.y - camera.y);
+         spr.dest.w = sprite.w;
+         spr.dest.h = sprite.h;
+    } else {
         spr.dest.x = (int16_t)(position.value.x - camera.x);
         spr.dest.y = (int16_t)(position.value.y - camera.y);
 
@@ -126,7 +131,7 @@ void export_sprite_data(const Position &position, const SpriteComponent &sprite,
 
         spr.dest.x = spr.dest.x - (spr.dest.w / 2);
         spr.dest.y = spr.dest.y - (spr.dest.h / 2);
-    //}
+    }
 
     if(sprite.flip == 1) {
         spr.flip = SDL_FLIP_HORIZONTAL; 

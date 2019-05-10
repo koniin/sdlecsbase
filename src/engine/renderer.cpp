@@ -805,7 +805,7 @@ void draw_buffer(const RenderBuffer &render_buffer) {
 	const int length = render_buffer.sprite_count;
 
     for(int i = 0; i < length; i++) {
-         SDL_RenderCopyEx(renderer.renderer, spr[i].tex, &spr[i].src, &spr[i].dest, spr[i].angle, spr[i].center, spr[i].flip);
+        SDL_RenderCopyEx(renderer.renderer, spr[i].tex, &spr[i].src, &spr[i].dest, spr[i].angle, spr[i].center, spr[i].flip);
     }
 }
 

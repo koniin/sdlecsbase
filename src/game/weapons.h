@@ -9,11 +9,17 @@ struct ProjectilePayLoad {
 
     float amount;
     enum DamageType {
-        Laser,
+        Energy,
         Explosive,
         Kinetic,
         Molten
     } damage_type;
+};
+
+enum ProjectileType {
+    Bullet,
+    SmallBullet,
+    GreenLazer
 };
 
 struct ProjectileSpawn {
@@ -22,7 +28,7 @@ struct ProjectileSpawn {
     Vector2 target_position;
     ECS::Entity target;
     float projectile_speed;
-	std::string projectile_type;
+	ProjectileType projectile_type;
     ProjectilePayLoad payload;
     float delay = 0;
     // Always last
@@ -37,11 +43,6 @@ struct Targeting {
 
     virtual bool get_one_target(const int &exclude_faction, Target &target) = 0;
     virtual bool get_targets(const int &exclude_faction, const size_t &count, std::vector<Target> &targets) = 0;
-};
-
-enum ProjectileType {
-    Bullet,
-    SmallBullet
 };
 
 struct Weapon {
@@ -76,6 +77,7 @@ struct ValueModifier : WeaponModifier {
     std::string _name;
     T _value;
     WeaponProperty _property;
+    int type = 0;
     ValueModifier(std::string name, WeaponProperty property, T value) {
         _name = name;
         _property = property;
@@ -84,6 +86,10 @@ struct ValueModifier : WeaponModifier {
 
     void modify(Weapon &weapon) {
         switch(_property) {
+            case WeaponProperty::Accuracy: {
+                weapon.accuracy += _value;
+                return;
+            }
             case WeaponProperty::ReloadTime: {
                 weapon.reload_time += _value;
                 return;
@@ -96,16 +102,20 @@ struct ValueModifier : WeaponModifier {
                 weapon.projectile_type = (ProjectileType)((int)(_value));
                 return;
             }
-            case WeaponProperty::Accuracy: {
-                weapon.accuracy += _value;
-                return;
-            }
             case WeaponProperty::Projectile_Count: {
                 weapon.projectile_count += (int)_value;
                 return;
             }
             case WeaponProperty::BurstDelay: {
                 weapon.burst_delay += _value;
+                return;
+            }
+            case WeaponProperty::Radius: {
+                weapon.radius += (int)_value;
+                return;
+            }
+            case WeaponProperty::ProjectileSpeed: {
+                weapon.projectile_speed += _value;
                 return;
             }
         }
@@ -120,8 +130,11 @@ int weapon_get_radius(ProjectileType type) {
         case ProjectileType::SmallBullet: {
             return 5;
         }
+        case ProjectileType::GreenLazer: {
+            return 4;
+        }
     }
-    ASSERT_WITH_MSG(false, "ProjectileType not implemented!");
+    ASSERT_WITH_MSG(false, "weapon_get_radius: ProjectileType not implemented!");
     return 0;
 }
 
@@ -133,8 +146,11 @@ std::string weapon_projectile_sprite(ProjectileType type) {
         case ProjectileType::SmallBullet: {
             return "bullet_4";
         }
+        case ProjectileType::GreenLazer: {
+            return "lazer";
+        }
     }
-    ASSERT_WITH_MSG(false, "ProjectileType not implemented!");
+    ASSERT_WITH_MSG(false, "weapon_projectile_sprite: ProjectileType not implemented!");
     return "";
 }
 
@@ -146,8 +162,11 @@ ProjectilePayLoad::DamageType weapon_payload_type(ProjectileType type) {
         case ProjectileType::SmallBullet: {
             return ProjectilePayLoad::DamageType::Kinetic;
         }
+        case ProjectileType::GreenLazer: {
+            return ProjectilePayLoad::DamageType::Energy;
+        }
     }
-    ASSERT_WITH_MSG(false, "ProjectileType not implemented!");
+    ASSERT_WITH_MSG(false, "weapon_payload_type: ProjectileType not implemented!");
     return ProjectilePayLoad::DamageType::Kinetic;
 }
 

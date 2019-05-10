@@ -114,6 +114,10 @@ struct SpriteComponent {
     float rotation = 0.0f;
     short flip = 0; // 1 = Horizontal, 2 = Vertical
 
+    bool line = false;
+    int w = 0;
+    int h = 0;
+
     SpriteComponent() {}
 
     SpriteComponent(const std::string &sprite_sheet_name, std::string sprite_name) {
@@ -252,7 +256,7 @@ struct WeaponComponent {
         spawn.faction = faction;
         spawn.position = position;
         spawn.projectile_speed = weapon.projectile_speed;
-        spawn.projectile_type = weapon_projectile_sprite(weapon.projectile_type);
+        spawn.projectile_type = weapon.projectile_type;
         
         ProjectilePayLoad payload;
         payload.accuracy = weapon.accuracy;

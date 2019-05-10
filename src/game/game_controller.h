@@ -170,37 +170,87 @@ namespace GameController {
         return e.life_time.marked_for_deletion;
     }
     
+    static void calc_lazer(SDL_Rect &lazer_rect, const Vector2 &start, const Vector2 &end, const int &height) {
+        float distance = Math::distance_v(start, end);
+        Vector2 difference = end - start;
+        lazer_rect.x = (int)(start.x + (difference.x / 2) - (distance / 2));
+        lazer_rect.y = (int)(start.y + (difference.y / 2) - (height / 2));
+        lazer_rect.w = (int)distance;
+        lazer_rect.h = height;
+    }
+    
     void spawn_projectile(ProjectileSpawn &spawn) {
         const float angle = Math::angle_between_v(spawn.position, spawn.target_position);
         const int &faction = spawn.faction;
         const Vector2 &start_position = spawn.position;
         const ProjectilePayLoad &payload = spawn.payload;
         
-        auto velocity = Math::direction_from_angle(angle) * spawn.projectile_speed;
+        auto direction = Math::direction_from_angle(angle);
+        auto velocity = direction * spawn.projectile_speed;
         
-        auto sc = SpriteComponent("combat_sprites", spawn.projectile_type);
+        auto sc = SpriteComponent("combat_sprites", weapon_projectile_sprite(spawn.projectile_type));
         sc.layer = PROJECTILE_LAYER;
         sc.rotation = angle;
 
         float chance = RNG::zero_to_one();
-        if(payload.accuracy < chance) {
-            ProjectileMiss p(entity_manager.create());
-            p.position = Position(start_position);
-            p.velocity = Velocity(velocity);
-            p.sprite = sc;
-            _projectile_missed.push_back(p);
-        } else {
-            Projectile p(entity_manager.create());
-            p.position = Position(start_position);
-            p.faction.faction = faction;
-            p.payload = payload;
+        if(spawn.projectile_type == ProjectileType::GreenLazer) {
+            sc.line = true;
             
-            p.sprite = sc;
-            p.velocity = Velocity(velocity);
+            if(payload.accuracy < chance) {
+                SDL_Rect lazer_rect;
+                int height = payload.radius;
+                auto ext = direction * 30;
+                calc_lazer(lazer_rect, start_position, spawn.target_position + ext, height);
 
-            p.collision = CollisionData(payload.radius);
+                sc.w = lazer_rect.w;
+                sc.h = lazer_rect.h;
 
-            _projectiles.push_back(p);
+                ProjectileMiss p(entity_manager.create());
+                p.position = Position(spawn.target_position);
+                p.position.last = Vector2((float)lazer_rect.x, (float)lazer_rect.y);
+                p.velocity = Velocity(velocity);
+                p.sprite = sc;
+                p.life_time.ttl = 0.2f;
+                _projectile_missed.push_back(p);
+            } else {
+                SDL_Rect lazer_rect;
+                int height = payload.radius;
+                calc_lazer(lazer_rect, start_position, spawn.target_position, height);
+
+                sc.w = lazer_rect.w;
+                sc.h = lazer_rect.h;
+                
+                Projectile p(entity_manager.create());
+                p.position = Position(spawn.target_position);
+                p.position.last = Vector2((float)lazer_rect.x, (float)lazer_rect.y);
+                p.collision = CollisionData(payload.radius);
+                p.faction.faction = faction;
+                p.payload = payload;
+                p.sprite = sc;
+                p.velocity = Velocity(velocity);
+                p.collision = CollisionData(payload.radius);
+                _projectiles.push_back(p);
+            }
+        } else {
+            if(payload.accuracy < chance) {
+                ProjectileMiss p(entity_manager.create());
+                p.position = Position(start_position);
+                p.velocity = Velocity(velocity);
+                p.sprite = sc;
+                _projectile_missed.push_back(p);
+            } else {
+                Projectile p(entity_manager.create());
+                p.position = Position(start_position);
+                p.faction.faction = faction;
+                p.payload = payload;
+                
+                p.sprite = sc;
+                p.velocity = Velocity(velocity);
+
+                p.collision = CollisionData(payload.radius);
+
+                _projectiles.push_back(p);
+            }
         }
     }
 
@@ -301,14 +351,21 @@ namespace GameController {
             s.flip = 0;
             ship.sprite = s;
 
-            
-            WeaponComponent weaponComponent = WeaponComponent("Player Gun", _random_targeter, ProjectileType::SmallBullet);
-            weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.3f)));
-            weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Damage, 5)));
-
-            ship.weapons.add(weaponComponent);
-
-            ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
+            if(i < 12) {
+                WeaponComponent weaponComponent = WeaponComponent("Lazer Gun", _random_targeter, ProjectileType::GreenLazer);
+                weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.4f)));
+                weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Damage, 20)));
+                weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ProjectileSpeed, -500.0f)));
+                weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ReloadTime, 3.0f)));
+                ship.weapons.add(weaponComponent);
+                ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
+            } else {
+                WeaponComponent weaponComponent = WeaponComponent("Player Gun", _random_targeter, ProjectileType::SmallBullet);
+                weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.3f)));
+                weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Damage, 5)));
+                ship.weapons.add(weaponComponent);
+                ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
+            }
 
             auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
             auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, "cs1");
@@ -384,8 +441,10 @@ namespace GameController {
     template<typename entity>
     void system_move_forward(std::vector<entity> &entities) {
         for(auto &pr : entities) {
-            pr.position.last = pr.position.value;
-            pr.position.value += pr.velocity.value * Time::delta_time;
+            if(pr.velocity.value.x != 0 || pr.velocity.value.y != 0) {
+                pr.position.last = pr.position.value;
+                pr.position.value += pr.velocity.value * Time::delta_time;
+            }
         }
     }
 
@@ -413,6 +472,8 @@ namespace GameController {
                 if(Math::intersect_circle_AABB(p_pos.x, p_pos.y, first_radius, t_pos.x, t_pos.y, (float)second.collision.aabb.w, (float)second.collision.aabb.h)) {
                     float dist = Math::distance_v(p_last, t_pos);
                     Vector2 collision_point;
+                    collision_point.x = Math::max_f(t_pos.x, Math::min_f(p_pos.x, t_pos.x + (float)second.collision.aabb.w));
+                    collision_point.y = Math::max_f(t_pos.y, Math::min_f(p_pos.y, t_pos.y + (float)second.collision.aabb.h));
                     collision_pairs.push(first.entity, second.entity, dist, collision_point);
                 }
 
@@ -522,6 +583,19 @@ namespace GameController {
         }
     }
 
+    template<typename Entity>
+    void system_update_ttl(std::vector<Entity> &entities) {
+        for(auto &entity : entities) {
+            if(entity.life_time.ttl > 0) {
+                entity.life_time.time += Time::delta_time;
+
+                if(entity.life_time.time >= entity.life_time.ttl) {
+                    entity.life_time.marked_for_deletion = true;
+                }
+            }
+        }
+    }
+
     void update() {
         system_weapons(_motherships);
         system_weapons(_fighter_ships);
@@ -550,6 +624,9 @@ namespace GameController {
         system_destroy_explode_entities(_fighter_ships);
         system_destroy_explode_entities(_motherships);
         
+        system_update_ttl(_projectiles);
+        system_update_ttl(_projectile_missed);
+        
         system_remove_outside(_projectiles);
         system_remove_outside(_projectile_missed);
 
@@ -565,7 +642,7 @@ namespace GameController {
 
             pspawn.timer += Time::delta_time;
             if(pspawn.timer >= pspawn.delay) {
-                GameController::spawn_projectile(pspawn);
+                spawn_projectile(pspawn);
             }
         }
 
