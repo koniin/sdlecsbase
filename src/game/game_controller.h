@@ -193,7 +193,7 @@ namespace GameController {
             Projectile p(entity_manager.create());
             p.position = Position(start_position);
             p.faction.faction = faction;
-            p.damage.damage = (int)payload.damage;
+            p.payload = payload;
             
             p.sprite = sc;
             p.velocity = Velocity(velocity);
@@ -441,13 +441,19 @@ namespace GameController {
         }
     }
 
+    template<typename Target>
+    void projectile_deal_damage(const Projectile &projectile, Target &target) {
+        auto &hull = target.hull;
+        hull.amount = hull.amount - (int)projectile.payload.amount;
+    }
+
     void collision_handle(Projectile &projectile, FighterShip &fighter, const CollisionPair &entities) {
         auto &p = projectile.position;
         
         projectile.life_time.marked_for_deletion = true;
 
-        auto &hull = fighter.hull;
-        hull.amount = hull.amount - projectile.damage.damage;
+        projectile_deal_damage(projectile, fighter);
+        
         // An event ?
         // Send that something took damage?
         Services::ui().show_text_toast(p.value, "HIT!", 1.0f);
@@ -464,8 +470,7 @@ namespace GameController {
         
         projectile.life_time.marked_for_deletion = true;
 
-        auto &hull = mothership.hull;
-        hull.amount = hull.amount - projectile.damage.damage;
+        projectile_deal_damage(projectile, mothership);
         // An event ?
         // Send that something took damage?
         Services::ui().show_text_toast(p.value, "HIT!", 1.0f);

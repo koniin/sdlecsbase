@@ -218,26 +218,6 @@ struct TargetComponent {
     ECS::Entity entity;
 };
 
-struct ProjectilePayLoad {
-	float accuracy;
-	int radius;
-
-    float damage;
-};
-
-struct ProjectileSpawn {
-    int faction;
-    Vector2 position;
-    Vector2 target_position;
-    ECS::Entity target;
-    float projectile_speed;
-	std::string projectile_type;
-    ProjectilePayLoad payload;
-    float delay = 0;
-    // Always last
-    float timer = 0;
-};
-
 struct WeaponComponent {
     private:
     Weapon _weapon;
@@ -277,7 +257,8 @@ struct WeaponComponent {
         ProjectilePayLoad payload;
         payload.accuracy = weapon.accuracy;
         payload.radius = weapon.radius;
-        payload.damage = weapon.damage;
+        payload.amount = weapon.damage;
+        payload.damage_type = weapon_payload_type(weapon.projectile_type);
 
         spawn.payload = payload;
 
@@ -381,7 +362,7 @@ struct Projectile {
 
     CollisionData collision;
     Velocity velocity;
-    ProjectileDamage damage;
+    ProjectilePayLoad payload;
     FactionComponent faction;
 };
 

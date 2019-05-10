@@ -3,6 +3,31 @@
 
 #include "engine.h"
 
+struct ProjectilePayLoad {
+	float accuracy;
+	int radius;
+
+    float amount;
+    enum DamageType {
+        Laser,
+        Explosive,
+        Kinetic,
+        Molten
+    } damage_type;
+};
+
+struct ProjectileSpawn {
+    int faction;
+    Vector2 position;
+    Vector2 target_position;
+    ECS::Entity target;
+    float projectile_speed;
+	std::string projectile_type;
+    ProjectilePayLoad payload;
+    float delay = 0;
+    // Always last
+    float timer = 0;
+};
 
 struct Targeting {
     struct Target {
@@ -111,6 +136,19 @@ std::string weapon_projectile_sprite(ProjectileType type) {
     }
     ASSERT_WITH_MSG(false, "ProjectileType not implemented!");
     return "";
+}
+
+ProjectilePayLoad::DamageType weapon_payload_type(ProjectileType type) {
+    switch(type) {
+        case ProjectileType::Bullet: {
+            return ProjectilePayLoad::DamageType::Kinetic;
+        }
+        case ProjectileType::SmallBullet: {
+            return ProjectilePayLoad::DamageType::Kinetic;
+        }
+    }
+    ASSERT_WITH_MSG(false, "ProjectileType not implemented!");
+    return ProjectilePayLoad::DamageType::Kinetic;
 }
 
 #endif

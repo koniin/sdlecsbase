@@ -13,6 +13,8 @@
 		- missiles, goes in an arc and accelerates
 		- laser, a line to the target
 
+	- spawn in ships at start of battle (warp them in)
+
 	- Simple ship to ship battle
 		- different weapons for fighter ships
 			- some buttons to click for "special weapons" / shields etc (like FTL)
