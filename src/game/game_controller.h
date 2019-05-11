@@ -77,8 +77,8 @@ namespace GameController {
 
     CollisionPairs collision_pairs;
 
-    struct RandomTargeter : Targeting {
-        bool get_one_target(const int &exclude_faction, Targeting::Target &target) override {
+    struct TargetFinder {
+        bool get_one_target(const int &exclude_faction, Targeting::Target &target) {
             int target_faction = exclude_faction == PLAYER_FACTION ? ENEMY_FACTION : PLAYER_FACTION;
 
             std::vector<FighterShip*> matches;
@@ -111,33 +111,39 @@ namespace GameController {
 
             return false;
         }
+    };
 
-        bool get_targets(const int &exclude_faction, const size_t &count, std::vector<Targeting::Target> &targets) override {
-            ASSERT_WITH_MSG(false, "get_targets is not implemented!");
+    struct OneRandomTargeter : Targeting {
+        TargetFinder target_finder;
+        
+        bool get_targets(const int &exclude_faction, const size_t &max_count, Targeting::Targets &targets) override {
+            Targeting::Target target;
+            if(target_finder.get_one_target(exclude_faction, target)) {
+                for(size_t i = 0; i < max_count; i++) {
+                    targets.targets.push_back(target);
+                }
+                return true;
+            }
             return false;
-            // int target_faction = exclude_faction == PLAYER_FACTION ? ENEMY_FACTION : PLAYER_FACTION;
+        }
+    };
 
-            // std::vector<FighterShip*> matches;
-            // for(auto &f : _fighter_ships) {
-            //     if(f.faction.faction == target_faction) {
-            //         matches.push_back(&f);
-            //     }
-            // }
-
-            // if(matches.size() == 0) {
-            //     return false;
-            // }
-            
-            
-            // int target = RNG::range_i(0, matches.size() - 1);
-            // auto target_ship = matches[target];
-            // entity = target_ship->entity;
-
-            // return true;
+    struct MultiRandomTargeter : Targeting {
+        TargetFinder target_finder;
+        
+        bool get_targets(const int &exclude_faction, const size_t &max_count, Targeting::Targets &targets) override {
+            Targeting::Target target;
+            for(size_t i = 0; i < max_count; i++) {
+                if(target_finder.get_one_target(exclude_faction, target)) {
+                    targets.targets.push_back(target);
+                }
+            }
+            return false;
         }
     };
 
     std::shared_ptr<Targeting> _random_targeter;
+    std::shared_ptr<Targeting> _random_multi_targeter;
 
     void initialize() {
         world_bounds = Rectangle(0, 0, (int)gw, (int)gh);
@@ -149,7 +155,8 @@ namespace GameController {
         collision_pairs.allocate(c_fighter_count * c_projectile_count);
         particles = Particles::make(4096);
         particle_emitters_configure(&particle_config);
-        _random_targeter = std::make_shared<RandomTargeter>(RandomTargeter());
+        _random_targeter = std::make_shared<OneRandomTargeter>(OneRandomTargeter());
+        _random_multi_targeter = std::make_shared<MultiRandomTargeter>(MultiRandomTargeter());
         // Services::events().listen<EntityDestroyedEvent>(&entity_destroyed);
     }
 
@@ -310,11 +317,12 @@ namespace GameController {
         ship.position = position;
         ship.hull = Hull(1000);
 
-        WeaponComponent weaponComponent = WeaponComponent("Mothership blast cannon", _random_targeter, ProjectileType::Bullet);
+        WeaponComponent weaponComponent = WeaponComponent("Mothership blast cannon", _random_multi_targeter, ProjectileType::Missile);
+        weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ProjectileSpeed, -400.0f)));
+        weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ProjectileSpeedIncrease, 1.031f)));
         weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.5f)));
         weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Damage, 5)));
         weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ReloadTime, 3.0f)));
-        weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Projectile_Type, ProjectileType::Bullet)));
         weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Projectile_Count, 7)));
         weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::BurstDelay, 0.1f)));
 

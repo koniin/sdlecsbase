@@ -252,15 +252,27 @@ struct WeaponComponent {
 
         spawn.payload = payload;
 
-        Targeting::Target target;
-        if(_targeting->get_one_target(faction, target)) {
-            for(int i = 0; i < weapon.projectile_count; i++) {
-                spawn.target = target.entity;
-                spawn.target_position = target.position;
-                spawn.delay = i * weapon.burst_delay;
-                spawns.push_back(spawn);
-            }
+        Targeting::Targets targets;
+        auto targets_found = _targeting->get_targets(faction, weapon.projectile_count, targets);
+        if(!targets_found) {
+            Engine::logn("No targets found..");
         }
+        for(int i = 0; i < weapon.projectile_count; i++) {
+            auto next_target = targets.next();
+            spawn.target = next_target.entity;
+            spawn.target_position = next_target.position;
+            spawn.delay = i * weapon.burst_delay;
+            spawns.push_back(spawn);
+        }
+
+        // if(_targeting->get_one_target(faction, target)) {
+        //     for(int i = 0; i < weapon.projectile_count; i++) {
+        //         spawn.target = target.entity;
+        //         spawn.target_position = target.position;
+        //         spawn.delay = i * weapon.burst_delay;
+        //         spawns.push_back(spawn);
+        //     }
+        // }
     }
 };
 

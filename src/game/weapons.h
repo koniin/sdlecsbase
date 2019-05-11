@@ -43,8 +43,19 @@ struct Targeting {
         Vector2 position;
     };
 
-    virtual bool get_one_target(const int &exclude_faction, Target &target) = 0;
-    virtual bool get_targets(const int &exclude_faction, const size_t &count, std::vector<Target> &targets) = 0;
+    struct Targets {
+        std::vector<Target> targets;
+        size_t index = 0;
+
+        Target &next() {
+            if(index >= targets.size()) {
+                index = 0;
+            }
+            return targets[index++];
+        }
+    };  
+
+    virtual bool get_targets(const int &exclude_faction, const size_t &max_count, Targets &targets) = 0;
 };
 
 struct Weapon {

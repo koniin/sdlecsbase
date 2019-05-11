@@ -3,7 +3,6 @@
  next:
     = Goal: 
 	- weapons 
-		- missiles, goes in an arc and accelerates
 		- multi targets (missile barrage?)
 	
 	- shields (takes damage first and can regenerate)
