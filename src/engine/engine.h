@@ -553,6 +553,13 @@ namespace Math {
         return magnitude * Vector2(Math::cos_f(angle), Math::sin_f(angle));
     }
 
+    inline Vector2 clamp_magnitude(Vector2 v, float max, float min) {
+        float sm = magnitude(v);
+        if(sm > max * max) return v.normal() * max;
+        else if(sm < min * min) return v.normal() * min;
+        return v;
+    }
+
 	inline bool intersect_circles(float c1X, float c1Y, float c1Radius, float c2X, float c2Y, float c2Radius) {
 		float distanceX = c2X - c1X;
 		float distanceY = c2Y - c1Y;     

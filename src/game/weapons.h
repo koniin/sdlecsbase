@@ -30,6 +30,7 @@ struct ProjectileSpawn {
     ECS::Entity target;
     float projectile_speed;
     float projectile_speed_increase;
+    float projectile_speed_max;
 	ProjectileType projectile_type;
     ProjectilePayLoad payload;
     float delay = 0;
@@ -69,6 +70,7 @@ struct Weapon {
     int radius = 8;
     float projectile_speed = 500.0f;
     float projectile_speed_increase = 0.0f;
+    float projectile_speed_max = 0.0f;
 };
 
 enum WeaponProperty {
@@ -80,7 +82,8 @@ enum WeaponProperty {
     BurstDelay,
     Radius,
     ProjectileSpeed,
-    ProjectileSpeedIncrease
+    ProjectileSpeedIncrease,
+    ProjectileSpeedMax,
 };
 
 struct WeaponModifier {
@@ -135,6 +138,10 @@ struct ValueModifier : WeaponModifier {
             }
             case WeaponProperty::ProjectileSpeedIncrease: {
                 weapon.projectile_speed_increase += _value;
+                return;
+            }
+            case WeaponProperty::ProjectileSpeedMax: {
+                weapon.projectile_speed_max += _value;
                 return;
             }
         }

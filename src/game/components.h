@@ -19,7 +19,8 @@ struct Position {
 
 struct Velocity {
     Vector2 value;
-    float change;
+    float change = 0.f;
+    float max = 0.f;
 
     Velocity(): value(Vector2()) {}
     Velocity(Vector2 v): value(v) {}

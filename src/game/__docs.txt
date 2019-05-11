@@ -2,8 +2,6 @@
 
  next:
     = Goal: 
-	- weapons 
-		- multi targets (missile barrage?)
 	
 	- shields (takes damage first and can regenerate)
 		- regen amount / regen timer

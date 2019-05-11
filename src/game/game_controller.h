@@ -534,6 +534,15 @@ namespace GameController {
         }
     }
 
+    template<typename T>
+    void system_velocity_max(T &entity_data) {
+        for(auto &e : entity_data) {
+            if(e.velocity.max != 0) {
+                e.velocity.value = Math::clamp_magnitude(e.velocity.value, e.velocity.max, -99999.0f);
+            }
+        }
+    }
+
     template<typename entity>
     void system_remove_outside(std::vector<entity> &entities) {
         for(auto &entity : entities) {
@@ -695,6 +704,9 @@ namespace GameController {
         
         system_velocity_increase(_projectiles);
         system_velocity_increase(_projectile_missed);
+
+        system_velocity_max(_projectiles);
+        system_velocity_max(_projectile_missed);
 
         system_collisions(collision_pairs, _projectiles, _fighter_ships);
         system_collision_resolution(collision_pairs, _projectiles, _fighter_ships);
