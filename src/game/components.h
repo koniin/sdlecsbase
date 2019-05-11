@@ -193,33 +193,18 @@ struct Hull {
     Hull(const int n) : amount(n) {}
 };
 
-struct ProjectileDamage {
-    int damage = 0;
-};
-
-struct PlayerInput {
-    int controls_pressed[9];
-    float fire_cooldown = 0.0f;
-};
-
 struct AutomaticFireComponent {
     float fire_cooldown = 2.0f;
-};
-
-struct ParentComponent {
-    ECS::Entity entity;
-};
-
-struct InputTriggerComponent {
-    int trigger = 0;
 };
 
 struct FactionComponent {
     int faction = -1;
 };
 
-struct TargetComponent {
-    ECS::Entity entity;
+struct HomingComponent {
+    ECS::Entity target;
+    Vector2 target_position;
+    bool enabled = false;
 };
 
 struct WeaponComponent {
@@ -257,6 +242,7 @@ struct WeaponComponent {
         spawn.position = position;
         spawn.projectile_speed = weapon.projectile_speed;
         spawn.projectile_type = weapon.projectile_type;
+        spawn.projectile_speed_increase = weapon.projectile_speed_increase;
         
         ProjectilePayLoad payload;
         payload.accuracy = weapon.accuracy;
@@ -368,6 +354,7 @@ struct Projectile {
     Velocity velocity;
     ProjectilePayLoad payload;
     FactionComponent faction;
+    HomingComponent homing;
 };
 
 struct ProjectileMiss {
@@ -378,6 +365,7 @@ struct ProjectileMiss {
     ProjectileMiss(ECS::Entity e) : entity(e) {}
 
     Velocity velocity;
+    HomingComponent homing;
 };
 
 #endif

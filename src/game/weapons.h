@@ -19,7 +19,8 @@ struct ProjectilePayLoad {
 enum ProjectileType {
     Bullet,
     SmallBullet,
-    GreenLazer
+    GreenLazer,
+    Missile
 };
 
 struct ProjectileSpawn {
@@ -28,6 +29,7 @@ struct ProjectileSpawn {
     Vector2 target_position;
     ECS::Entity target;
     float projectile_speed;
+    float projectile_speed_increase;
 	ProjectileType projectile_type;
     ProjectilePayLoad payload;
     float delay = 0;
@@ -55,6 +57,7 @@ struct Weapon {
     float burst_delay = 0.0f;
     int radius = 8;
     float projectile_speed = 500.0f;
+    float projectile_speed_increase = 0.0f;
 };
 
 enum WeaponProperty {
@@ -65,7 +68,8 @@ enum WeaponProperty {
     Projectile_Count,
     BurstDelay,
     Radius,
-    ProjectileSpeed
+    ProjectileSpeed,
+    ProjectileSpeedIncrease
 };
 
 struct WeaponModifier {
@@ -118,6 +122,10 @@ struct ValueModifier : WeaponModifier {
                 weapon.projectile_speed += _value;
                 return;
             }
+            case WeaponProperty::ProjectileSpeedIncrease: {
+                weapon.projectile_speed_increase += _value;
+                return;
+            }
         }
     }
 };
@@ -132,6 +140,9 @@ int weapon_get_radius(ProjectileType type) {
         }
         case ProjectileType::GreenLazer: {
             return 4;
+        }
+        case ProjectileType::Missile: {
+            return 5;
         }
     }
     ASSERT_WITH_MSG(false, "weapon_get_radius: ProjectileType not implemented!");
@@ -149,6 +160,9 @@ std::string weapon_projectile_sprite(ProjectileType type) {
         case ProjectileType::GreenLazer: {
             return "lazer";
         }
+        case ProjectileType::Missile: {
+            return "bullet_3";
+        }
     }
     ASSERT_WITH_MSG(false, "weapon_projectile_sprite: ProjectileType not implemented!");
     return "";
@@ -164,6 +178,9 @@ ProjectilePayLoad::DamageType weapon_payload_type(ProjectileType type) {
         }
         case ProjectileType::GreenLazer: {
             return ProjectilePayLoad::DamageType::Energy;
+        }
+        case ProjectileType::Missile: {
+            return ProjectilePayLoad::DamageType::Explosive;
         }
     }
     ASSERT_WITH_MSG(false, "weapon_payload_type: ProjectileType not implemented!");
