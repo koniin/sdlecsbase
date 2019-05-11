@@ -257,6 +257,7 @@ namespace GameController {
                 p.sprite = sc;
                 p.velocity = Velocity(velocity);
                 p.velocity.change = spawn.projectile_speed_increase;
+                p.velocity.max = spawn.projectile_speed_max;
 
                 p.collision = CollisionData(payload.radius);
 
@@ -398,6 +399,7 @@ namespace GameController {
                 weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Damage, 20)));
                 weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ProjectileSpeed, -400.0f)));
                 weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ProjectileSpeedIncrease, 1.051f)));
+                weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ProjectileSpeedMax, 300.5f)));
                 weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ReloadTime, 2.0f)));
                 ship.weapons.add(weaponComponent);
                 ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
@@ -538,7 +540,7 @@ namespace GameController {
     void system_velocity_max(T &entity_data) {
         for(auto &e : entity_data) {
             if(e.velocity.max != 0) {
-                e.velocity.value = Math::clamp_magnitude(e.velocity.value, e.velocity.max, -99999.0f);
+                e.velocity.value = Math::clamp_max_magnitude(e.velocity.value, e.velocity.max);
             }
         }
     }

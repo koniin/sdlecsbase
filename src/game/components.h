@@ -244,6 +244,7 @@ struct WeaponComponent {
         spawn.projectile_speed = weapon.projectile_speed;
         spawn.projectile_type = weapon.projectile_type;
         spawn.projectile_speed_increase = weapon.projectile_speed_increase;
+        spawn.projectile_speed_max = weapon.projectile_speed_max;
         
         ProjectilePayLoad payload;
         payload.accuracy = weapon.accuracy;
