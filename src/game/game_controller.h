@@ -393,7 +393,9 @@ namespace GameController {
             s.flip = 0;
             ship.sprite = s;
 
-            if(i < 12) {
+            int w_choice = RNG::range_i(0, 2);
+
+            if(w_choice == 0) {
                 WeaponComponent weaponComponent = WeaponComponent("Missiles", _random_targeter, ProjectileType::Missile);
                 weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.4f)));
                 weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Damage, 20)));
@@ -403,7 +405,7 @@ namespace GameController {
                 weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ReloadTime, 2.0f)));
                 ship.weapons.add(weaponComponent);
                 ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
-            } else if(i < 12) {
+            } else if(w_choice == 1) {
                 WeaponComponent weaponComponent = WeaponComponent("Lazer Gun", _random_targeter, ProjectileType::GreenLazer);
                 weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.4f)));
                 weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Damage, 20)));
