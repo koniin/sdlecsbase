@@ -161,7 +161,7 @@ std::string weapon_projectile_sprite(ProjectileType type) {
             return "lazer";
         }
         case ProjectileType::Missile: {
-            return "bullet_3";
+            return "bullet_4";
         }
     }
     ASSERT_WITH_MSG(false, "weapon_projectile_sprite: ProjectileType not implemented!");
