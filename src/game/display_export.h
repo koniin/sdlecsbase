@@ -60,7 +60,7 @@ void render_export(RenderBuffer &render_buffer) {
         TextElement t;
         t.color = Colors::white;
         t.position = Point((int)pos.x, (int)pos.y - 12);
-        t.text = std::to_string(ship.hull.amount);
+        t.text = std::to_string(ship.defense.hp) + "/" + std::to_string(ship.defense.shield);
         Services::ui().add_element(t);
     }
 
@@ -69,7 +69,7 @@ void render_export(RenderBuffer &render_buffer) {
         TextElement t;
         t.color = Colors::white;
         t.position = Point((int)pos.x, (int)pos.y - 12);
-        t.text = std::to_string(ship.hull.amount);
+        t.text = std::to_string(ship.defense.hp) + "/" + std::to_string(ship.defense.shield);
         Services::ui().add_element(t);
     }
 

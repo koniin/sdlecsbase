@@ -187,13 +187,6 @@ struct CollisionData {
 // Game specific components
 // ========
 
-struct Hull {
-    int amount = 0;
-
-    Hull() {}
-    Hull(const int n) : amount(n) {}
-};
-
 struct AutomaticFireComponent {
     float fire_cooldown = 2.0f;
 };
@@ -218,7 +211,7 @@ struct MotherShip {
     CollisionData collision;
     FactionComponent faction;
     MultiWeaponComponent weapons;
-    Hull hull;
+    DefenseComponent defense;
 };
 
 struct FighterShip {
@@ -232,7 +225,7 @@ struct FighterShip {
     FactionComponent faction;
     AutomaticFireComponent automatic_fire;
     MultiWeaponComponent weapons;
-    Hull hull;
+    DefenseComponent defense;
 };
 
 struct Projectile {

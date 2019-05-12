@@ -318,7 +318,7 @@ namespace GameController {
         s.flip = 0;
         ship.sprite = s;
         ship.position = position;
-        ship.hull = Hull(100);
+        ship.defense = DefenseComponent(100, 50);
 
         WeaponComponent weaponComponent = WeaponComponent("Mothership blast cannon", _random_multi_targeter, ProjectileType::Missile);
         weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -400.0f));
@@ -360,7 +360,7 @@ namespace GameController {
         s.flip = 1;
         ship.sprite = s;
         ship.position = position;
-        ship.hull = Hull(100);
+        ship.defense = DefenseComponent(100, 20);
 
         auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
         auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, "mother2");
@@ -377,7 +377,7 @@ namespace GameController {
             ship.faction = FactionComponent { PLAYER_FACTION };
             float y = position.y + i * 30.f;
             ship.position = RNG::vector2(position.x - 10, position.x + 10, y - 8, y + 8);
-            ship.hull = Hull(10);
+            ship.defense = DefenseComponent(10, 5);
 
             SpriteComponent s = SpriteComponent({ 
                 Animation("idle", { { "combat_sprites", "cs1" } }, 0, false),
@@ -438,7 +438,7 @@ namespace GameController {
             ship.faction = FactionComponent { ENEMY_FACTION };
             float y = position.y + i * 30.f;
             ship.position = RNG::vector2(position.x - 10, position.x + 10, y - 8, y + 8);
-            ship.hull = Hull(10);
+            ship.defense = DefenseComponent(10, 5);
             SpriteComponent s = SpriteComponent({ 
                 Animation("idle", { { "combat_sprites", "cs2" } }, 0, false),
                 Animation("hit", { 
@@ -601,18 +601,12 @@ namespace GameController {
         }
     }
 
-    template<typename Target>
-    void projectile_deal_damage(const Projectile &projectile, Target &target) {
-        auto &hull = target.hull;
-        hull.amount = hull.amount - (int)projectile.payload.amount;
-    }
-
     void collision_handle(Projectile &projectile, FighterShip &fighter, const CollisionPair &entities) {
         auto &p = projectile.position;
         
         projectile.life_time.marked_for_deletion = true;
 
-        projectile_deal_damage(projectile, fighter);
+        fighter.defense.handle(projectile.payload);
         
         // An event ?
         // Send that something took damage?
@@ -630,7 +624,7 @@ namespace GameController {
         
         projectile.life_time.marked_for_deletion = true;
 
-        projectile_deal_damage(projectile, mothership);
+        mothership.defense.handle(projectile.payload);
         // An event ?
         // Send that something took damage?
         Services::ui().show_text_toast(p.value, "HIT!", 1.0f);
@@ -674,7 +668,7 @@ namespace GameController {
     template<typename Entity>
     void system_destroy_explode_entities(std::vector<Entity> &entities) {
         for(auto &entity : entities) {
-            if(entity.hull.amount <= 0) {
+            if(entity.defense.hp <= 0) {
                 particle_config.explosion_emitter.position = entity.position.value;
                 Particles::emit(particles, particle_config.explosion_emitter);
                 entity.life_time.marked_for_deletion = true;

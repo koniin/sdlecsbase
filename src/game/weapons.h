@@ -7,7 +7,7 @@ struct ProjectilePayLoad {
 	float accuracy;
 	int radius;
 
-    float amount;
+    int amount;
     enum DamageType {
         Energy,
         Explosive,
@@ -62,7 +62,7 @@ struct Targeting {
 struct Weapon {
     std::string name = "Basic weapon"; // (Blaster MK2 etc)
     float reload_time = 1.0f; // in seconds (0.2f)
-    float damage = 1;
+    int damage = 1;
     float accuracy = 0.5f;
     ProjectileType projectile_type; // name of sprite for projectile
     int projectile_count = 1;
@@ -117,7 +117,7 @@ struct ValueModifier : WeaponModifier {
                 return;
             }
             case WeaponProperty::Damage: {
-                weapon.damage += _value;
+                weapon.damage += (int)_value;
                 return;
             }
             case WeaponProperty::Projectile_Type: {
@@ -270,7 +270,6 @@ struct WeaponComponent {
         Targeting::Targets targets;
         auto targets_found = _targeting->get_targets(faction, weapon.projectile_count, targets);
         if(!targets_found) {
-            Engine::logn("No targets found when trying to make projectile spawns");
             return;
         }
         for(int i = 0; i < weapon.projectile_count; i++) {
@@ -341,6 +340,62 @@ struct MultiWeaponComponent {
         size_t index = id;
          _weapons[index].make_spawns(faction, position, projectile_spawns);    
          _reload_timer[index] = 0.0f;
+    }
+};
+
+struct DefenseComponent {
+    int hp = 0;
+    int hp_max = 0;
+    int shield = 0;
+    int shield_max = 0;
+    float shield_recharge_rate = 2.0f;
+    int shield_recharge_amount = 1;
+
+    DefenseComponent() {}
+    DefenseComponent(const int hp, const int shield) : hp(hp), shield(shield) {
+        hp_max = hp;
+        shield_max = shield;
+    }
+
+
+    void handle(const ProjectilePayLoad &payload) {
+        // Handle global reductions here like invulnerability and stuff
+
+        switch(payload.damage_type) {
+            case ProjectilePayLoad::DamageType::Energy: {
+                int reminder = shield_damage(payload.amount);
+                hp_damage(reminder);
+                break;
+            }
+            case ProjectilePayLoad::DamageType::Explosive: {
+                hp_damage(payload.amount);
+                break;
+            }
+            case ProjectilePayLoad::DamageType::Kinetic: {
+                hp_damage(payload.amount);
+                break;
+            }
+            case ProjectilePayLoad::DamageType::Molten: {
+                shield_damage(payload.amount);
+                hp_damage(payload.amount);
+            }
+            default: {
+                ASSERT_WITH_MSG(false, "ProjectilePayLoad damage type is not implemented");
+            }
+        }
+    }
+    
+    private:
+    int hp_damage(int amount) {
+        int reminder = hp - amount;
+        hp = Math::clamp_i(reminder, 0, hp_max);
+        return reminder < 0 ? -reminder : 0;
+    }
+
+    int shield_damage(int amount) {
+        int reminder = shield - amount;
+        shield = Math::clamp_i(reminder, 0, shield_max);
+        return reminder < 0 ? -reminder : 0;
     }
 };
 
