@@ -369,10 +369,7 @@ struct DefenseComponent {
         shield_max = shield;
     }
 
-
-    void handle(const ProjectilePayLoad &payload) {
-        // Handle global reductions here like invulnerability and stuff
-
+    void handle(const ProjectilePayLoad &payload) {    
         switch(payload.damage_type) {
             case ProjectilePayLoad::DamageType::Energy: {
                 int reminder = shield_damage(payload.amount);

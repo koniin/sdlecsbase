@@ -2,6 +2,10 @@
 
  next:
     = Goal: 
+		- perhaps handle misses on hit instead
+		- beams cant miss
+		- so keep the list of miss projectiles but move between them
+
 	- spawn in ships at start of battle (warp them in)
 		- add ships to one list, move them in and then move to correct list?
 		- so two vectors, one with ships and one with data struct (spawn_time, timer)

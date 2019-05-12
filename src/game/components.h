@@ -201,33 +201,6 @@ struct HomingComponent {
     bool enabled = false;
 };
 
-struct MotherShip {
-    ECS::Entity entity;
-    Position position;
-    SpriteComponent sprite;
-    LifeTime life_time;
-    MotherShip(ECS::Entity e) : entity(e) {}
-
-    CollisionData collision;
-    FactionComponent faction;
-    MultiWeaponComponent weapons;
-    DefenseComponent defense;
-};
-
-struct FighterShip {
-    ECS::Entity entity;
-    Position position;
-    SpriteComponent sprite;
-    LifeTime life_time;
-    FighterShip(ECS::Entity e) : entity(e) {}
-
-    CollisionData collision;
-    FactionComponent faction;
-    AutomaticFireComponent automatic_fire;
-    MultiWeaponComponent weapons;
-    DefenseComponent defense;
-};
-
 struct Projectile {
     ECS::Entity entity;
     Position position;
@@ -251,6 +224,61 @@ struct ProjectileMiss {
 
     Velocity velocity;
     HomingComponent homing;
+};
+
+struct MotherShip {
+    ECS::Entity entity;
+    Position position;
+    SpriteComponent sprite;
+    LifeTime life_time;
+    MotherShip(ECS::Entity e) : entity(e) {}
+
+    CollisionData collision;
+    FactionComponent faction;
+    MultiWeaponComponent weapons;
+    DefenseComponent defense;
+
+    void collide(Projectile &projectile) {
+        // Handle global reductions here like invulnerability and stuff
+
+        // Evasion etc?
+
+        float chance = RNG::zero_to_one();
+        if(projectile.payload.accuracy <= chance) {
+            Services::ui().show_text_toast(projectile.position.value, "MISS!", 1.0f);
+            return;
+        }
+
+        defense.handle(projectile.payload);
+    }
+};
+
+struct FighterShip {
+    ECS::Entity entity;
+    Position position;
+    SpriteComponent sprite;
+    LifeTime life_time;
+    FighterShip(ECS::Entity e) : entity(e) {}
+
+    CollisionData collision;
+    FactionComponent faction;
+    AutomaticFireComponent automatic_fire;
+    MultiWeaponComponent weapons;
+    DefenseComponent defense;
+
+    void collide(Projectile &projectile) {
+        // Handle global reductions here like invulnerability and stuff
+
+        // Evasion etc?
+
+        float chance = RNG::zero_to_one();
+        if(projectile.payload.accuracy <= chance) {
+            Services::ui().show_text_toast(projectile.position.value, "MISS!", 1.0f);
+            return;
+        }
+
+        defense.handle(projectile.payload);
+    }
 };
 
 #endif
