@@ -197,7 +197,7 @@ namespace GameController {
         sc.rotation = angle;
 
         float chance = RNG::zero_to_one();
-        if(spawn.projectile_type == ProjectileType::GreenLazer) {
+        if(spawn.projectile_type == ProjectileType::GreenLazerBeam) {
             sc.line = true;
             auto direction = Math::direction_from_angle(angle);    
             if(payload.accuracy < chance) {
@@ -408,7 +408,7 @@ namespace GameController {
                 ship.weapons.add(weaponComponent);
                 ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
             } else if(w_choice == 1) {
-                WeaponComponent weaponComponent = WeaponComponent("Lazer Gun", _random_targeter, ProjectileType::GreenLazer);
+                WeaponComponent weaponComponent = WeaponComponent("Lazer Gun", _random_targeter, ProjectileType::GreenLazerBeam);
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.4f));
                 weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Damage, 2));
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -500.0f));
@@ -416,7 +416,7 @@ namespace GameController {
                 ship.weapons.add(weaponComponent);
                 ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
             } else {
-                WeaponComponent weaponComponent = WeaponComponent("Player Gun", _random_targeter, ProjectileType::SmallBullet);
+                WeaponComponent weaponComponent = WeaponComponent("Player Gun", _random_targeter, ProjectileType::RedLazerBullet);
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.3f));
                 ship.weapons.add(weaponComponent);
                 ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
@@ -453,9 +453,9 @@ namespace GameController {
             s.flip = 1;
             ship.sprite = s;
 
-            WeaponComponent weaponComponent = WeaponComponent("Enemy Gun", _random_targeter, ProjectileType::Bullet);
+            WeaponComponent weaponComponent = WeaponComponent("Enemy Gun", _random_targeter, ProjectileType::RedLazerBullet);
             weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.3f));
-            weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 2.0f));
+            weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 1.0f));
             // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<ProjectileType>("temp", WeaponProperty::Projectile_Type, )));
             // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<int>("temp", WeaponProperty::Projectile_Count, 0)));
             // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<float>("temp", WeaponProperty::BurstDelay, 0.1f)));
@@ -689,9 +689,19 @@ namespace GameController {
         }
     }
 
+    template<typename Entity>
+    void system_shield_recharge(std::vector<Entity> &entities) {
+        for(auto &entity : entities) {
+            entity.defense.shield_recharge(Time::delta_time);
+        }
+    }
+
     void update() {
         system_weapons(_motherships);
         system_weapons(_fighter_ships);
+
+        system_shield_recharge(_motherships);
+        system_shield_recharge(_fighter_ships);
         
         system_homing(_projectiles);
         system_homing(_projectile_missed);

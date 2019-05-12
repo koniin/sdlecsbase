@@ -19,8 +19,9 @@ struct ProjectilePayLoad {
 enum ProjectileType {
     Bullet,
     SmallBullet,
-    GreenLazer,
-    Missile
+    GreenLazerBeam,
+    Missile,
+    RedLazerBullet
 };
 
 struct ProjectileSpawn {
@@ -160,10 +161,13 @@ int weapon_get_radius(ProjectileType type) {
         case ProjectileType::SmallBullet: {
             return 5;
         }
-        case ProjectileType::GreenLazer: {
+        case ProjectileType::GreenLazerBeam: {
             return 4;
         }
         case ProjectileType::Missile: {
+            return 5;
+        }
+        case ProjectileType::RedLazerBullet: {
             return 5;
         }
     }
@@ -179,11 +183,14 @@ std::string weapon_projectile_sprite(ProjectileType type) {
         case ProjectileType::SmallBullet: {
             return "bullet_4";
         }
-        case ProjectileType::GreenLazer: {
+        case ProjectileType::GreenLazerBeam: {
             return "lazer";
         }
         case ProjectileType::Missile: {
             return "bullet_4";
+        }
+        case ProjectileType::RedLazerBullet: {
+            return "RedLazerBullet";
         }
     }
     ASSERT_WITH_MSG(false, "weapon_projectile_sprite: ProjectileType not implemented!");
@@ -198,11 +205,14 @@ ProjectilePayLoad::DamageType weapon_payload_type(ProjectileType type) {
         case ProjectileType::SmallBullet: {
             return ProjectilePayLoad::DamageType::Kinetic;
         }
-        case ProjectileType::GreenLazer: {
+        case ProjectileType::GreenLazerBeam: {
             return ProjectilePayLoad::DamageType::Energy;
         }
         case ProjectileType::Missile: {
             return ProjectilePayLoad::DamageType::Explosive;
+        }
+        case ProjectileType::RedLazerBullet: {
+            return ProjectilePayLoad::DamageType::Energy;
         }
     }
     ASSERT_WITH_MSG(false, "weapon_payload_type: ProjectileType not implemented!");
@@ -351,6 +361,8 @@ struct DefenseComponent {
     float shield_recharge_rate = 2.0f;
     int shield_recharge_amount = 1;
 
+    float shield_timer = 0.0f;
+
     DefenseComponent() {}
     DefenseComponent(const int hp, const int shield) : hp(hp), shield(shield) {
         hp_max = hp;
@@ -385,6 +397,14 @@ struct DefenseComponent {
         }
     }
     
+    void shield_recharge(float dt) {
+        shield_timer += dt;
+        if(shield_timer >= shield_recharge_rate) {
+            shield = Math::clamp_i(shield + shield_recharge_amount, 0, shield_max);
+            shield_timer = 0.0f;
+        }
+    }
+
     private:
     int hp_damage(int amount) {
         int reminder = hp - amount;

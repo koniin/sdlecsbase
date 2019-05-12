@@ -1,5 +1,5 @@
 combat_sprites.png
-45
+48
 0 bullet_1 384 336 16 16 
 1 bullet_1_b 400 336 16 16 
 2 bullet_1_w 416 336 16 16 
@@ -39,9 +39,12 @@ combat_sprites.png
 36 player_1 432 336 16 16 
 37 player_1_b 384 352 16 16 
 38 player_1_w 400 352 16 16 
-39 ship1 0 0 96 192 
-40 ship1_b 96 0 96 192 
-41 ship1_w 192 0 96 192 
-42 ship2 288 0 96 192 
-43 ship2_b 0 192 96 192 
-44 ship2_w 96 192 96 192 
+39 RedLazerBullet 428 364 6 3 
+40 RedLazerBullet_b 434 364 6 3 
+41 RedLazerBullet_w 440 364 6 3 
+42 ship1 0 0 96 192 
+43 ship1_b 96 0 96 192 
+44 ship1_w 192 0 96 192 
+45 ship2 288 0 96 192 
+46 ship2_b 0 192 96 192 
+47 ship2_w 96 192 96 192 
