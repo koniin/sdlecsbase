@@ -62,7 +62,7 @@ struct Targeting {
 struct Weapon {
     std::string name = "Basic weapon"; // (Blaster MK2 etc)
     float reload_time = 1.0f; // in seconds (0.2f)
-    float damage = 5;
+    float damage = 1;
     float accuracy = 0.5f;
     ProjectileType projectile_type; // name of sprite for projectile
     int projectile_count = 1;
@@ -100,6 +100,10 @@ struct ValueModifier : WeaponModifier {
         _name = name;
         _property = property;
         _value = value;
+    }
+
+    static std::shared_ptr<WeaponModifier> make(std::string name, WeaponProperty property, T value) {
+        return std::make_shared<ValueModifier<T>>(ValueModifier<T>(name, property, value));
     }
 
     void modify(Weapon &weapon) {
@@ -221,8 +225,19 @@ struct WeaponComponent {
         _weapon.radius = weapon_get_radius(type);
     }
     
-    void add_modifier(std::shared_ptr<WeaponModifier> modifier) {
+    // void add(std::shared_ptr<WeaponModifier> modifier) {
+    //     _weaponModifiers.push_back(modifier);
+    // }
+
+    template<typename T>
+    void add(T modifier) {
         _weaponModifiers.push_back(modifier);
+    }
+
+    template<typename T, typename... Args>
+    T add(T first, Args... args) {
+        add(first);
+        adder(args...);
     }
 
     Weapon get_weapon() {

@@ -133,12 +133,14 @@ namespace GameController {
         
         bool get_targets(const int &exclude_faction, const size_t &max_count, Targeting::Targets &targets) override {
             Targeting::Target target;
+            bool has_any_target = false;
             for(size_t i = 0; i < max_count; i++) {
                 if(target_finder.get_one_target(exclude_faction, target)) {
                     targets.targets.push_back(target);
+                    has_any_target = true;
                 }
             }
-            return false;
+            return has_any_target;
         }
     };
 
@@ -316,16 +318,16 @@ namespace GameController {
         s.flip = 0;
         ship.sprite = s;
         ship.position = position;
-        ship.hull = Hull(1000);
+        ship.hull = Hull(100);
 
         WeaponComponent weaponComponent = WeaponComponent("Mothership blast cannon", _random_multi_targeter, ProjectileType::Missile);
-        weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ProjectileSpeed, -400.0f)));
-        weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ProjectileSpeedIncrease, 1.031f)));
-        weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.5f)));
-        weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Damage, 5)));
-        weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ReloadTime, 3.0f)));
-        weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Projectile_Count, 7)));
-        weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::BurstDelay, 0.1f)));
+        weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -400.0f));
+        weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeedIncrease, 1.031f));
+        weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.5f));
+        weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Damage, 2));
+        weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 3.0f));
+        weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Projectile_Count, 7));
+        weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::BurstDelay, 0.1f));
 
         ship.weapons.add(weaponComponent, true);
 
@@ -358,7 +360,7 @@ namespace GameController {
         s.flip = 1;
         ship.sprite = s;
         ship.position = position;
-        ship.hull = Hull(1000);
+        ship.hull = Hull(100);
 
         auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
         auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, "mother2");
@@ -375,7 +377,7 @@ namespace GameController {
             ship.faction = FactionComponent { PLAYER_FACTION };
             float y = position.y + i * 30.f;
             ship.position = RNG::vector2(position.x - 10, position.x + 10, y - 8, y + 8);
-            ship.hull = Hull(100);
+            ship.hull = Hull(10);
 
             SpriteComponent s = SpriteComponent({ 
                 Animation("idle", { { "combat_sprites", "cs1" } }, 0, false),
@@ -397,26 +399,25 @@ namespace GameController {
 
             if(w_choice == 0) {
                 WeaponComponent weaponComponent = WeaponComponent("Missiles", _random_targeter, ProjectileType::Missile);
-                weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.4f)));
-                weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Damage, 20)));
-                weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ProjectileSpeed, -400.0f)));
-                weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ProjectileSpeedIncrease, 1.051f)));
-                weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ProjectileSpeedMax, 300.5f)));
-                weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ReloadTime, 2.0f)));
+                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.4f));
+                weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Damage, 1));
+                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -400.0f));
+                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeedIncrease, 1.051f));
+                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeedMax, 300.5f));
+                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 2.0f));
                 ship.weapons.add(weaponComponent);
                 ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
             } else if(w_choice == 1) {
                 WeaponComponent weaponComponent = WeaponComponent("Lazer Gun", _random_targeter, ProjectileType::GreenLazer);
-                weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.4f)));
-                weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Damage, 20)));
-                weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ProjectileSpeed, -500.0f)));
-                weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ReloadTime, 3.0f)));
+                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.4f));
+                weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Damage, 2));
+                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -500.0f));
+                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 3.0f));
                 ship.weapons.add(weaponComponent);
                 ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
             } else {
                 WeaponComponent weaponComponent = WeaponComponent("Player Gun", _random_targeter, ProjectileType::SmallBullet);
-                weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.3f)));
-                weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Damage, 5)));
+                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.3f));
                 ship.weapons.add(weaponComponent);
                 ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
             }
@@ -437,7 +438,7 @@ namespace GameController {
             ship.faction = FactionComponent { ENEMY_FACTION };
             float y = position.y + i * 30.f;
             ship.position = RNG::vector2(position.x - 10, position.x + 10, y - 8, y + 8);
-            ship.hull = Hull(100);
+            ship.hull = Hull(10);
             SpriteComponent s = SpriteComponent({ 
                 Animation("idle", { { "combat_sprites", "cs2" } }, 0, false),
                 Animation("hit", { 
@@ -453,9 +454,8 @@ namespace GameController {
             ship.sprite = s;
 
             WeaponComponent weaponComponent = WeaponComponent("Enemy Gun", _random_targeter, ProjectileType::Bullet);
-            weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::Accuracy, 0.3f)));
-            weaponComponent.add_modifier(std::make_shared<ValueModifier<int>>(ValueModifier<int>("temp", WeaponProperty::Damage, 15)));
-            weaponComponent.add_modifier(std::make_shared<ValueModifier<float>>(ValueModifier<float>("temp", WeaponProperty::ReloadTime, 2.0f)));
+            weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.3f));
+            weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 2.0f));
             // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<ProjectileType>("temp", WeaponProperty::Projectile_Type, )));
             // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<int>("temp", WeaponProperty::Projectile_Count, 0)));
             // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<float>("temp", WeaponProperty::BurstDelay, 0.1f)));
