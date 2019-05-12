@@ -257,7 +257,8 @@ struct WeaponComponent {
         Targeting::Targets targets;
         auto targets_found = _targeting->get_targets(faction, weapon.projectile_count, targets);
         if(!targets_found) {
-            Engine::logn("No targets found..");
+            Engine::logn("No targets found when trying to make projectile spawns");
+            return;
         }
         for(int i = 0; i < weapon.projectile_count; i++) {
             auto next_target = targets.next();
