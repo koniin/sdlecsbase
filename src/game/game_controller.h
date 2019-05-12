@@ -397,30 +397,28 @@ namespace GameController {
 
             int w_choice = RNG::range_i(0, 2);
 
+            WeaponComponent weaponComponent;
             if(w_choice == 0) {
-                WeaponComponent weaponComponent = WeaponComponent("Missiles", _random_targeter, ProjectileType::Missile);
+                weaponComponent = WeaponComponent("Missiles", _random_targeter, ProjectileType::Missile);
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.4f));
                 weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Damage, 1));
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -400.0f));
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeedIncrease, 1.051f));
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeedMax, 300.5f));
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 2.0f));
-                ship.weapons.add(weaponComponent);
-                ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
             } else if(w_choice == 1) {
-                WeaponComponent weaponComponent = WeaponComponent("Lazer Gun", _random_targeter, ProjectileType::GreenLazerBeam);
+                weaponComponent = WeaponComponent("Lazer Gun", _random_targeter, ProjectileType::GreenLazerBeam);
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.4f));
                 weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Damage, 2));
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -500.0f));
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 3.0f));
-                ship.weapons.add(weaponComponent);
-                ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
             } else {
-                WeaponComponent weaponComponent = WeaponComponent("Player Gun", _random_targeter, ProjectileType::RedLazerBullet);
-                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.3f));
-                ship.weapons.add(weaponComponent);
-                ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
+                weaponComponent = WeaponComponent("Player Gun", _random_targeter, ProjectileType::RedLazerBullet);
+                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.3f));        
             }
+
+            ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
+            ship.weapons.add(weaponComponent);
 
             auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
             auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, "cs1");

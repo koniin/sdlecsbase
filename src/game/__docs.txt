@@ -2,17 +2,12 @@
 
  next:
     = Goal: 
-	
-	- shields (takes damage first and can regenerate)
-		- regen amount / regen timer
-		- Hull needs to be defense or something
- 		- aka bucklew event based damage dealing
-		- display shield with hull like  100 / 100 (hull / shield)
-		- gfx for shield ( something above with blend or in front etc )
-
-	
-
 	- spawn in ships at start of battle (warp them in)
+		- add ships to one list, move them in and then move to correct list?
+		- so two vectors, one with ships and one with data struct (spawn_time, timer)
+		  when timer is up you add the ship to the other list (e.g. _fighter_ships)
+		  and spawn the warp effect?
+
 
 	- Simple ship to ship battle
 		- different weapons for fighter ships
