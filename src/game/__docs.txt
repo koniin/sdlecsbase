@@ -13,12 +13,9 @@
 		  and spawn the warp effect?
 
 
+
 	- Simple ship to ship battle
-		- different weapons for fighter ships
-			- some buttons to click for "special weapons" / shields etc (like FTL)
-			- maybe AOE and targeted with click 
-			- guided missiles
-			- defensive measures etc
+		- defensive measures? like anti missiles, beam deflector, whatevs
 		- hit/miss/accuracy/crit
 		- damage range for weapons? 8-12 etc
 		- shield + armor combo (shield regenerates)

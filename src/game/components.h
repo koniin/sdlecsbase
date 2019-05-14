@@ -221,6 +221,12 @@ struct ProjectileMiss {
     SpriteComponent sprite;
     LifeTime life_time;
     ProjectileMiss(ECS::Entity e) : entity(e) {}
+    ProjectileMiss(ECS::Entity e, Projectile &p) : entity(e) {
+        position = p.position;
+        sprite = p.sprite;
+        velocity = p.velocity;
+        homing = p.homing;
+    }
 
     Velocity velocity;
     HomingComponent homing;
@@ -237,20 +243,6 @@ struct MotherShip {
     FactionComponent faction;
     MultiWeaponComponent weapons;
     DefenseComponent defense;
-
-    void collide(Projectile &projectile) {
-        // Handle global reductions here like invulnerability and stuff
-
-        // Evasion etc?
-
-        float chance = RNG::zero_to_one();
-        if(projectile.payload.accuracy <= chance) {
-            Services::ui().show_text_toast(projectile.position.value, "MISS!", 1.0f);
-            return;
-        }
-
-        defense.handle(projectile.payload);
-    }
 };
 
 struct FighterShip {
@@ -265,20 +257,6 @@ struct FighterShip {
     AutomaticFireComponent automatic_fire;
     MultiWeaponComponent weapons;
     DefenseComponent defense;
-
-    void collide(Projectile &projectile) {
-        // Handle global reductions here like invulnerability and stuff
-
-        // Evasion etc?
-
-        float chance = RNG::zero_to_one();
-        if(projectile.payload.accuracy <= chance) {
-            Services::ui().show_text_toast(projectile.position.value, "MISS!", 1.0f);
-            return;
-        }
-
-        defense.handle(projectile.payload);
-    }
 };
 
 #endif

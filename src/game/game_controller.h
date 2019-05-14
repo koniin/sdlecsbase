@@ -534,12 +534,6 @@ namespace GameController {
             if(e.velocity.change != 0) {
                 e.velocity.value *= e.velocity.change;
             }
-        }
-    }
-
-    template<typename T>
-    void system_velocity_max(T &entity_data) {
-        for(auto &e : entity_data) {
             if(e.velocity.max != 0) {
                 e.velocity.value = Math::clamp_max_magnitude(e.velocity.value, e.velocity.max);
             }
@@ -600,40 +594,50 @@ namespace GameController {
         }
     }
 
-    void collision_handle(Projectile &projectile, FighterShip &fighter, const CollisionPair &entities) {
-        //auto &p = projectile.position;
-        
+    template<typename T> 
+    void collision_handle(Projectile &projectile, T &ship, const CollisionPair &entities) {
         projectile.life_time.marked_for_deletion = true;
 
-        fighter.collide(projectile);
+        // Handle global reductions here like invulnerability and stuff
+
+        // Evasion etc?
+
+        float chance = RNG::zero_to_one();
+        if(projectile.payload.accuracy <= chance) {
+            Services::ui().show_text_toast(projectile.position.value, "MISS!", 1.0f);
+
+            _projectile_missed.push_back(ProjectileMiss(entity_manager.create(), projectile));
+
+            return;
+        }
+
+        ship.defense.handle(projectile.payload);
         
-        // An event ?
-        // Send that something took damage?
-        // Services::ui().show_text_toast(p.value, "HIT!", 1.0f);
-        
-        particle_config.smoke_emitter.position = fighter.position.value;
+        particle_config.smoke_emitter.position = ship.position.value;
         Particles::emit(particles, particle_config.smoke_emitter);
-        fighter.sprite.set_current_animation("hit", "idle");
+        ship.sprite.set_current_animation("hit", "idle");
         //fighter->sprite.set_current_animation("hit");
         //SpriteAnimation::set_current(fighter->animation, "hit");
     }
 
-    void collision_handle(Projectile &projectile, MotherShip &mothership, const CollisionPair &entities) {
-        //auto &p = projectile.position;
+    // void collision_handle(Projectile &projectile, MotherShip &mothership, const CollisionPair &entities) {
+    //     //auto &p = projectile.position;
         
-        projectile.life_time.marked_for_deletion = true;
+    //     projectile.life_time.marked_for_deletion = true;
 
-        mothership.collide(projectile);
-        // An event ?
-        // Send that something took damage?
-        // Services::ui().show_text_toast(p.value, "HIT!", 1.0f);
+    //     if(!mothership.collide(projectile)) {
+
+    //     }
+    //     // An event ?
+    //     // Send that something took damage?
+    //     // Services::ui().show_text_toast(p.value, "HIT!", 1.0f);
         
-        particle_config.smoke_emitter.position = mothership.position.value;
-        Particles::emit(particles, particle_config.smoke_emitter);
-        mothership.sprite.set_current_animation("hit", "idle");
-        //fighter->sprite.set_current_animation("hit");
-        //SpriteAnimation::set_current(fighter->animation, "hit");
-    }
+    //     particle_config.smoke_emitter.position = mothership.position.value;
+    //     Particles::emit(particles, particle_config.smoke_emitter);
+    //     mothership.sprite.set_current_animation("hit", "idle");
+    //     //fighter->sprite.set_current_animation("hit");
+    //     //SpriteAnimation::set_current(fighter->animation, "hit");
+    // }
 
     template<typename First, typename Second>
     void system_collision_resolution(CollisionPairs &collision_pairs, std::vector<First> &entity_first, std::vector<Second> &entity_second) {
@@ -711,9 +715,6 @@ namespace GameController {
         
         system_velocity_increase(_projectiles);
         system_velocity_increase(_projectile_missed);
-
-        system_velocity_max(_projectiles);
-        system_velocity_max(_projectile_missed);
 
         system_collisions(collision_pairs, _projectiles, _fighter_ships);
         system_collision_resolution(collision_pairs, _projectiles, _fighter_ships);
