@@ -17,7 +17,7 @@ void UIManager::update() {
     }), _toasts.end());
 
 	if((is_game_over || is_battle_over) && GInput::pressed(GInput::Action::Start)) {
-		Scenes::set_scene("menu");
+		Scenes::set_scene("map");
         is_game_over = false;
         is_battle_over = false;
 	}

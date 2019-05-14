@@ -7,7 +7,7 @@
 #include <chrono>
 
 void LevelScene::initialize() {
-    Engine::logn("Init level");
+    Engine::logn("[LEVEL] Init");
  	render_buffer.init(2048);
     Resources::sprite_sheet_load("combat_sprites", "combat_sprites.data");
     GameController::initialize();
@@ -16,7 +16,7 @@ void LevelScene::initialize() {
 }
 
 void LevelScene::begin() {
-	Engine::logn("Begin level");
+	Engine::logn("[LEVEL] Begin");
     GameController::create_player_mothership();
     GameController::create_enemy_mothership();
     GameController::create_player_fighters();
@@ -24,7 +24,7 @@ void LevelScene::begin() {
 }
 
 void LevelScene::end() {
-    Engine::logn("end level");
+    Engine::logn("[LEVEL] End");
     GameController::clear();
 	render_buffer.clear();
 }
@@ -65,5 +65,5 @@ void LevelScene::render() {
 }
 
 void LevelScene::unload() {
-	Engine::logn("Unload level");
+	Engine::logn("[LEVEL] Unload");
 }

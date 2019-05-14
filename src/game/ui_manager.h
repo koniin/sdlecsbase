@@ -12,11 +12,13 @@ struct Element {
     int layer = 0;
     Point position;
 };
+
 struct TextElement : public Element {
     std::string text;
     SDL_Color color;
     UIAlign align = UIAlign::Center;
 };
+
 struct ImageElement : public Element {
     
 };

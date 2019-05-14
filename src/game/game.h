@@ -3,49 +3,11 @@
 
 #include "engine.h"
 #include "renderer.h"
+#include "menu_scene.h"
 #include "level_scene.h"
+#include "map_scene.h"
 #include "game_input_wrapper.h"
 // #include "_engine_test.h"
-
-struct MenuScene : Scene {
-	void initialize() override {
-		Engine::logn("Init menu");
-	}
-
-	void begin() override {
-		Engine::logn("Begin menu");
-	}
-
-	void end() override {
-		Engine::logn("end menu");
-	}
-
-	int counter = 0;
-	void update() override {
-		counter++;
-		if(counter > 60) {
-			Engine::logn("Update menu");
-			counter = 0;
-		}
-		if(GInput::pressed(GInput::Action::Start)) {
-			Scenes::set_scene("level");
-		}
-	}
-
-	void render() override {
-		renderer_clear();
-		// room_render();
-		renderer_draw_render_target_camera();
-		
-		draw_text_centered_str((int)(gw / 2), (int)(gh / 2), Colors::white, "Press start to continue...");
-		
-		renderer_flip();
-	}
-
-	void unload() override {
-		Engine::logn("Unload menu");
-	}
-};
 
 inline void game_load() {
 	// Allocate memory and load resources
@@ -56,7 +18,9 @@ inline void game_load() {
 	
 	MenuScene *menu_scene = new MenuScene;
 	LevelScene *level = new LevelScene;
+	MapScene *map = new MapScene;
 	Scenes::setup_scene("menu", menu_scene);
+	Scenes::setup_scene("map", map);
 	Scenes::setup_scene("level", level);
 
 	Scenes::set_scene("menu");

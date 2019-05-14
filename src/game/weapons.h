@@ -3,6 +3,14 @@
 
 #include "engine.h"
 
+enum ProjectileType {
+    Bullet,
+    SmallBullet,
+    GreenLazerBeam,
+    Missile,
+    RedLazerBullet
+};
+
 struct ProjectilePayLoad {
 	float accuracy;
 	int radius;
@@ -14,14 +22,7 @@ struct ProjectilePayLoad {
         Kinetic,
         Molten
     } damage_type;
-};
-
-enum ProjectileType {
-    Bullet,
-    SmallBullet,
-    GreenLazerBeam,
-    Missile,
-    RedLazerBullet
+    ProjectileType projectile_type;
 };
 
 struct ProjectileSpawn {
@@ -219,6 +220,20 @@ ProjectilePayLoad::DamageType weapon_payload_type(ProjectileType type) {
     return ProjectilePayLoad::DamageType::Kinetic;
 }
 
+bool weapon_is_beam(ProjectileType type) {
+    switch(type) {
+        case ProjectileType::Bullet:
+        case ProjectileType::SmallBullet:
+        case ProjectileType::RedLazerBullet:
+        case ProjectileType::Missile:
+            return false;
+        case ProjectileType::GreenLazerBeam:
+            return true;
+    }
+    ASSERT_WITH_MSG(false, "weapon_is_beam: ProjectileType not implemented!");
+    return false;
+}
+
 
 struct WeaponComponent {
     private:
@@ -274,6 +289,7 @@ struct WeaponComponent {
         payload.radius = weapon.radius;
         payload.amount = weapon.damage;
         payload.damage_type = weapon_payload_type(weapon.projectile_type);
+        payload.projectile_type = weapon.projectile_type;
 
         spawn.payload = payload;
 

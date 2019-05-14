@@ -7,43 +7,9 @@
 #include "game_input_wrapper.h"
 #include "particles.h"
 #include "particle_config.h"
+#include "systems.h"
 
 #include <unordered_set>
-
-struct CollisionPair {
-    ECS::Entity first;
-    ECS::Entity second;
-    float distance;
-    Vector2 collision_point;
-    bool operator<( const CollisionPair& rhs ) const { 
-        return distance < rhs.distance; 
-    }
-};
-
-struct CollisionPairs {
-    std::vector<CollisionPair> collisions;
-    int count = 0;
-    inline CollisionPair operator [](size_t i) const { return collisions[i]; }
-    inline CollisionPair & operator [](size_t i) { return collisions[i]; }
-
-    void allocate(size_t size) {
-        collisions.reserve(size);
-    }
-
-    void sort_by_distance() {
-        std::sort(collisions.begin(), collisions.end());
-    }
-
-    void push(ECS::Entity first, ECS::Entity second, float distance, Vector2 collision_point) {
-        collisions.push_back({ first, second, distance, collision_point });
-        count++;
-    }
-
-    void clear() {
-        count = 0;
-        collisions.clear();
-    }
-};
 
 namespace GameController {
     const int c_mothership_count = 2;
@@ -196,7 +162,8 @@ namespace GameController {
         sc.layer = PROJECTILE_LAYER;
         sc.rotation = angle;
 
-        //float chance = RNG::zero_to_one();
+        Projectile p(entity_manager.create());
+
         if(spawn.projectile_type == ProjectileType::GreenLazerBeam) {
             sc.line = true;
             auto direction = Math::direction_from_angle(angle);    
@@ -224,14 +191,13 @@ namespace GameController {
                 sc.w = lazer_rect.w;
                 sc.h = lazer_rect.h;
                 
-                Projectile p(entity_manager.create());
                 p.position = Position(spawn.target_position);
                 p.position.last = Vector2((float)lazer_rect.x, (float)lazer_rect.y);
                 p.collision = CollisionData(payload.radius);
                 p.faction.faction = spawn.faction;
                 p.payload = payload;
                 p.sprite = sc;
-                //p.velocity = Velocity(velocity);
+                
                 p.collision = CollisionData(payload.radius);
                 _projectiles.push_back(p);
             //}
@@ -240,60 +206,39 @@ namespace GameController {
             auto direction = Math::direction_from_angle(homing_angle);
             auto velocity = direction * spawn.projectile_speed;
         
-            // if(payload.accuracy < chance) {
-            //     ProjectileMiss p(entity_manager.create());
-            //     p.position = Position(spawn.position);
-            //     p.velocity = Velocity(velocity);
-            //     p.velocity.change = spawn.projectile_speed_increase;
-            //     p.sprite = sc;
-            //     p.homing.enabled = true;
-            //     p.homing.target = spawn.target;
-            //     p.homing.target_position = spawn.target_position;
-            //     _projectile_missed.push_back(p);
-            // } else {
-                Projectile p(entity_manager.create());
-                p.position = Position(spawn.position);
-                p.faction.faction = spawn.faction;
-                p.payload = payload;
-                
-                p.sprite = sc;
-                p.velocity = Velocity(velocity);
-                p.velocity.change = spawn.projectile_speed_increase;
-                p.velocity.max = spawn.projectile_speed_max;
+            p.position = Position(spawn.position);
+            p.faction.faction = spawn.faction;
+            p.payload = payload;
+            
+            p.sprite = sc;
+            p.velocity = Velocity(velocity);
+            p.velocity.change = spawn.projectile_speed_increase;
+            p.velocity.max = spawn.projectile_speed_max;
 
-                p.collision = CollisionData(payload.radius);
+            p.collision = CollisionData(payload.radius);
 
-                p.homing.enabled = true;
-                p.homing.target = spawn.target;
-                p.homing.target_position = spawn.target_position;
+            p.homing.enabled = true;
+            p.homing.target = spawn.target;
+            p.homing.target_position = spawn.target_position;
 
-                _projectiles.push_back(p);
-            //}
+            _projectiles.push_back(p);
+            
         } else {
             auto direction = Math::direction_from_angle(angle);
             auto velocity = direction * spawn.projectile_speed;
-        
-            // if(payload.accuracy < chance) {
-            //     ProjectileMiss p(entity_manager.create());
-            //     p.position = Position(spawn.position);
-            //     p.velocity = Velocity(velocity);
-            //     p.velocity.change = spawn.projectile_speed_increase;
-            //     p.sprite = sc;
-            //     _projectile_missed.push_back(p);
-            // } else {
-                Projectile p(entity_manager.create());
-                p.position = Position(spawn.position);
-                p.faction.faction = spawn.faction;
-                p.payload = payload;
-                
-                p.sprite = sc;
-                p.velocity = Velocity(velocity);
-                p.velocity.change = spawn.projectile_speed_increase;
+            
+            p.position = Position(spawn.position);
+            p.faction.faction = spawn.faction;
+            p.payload = payload;
+            
+            p.sprite = sc;
+            p.velocity = Velocity(velocity);
+            p.velocity.change = spawn.projectile_speed_increase;
 
-                p.collision = CollisionData(payload.radius);
+            p.collision = CollisionData(payload.radius);
 
-                _projectiles.push_back(p);
-            //}
+            _projectiles.push_back(p);
+            
         }
     }
 
@@ -471,8 +416,8 @@ namespace GameController {
         }
     }
 
-    template<typename entity>
-    void system_weapons(std::vector<entity> &entities) {
+    template<typename Entity>
+    void system_weapons(Entity &entities) {
         for (auto &entity : entities) {
             entity.weapons.update_reload_timer(Time::delta_time);
             
@@ -491,185 +436,8 @@ namespace GameController {
         }
     }
 
-    template<typename entity>
-    void system_homing(std::vector<entity> &entities) {
-        for(auto &e : entities) {
-            if(!e.homing.enabled) {
-                continue;
-            }
-
-            auto projectile_heading = e.velocity.value.normal();
-            const Vector2 &pos = e.position.value;
-            const Vector2 &target_pos = e.homing.target_position;
-            float angle = Math::rads_between_v(pos, target_pos);
-            auto to_target_heading = Vector2(Math::cos_f(angle), Math::sin_f(angle)).normal();
-            auto final_heading = (projectile_heading + 0.1f * to_target_heading).normal();
-                    
-            e.velocity.value = final_heading * e.velocity.value.length();
-        }
-        /*
-        auto projectile_heading = homing_entities.velocity[i].value.normal();
-                    float angle = Math::rads_between_v(s, target);
-                    auto to_target_heading = Vector2(Math::cos_f(angle), Math::sin_f(angle)).normal();
-                    auto final_heading = (projectile_heading + 0.1f * to_target_heading).normal();
-                    
-                    homing_entities.velocity[i].value = final_heading * homing_entities.velocity[i].value.length();
-
-        */
-    }
-
-    template<typename entity>
-    void system_move_forward(std::vector<entity> &entities) {
-        for(auto &pr : entities) {
-            if(pr.velocity.value.x != 0 || pr.velocity.value.y != 0) {
-                pr.position.last = pr.position.value;
-                pr.position.value += pr.velocity.value * Time::delta_time;
-            }
-        }
-    }
-    
-    template<typename T>
-    void system_velocity_increase(T &entity_data) {
-        for(auto &e : entity_data) {
-            if(e.velocity.change != 0) {
-                e.velocity.value *= e.velocity.change;
-            }
-            if(e.velocity.max != 0) {
-                e.velocity.value = Math::clamp_max_magnitude(e.velocity.value, e.velocity.max);
-            }
-        }
-    }
-
-    template<typename entity>
-    void system_remove_outside(std::vector<entity> &entities) {
-        for(auto &entity : entities) {
-            if(!world_bounds.contains(entity.position.value.to_point())) {
-                entity.life_time.marked_for_deletion = true;
-            }
-        }
-    }
-
-    template<typename First, typename Second>
-    void system_collisions(CollisionPairs &collision_pairs, const std::vector<First> &entity_first, const std::vector<Second> &entity_second) {
-        for(auto &first : entity_first) {
-            for(auto &second : entity_second) {
-                if(first.faction.faction == second.faction.faction) {
-                    continue;
-                }
-
-                const Vector2 p_pos = first.position.value;
-                const float first_radius = (float)first.collision.radius;
-                const Vector2 p_last = first.position.last;
-                const Vector2 t_pos = second.position.value;
-                if(Math::intersect_circle_AABB(p_pos.x, p_pos.y, first_radius, t_pos.x, t_pos.y, (float)second.collision.aabb.w, (float)second.collision.aabb.h)) {
-                    float dist = Math::distance_v(p_last, t_pos);
-                    Vector2 collision_point;
-                    collision_point.x = Math::max_f(t_pos.x, Math::min_f(p_pos.x, t_pos.x + (float)second.collision.aabb.w));
-                    collision_point.y = Math::max_f(t_pos.y, Math::min_f(p_pos.y, t_pos.y + (float)second.collision.aabb.h));
-                    collision_pairs.push(first.entity, second.entity, dist, collision_point);
-                }
-
-                // const Vector2 t_pos = second.position.value;
-                // const float t_radius = (float)second.collision.radius;
-                // if(Math::intersect_circles(p_pos.x, p_pos.y, first_radius, t_pos.x, t_pos.y, t_radius)) {
-                //     // Collision point is the point on the target circle 
-                //     // that is on the edge in the direction of the projectiles 
-                //     // reverse velocity
-                //     //Engine::logn("circle intersect");
-                //     float dist = Math::distance_v(p_last, t_pos);
-                //     Vector2 collision_point = t_pos + (t_radius * -first.velocity.value.normal());
-                //     collision_pairs.push(first.entity, second.entity, dist, collision_point);
-                //     continue;
-                // }
-
-                // Vector2 entry_point;
-                // int result = Intersects::line_circle_entry(p_last, p_pos, t_pos, t_radius, entry_point);
-                // if(result == 1 || result == 2) {
-                //     float dist = Math::distance_v(p_last, t_pos);
-                //     Vector2 collision_point = t_pos + (t_radius * first.velocity.value.normal());
-                //     collision_pairs.push(first.entity, second.entity, dist, collision_point);
-                //     Engine::logn("line intersect");
-                // }
-            }
-        }
-    }
-
-    template<typename T> 
-    void collision_handle(Projectile &projectile, T &ship, const CollisionPair &entities) {
-        projectile.life_time.marked_for_deletion = true;
-
-        // Handle global reductions here like invulnerability and stuff
-
-        // Evasion etc?
-
-        float chance = RNG::zero_to_one();
-        if(projectile.payload.accuracy <= chance) {
-            Services::ui().show_text_toast(projectile.position.value, "MISS!", 1.0f);
-
-            _projectile_missed.push_back(ProjectileMiss(entity_manager.create(), projectile));
-
-            return;
-        }
-
-        ship.defense.handle(projectile.payload);
-        
-        particle_config.smoke_emitter.position = ship.position.value;
-        Particles::emit(particles, particle_config.smoke_emitter);
-        ship.sprite.set_current_animation("hit", "idle");
-        //fighter->sprite.set_current_animation("hit");
-        //SpriteAnimation::set_current(fighter->animation, "hit");
-    }
-
-    // void collision_handle(Projectile &projectile, MotherShip &mothership, const CollisionPair &entities) {
-    //     //auto &p = projectile.position;
-        
-    //     projectile.life_time.marked_for_deletion = true;
-
-    //     if(!mothership.collide(projectile)) {
-
-    //     }
-    //     // An event ?
-    //     // Send that something took damage?
-    //     // Services::ui().show_text_toast(p.value, "HIT!", 1.0f);
-        
-    //     particle_config.smoke_emitter.position = mothership.position.value;
-    //     Particles::emit(particles, particle_config.smoke_emitter);
-    //     mothership.sprite.set_current_animation("hit", "idle");
-    //     //fighter->sprite.set_current_animation("hit");
-    //     //SpriteAnimation::set_current(fighter->animation, "hit");
-    // }
-
-    template<typename First, typename Second>
-    void system_collision_resolution(CollisionPairs &collision_pairs, std::vector<First> &entity_first, std::vector<Second> &entity_second) {
-        collision_pairs.sort_by_distance();
-
-        // This set will contain all collisions that we have handled
-        // Since first in this instance is projectile and the list is sorted by distance
-        // we only care about the collision with the shortest distance in this implementation
-        std::unordered_set<ECS::EntityId> handled_collisions;
-        for(int i = 0; i < collision_pairs.count; ++i) {
-            if(handled_collisions.find(collision_pairs[i].first.id) != handled_collisions.end()) {
-                continue;
-            }
-            handled_collisions.insert(collision_pairs[i].first.id);
-            //Engine::logn("pair 1");
-            std::vector<First>::iterator first = std::find_if(entity_first.begin(), entity_first.end(), [&](First const& entity){
-                return entity.entity.equals(collision_pairs[i].first);
-            });
-            std::vector<Second>::iterator second = std::find_if(entity_second.begin(), entity_second.end(), [&](Second const& entity){
-                return entity.entity.equals(collision_pairs[i].second);
-            });
-
-            if(first == entity_first.end() || second == entity_second.end()) {
-                continue;
-            }
-            
-            collision_handle(*first, *second, collision_pairs[i]);
-        }
-    }
-
     template<typename Entity>
-    void system_destroy_explode_entities(std::vector<Entity> &entities) {
+    void system_destroy_explode_entities(Entity &entities) {
         for(auto &entity : entities) {
             if(entity.defense.hp <= 0) {
                 particle_config.explosion_emitter.position = entity.position.value;
@@ -679,23 +447,50 @@ namespace GameController {
         }
     }
 
-    template<typename Entity>
-    void system_update_ttl(std::vector<Entity> &entities) {
-        for(auto &entity : entities) {
-            if(entity.life_time.ttl > 0) {
-                entity.life_time.time += Time::delta_time;
-
-                if(entity.life_time.time >= entity.life_time.ttl) {
-                    entity.life_time.marked_for_deletion = true;
-                }
-            }
+    template<typename T> 
+    void collision_handle(Projectile &projectile, T &ship, const CollisionPair &entities) {
+        projectile.life_time.marked_for_deletion = true;
+        // Handle global reductions here like invulnerability and stuff
+        // Evasion etc?
+        float chance = RNG::zero_to_one();
+        if(!weapon_is_beam(projectile.payload.projectile_type) && projectile.payload.accuracy <= chance) {
+            Services::ui().show_text_toast(projectile.position.value, "MISS!", 1.0f);
+            _projectile_missed.push_back(ProjectileMiss(entity_manager.create(), projectile));
+            return;
         }
+        ship.defense.handle(projectile.payload);
+        
+        particle_config.smoke_emitter.position = ship.position.value;
+        Particles::emit(particles, particle_config.smoke_emitter);
+        ship.sprite.set_current_animation("hit", "idle");
+        //fighter->sprite.set_current_animation("hit");
+        //SpriteAnimation::set_current(fighter->animation, "hit");
     }
 
-    template<typename Entity>
-    void system_shield_recharge(std::vector<Entity> &entities) {
-        for(auto &entity : entities) {
-            entity.defense.shield_recharge(Time::delta_time);
+    template<typename First, typename Second>
+    void system_collision_resolution(CollisionPairs &collision_pairs, std::vector<First> &entity_first, std::vector<Second> &entity_second) {
+        collision_pairs.sort_by_distance();
+        // This set will contain all collisions that we have handled
+        // Since first in this instance is projectile and the list is sorted by distance
+        // we only care about the collision with the shortest distance in this implementation
+        std::unordered_set<ECS::EntityId> handled_collisions;
+        for(int i = 0; i < collision_pairs.count; ++i) {
+            if(handled_collisions.find(collision_pairs[i].first.id) != handled_collisions.end()) {
+                continue;
+            }
+            handled_collisions.insert(collision_pairs[i].first.id);
+            
+            std::vector<First>::iterator first = std::find_if(entity_first.begin(), entity_first.end(), [&](First const& entity){
+                return entity.entity.equals(collision_pairs[i].first);
+            });
+            std::vector<Second>::iterator second = std::find_if(entity_second.begin(), entity_second.end(), [&](Second const& entity){
+                return entity.entity.equals(collision_pairs[i].second);
+            });
+            if(first == entity_first.end() || second == entity_second.end()) {
+                continue;
+            }
+            
+            collision_handle(*first, *second, collision_pairs[i]);
         }
     }
 
@@ -739,8 +534,8 @@ namespace GameController {
         system_update_ttl(_projectiles);
         system_update_ttl(_projectile_missed);
         
-        system_remove_outside(_projectiles);
-        system_remove_outside(_projectile_missed);
+        system_remove_outside(_projectiles, world_bounds);
+        system_remove_outside(_projectile_missed, world_bounds);
 
         // Remove entities with no lifetime left
         _fighter_ships.erase(std::remove_if(_fighter_ships.begin(), _fighter_ships.end(), entity_remove<FighterShip>), _fighter_ships.end());

@@ -262,11 +262,15 @@ struct Rectangle {
 		h = hh;
 	}
 
-	bool contains(int xi, int yi) {
+	bool contains(const int &xi, const int &yi) const {
 		return ((((x <= xi) && (xi < (x + w))) && (y <= yi)) && (yi < (y + h)));
 	}
 
 	bool contains(const Point &p) {
+		return contains(p.x, p.y);
+	}
+
+    bool contains(const Point &p) const {
 		return contains(p.x, p.y);
 	}
 

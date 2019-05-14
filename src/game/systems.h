@@ -1,260 +1,163 @@
 #ifndef SYSTEMS_H
 #define SYSTEMS_H
-/*
+
 #include "engine.h"
 #include "components.h"
-#include "game_controller.h"
 
 /// GENERAL SYSTEMS (Reusable probably)
 /// ============================================
-struct MoveForwardSystem {
-    void update(ECS::ArchetypeManager &arch_manager) {
-        arch_manager.iterate<Position, Velocity>([](auto c, auto i) { // [this](auto c, auto i) {
-            auto &p = c->index<Position>(i);
-            p.last = p.value;
 
-            auto &v = c->index<Velocity>(i);
-
-            p.value += v.value * Time::delta_time;
-        });
-    }
-};
-
-struct LifeTimeSystem {
-    std::vector<ECS::Entity> deleted;
-
-    void update(ECS::ArchetypeManager &arch_manager) {
-        arch_manager.iterate<LifeTime>([this](auto c, auto i) { // [this](auto c, auto i) {
-            auto &l = c->index<LifeTime>(i);
-            if(l.marked_for_deletion) {
-                deleted.push_back(c->entity[i]);
-                l.marked_for_deletion = false;
-            }
-        });
-
-        for(auto e : deleted) {
-            arch_manager.remove_entity(e);
+template<typename Entity>
+void system_move_forward(Entity &entities) {
+    for(auto &pr : entities) {
+        if(pr.velocity.value.x != 0 || pr.velocity.value.y != 0) {
+            pr.position.last = pr.position.value;
+            pr.position.value += pr.velocity.value * Time::delta_time;
         }
-        deleted.clear();
+    }
+}
+
+template<typename Entity>
+void system_velocity_increase(Entity &entities) {
+    for(auto &e : entities) {
+        if(e.velocity.change != 0) {
+            e.velocity.value *= e.velocity.change;
+        }
+        if(e.velocity.max != 0) {
+            e.velocity.value = Math::clamp_max_magnitude(e.velocity.value, e.velocity.max);
+        }
+    }
+}
+
+template<typename Entity>
+void system_remove_outside(Entity &entities, Rectangle &world_bounds) {
+    for(auto &entity : entities) {
+        if(!world_bounds.contains(entity.position.value.to_point())) {
+            entity.life_time.marked_for_deletion = true;
+        }
+    }
+}
+
+template<typename Entity>
+void system_homing(Entity &entities) {
+    for(auto &e : entities) {
+        if(!e.homing.enabled) {
+            continue;
+        }
+        auto projectile_heading = e.velocity.value.normal();
+        const Vector2 &pos = e.position.value;
+        const Vector2 &target_pos = e.homing.target_position;
+        float angle = Math::rads_between_v(pos, target_pos);
+        auto to_target_heading = Vector2(Math::cos_f(angle), Math::sin_f(angle)).normal();
+        auto final_heading = (projectile_heading + 0.1f * to_target_heading).normal();
+                
+        e.velocity.value = final_heading * e.velocity.value.length();
+    }
+    /*
+    auto projectile_heading = homing_entities.velocity[i].value.normal();
+                float angle = Math::rads_between_v(s, target);
+                auto to_target_heading = Vector2(Math::cos_f(angle), Math::sin_f(angle)).normal();
+                auto final_heading = (projectile_heading + 0.1f * to_target_heading).normal();
+                
+                homing_entities.velocity[i].value = final_heading * homing_entities.velocity[i].value.length();
+    */
+}
+
+struct CollisionPair {
+    ECS::Entity first;
+    ECS::Entity second;
+    float distance;
+    Vector2 collision_point;
+    bool operator<( const CollisionPair& rhs ) const { 
+        return distance < rhs.distance; 
     }
 };
+
+struct CollisionPairs {
+    std::vector<CollisionPair> collisions;
+    int count = 0;
+    inline CollisionPair operator [](size_t i) const { return collisions[i]; }
+    inline CollisionPair & operator [](size_t i) { return collisions[i]; }
+
+    void allocate(size_t size) {
+        collisions.reserve(size);
+    }
+
+    void sort_by_distance() {
+        std::sort(collisions.begin(), collisions.end());
+    }
+
+    void push(ECS::Entity first, ECS::Entity second, float distance, Vector2 collision_point) {
+        collisions.push_back({ first, second, distance, collision_point });
+        count++;
+    }
+
+    void clear() {
+        count = 0;
+        collisions.clear();
+    }
+};
+
+template<typename First, typename Second>
+void system_collisions(CollisionPairs &collision_pairs, const First &entity_first, const Second &entity_second) {
+    for(auto &first : entity_first) {
+        for(auto &second : entity_second) {
+            if(first.faction.faction == second.faction.faction) {
+                continue;
+            }
+            const Vector2 p_pos = first.position.value;
+            const float first_radius = (float)first.collision.radius;
+            const Vector2 p_last = first.position.last;
+            const Vector2 t_pos = second.position.value;
+            if(Math::intersect_circle_AABB(p_pos.x, p_pos.y, first_radius, t_pos.x, t_pos.y, (float)second.collision.aabb.w, (float)second.collision.aabb.h)) {
+                float dist = Math::distance_v(p_last, t_pos);
+                Vector2 collision_point;
+                collision_point.x = Math::max_f(t_pos.x, Math::min_f(p_pos.x, t_pos.x + (float)second.collision.aabb.w));
+                collision_point.y = Math::max_f(t_pos.y, Math::min_f(p_pos.y, t_pos.y + (float)second.collision.aabb.h));
+                collision_pairs.push(first.entity, second.entity, dist, collision_point);
+            }
+            // const Vector2 t_pos = second.position.value;
+            // const float t_radius = (float)second.collision.radius;
+            // if(Math::intersect_circles(p_pos.x, p_pos.y, first_radius, t_pos.x, t_pos.y, t_radius)) {
+            //     // Collision point is the point on the target circle 
+            //     // that is on the edge in the direction of the projectiles 
+            //     // reverse velocity
+            //     //Engine::logn("circle intersect");
+            //     float dist = Math::distance_v(p_last, t_pos);
+            //     Vector2 collision_point = t_pos + (t_radius * -first.velocity.value.normal());
+            //     collision_pairs.push(first.entity, second.entity, dist, collision_point);
+            //     continue;
+            // }
+            // Vector2 entry_point;
+            // int result = Intersects::line_circle_entry(p_last, p_pos, t_pos, t_radius, entry_point);
+            // if(result == 1 || result == 2) {
+            //     float dist = Math::distance_v(p_last, t_pos);
+            //     Vector2 collision_point = t_pos + (t_radius * first.velocity.value.normal());
+            //     collision_pairs.push(first.entity, second.entity, dist, collision_point);
+            //     Engine::logn("line intersect");
+            // }
+        }
+    }
+}
+
+template<typename Entity>
+void system_shield_recharge(Entity &entities) {
+    for(auto &entity : entities) {
+        entity.defense.shield_recharge(Time::delta_time);
+    }
+}
+
+template<typename Entity>
+void system_update_ttl(Entity &entities) {
+    for(auto &entity : entities) {
+        if(entity.life_time.ttl > 0) {
+            entity.life_time.time += Time::delta_time;
+            if(entity.life_time.time >= entity.life_time.ttl) {
+                entity.life_time.marked_for_deletion = true;
+            }
+        }
+    }
+}
 /// ============================================
 
-struct PlayerInputSystem {
-    void update(ECS::ArchetypeManager &arch_manager) {
-        arch_manager.iterate<PlayerInput>([](auto c, auto i) { // [this](auto c, auto i) {
-            auto &pi = c->index<PlayerInput>(i);
-            pi.controls_pressed[0] = Input::key_pressed(SDLK_1) ? 1 : 0;
-            pi.controls_pressed[1] = Input::key_pressed(SDLK_2) ? 1 : 0;
-            pi.controls_pressed[2] = Input::key_pressed(SDLK_3) ? 1 : 0;
-            pi.controls_pressed[3] = Input::key_pressed(SDLK_4) ? 1 : 0;
-            pi.controls_pressed[4] = Input::key_pressed(SDLK_5) ? 1 : 0;
-            pi.controls_pressed[5] = Input::key_pressed(SDLK_6) ? 1 : 0;
-            pi.controls_pressed[6] = Input::key_pressed(SDLK_7) ? 1 : 0;
-            pi.controls_pressed[7] = Input::key_pressed(SDLK_8) ? 1 : 0;
-            pi.controls_pressed[8] = Input::key_pressed(SDLK_9) ? 1 : 0;
-            
-            pi.fire_cooldown = Math::max_f(0.0f, pi.fire_cooldown - Time::delta_time);
-
-            //     PlayerInput &pi = players.input[i];
-            //     pi.move.x = pi.move.y = 0;
-            //     pi.fire_x = 0;
-            //     pi.fire_y = 0;
-
-            //     GInput::direction(pi.move);
-
-            //     pi.fire_cooldown = Math::max_f(0.0f, pi.fire_cooldown - Time::delta_time);
-
-            //     if(GInput::down(GInput::Fire)) {
-            //         pi.fire_x = pi.fire_y = 1;
-            //     }
-
-            //     if( GInput::pressed(GInput::Pause)) {
-            //         Engine::pause(1.0f);
-            //     }
-        });
-    }
-};
-
-struct PlayerHandleInputSystem {
-    std::vector<std::function<void(void)>> post_update_commands;
-    void post_update() {
-        for(auto pc : post_update_commands) {
-            pc();
-        }
-        post_update_commands.clear();
-    }
-
-    void update(ECS::ArchetypeManager &arch_manager) {
-        arch_manager.iterate<PlayerInput, InputTriggerComponent, Position>([&](auto c, auto i) { // [this](auto c, auto i) {
-            auto &pi = c->index<PlayerInput>(i);
-            auto &p = c->index<Position>(i);
-            auto &t = c->index<InputTriggerComponent>(i);
-
-            if(pi.fire_cooldown <= 0.0f && pi.controls_pressed[t.trigger] > 0) {
-                auto &wc = c->index<WeaponConfigurationComponent>(i);
-                pi.fire_cooldown = wc.reload_time;
-
-                post_update_commands.push_back([=]() {
-                    GameController::player_projectile_fire(p.value, wc);
-                });
-
-
-                // From config (depends on rendering size)
-                // const float gun_barrel_distance = player_config.gun_barrel_distance;
-                // float original_angle = direction.angle;
-                // // set the projectile start position to be gun_barrel_distance infront of the ship
-                // auto gun_exit_position = players.position[i].value + Math::direction_from_angle(original_angle) * gun_barrel_distance;
-                
-                // Ammunition &ammo = players.ammo[i];
-                // auto fire_result = game_ctrl->player_projectile_fire(ammo.value, original_angle, gun_exit_position);
-
-                // pi.fire_cooldown = fire_result.fire_cooldown;
-
-                // if(!fire_result.did_fire) {
-                //     Engine::logn("Implement some kind of out of ammo sound etc");
-                //     return;
-                // }
-
-                // // this is for all projectiles
-                // // ---------------------------------
-                // ammo.value = Math::max_i(ammo.value - fire_result.ammo_used, 0);
-                
-                // // Muzzle flash
-                // game_ctrl->spawn_muzzle_flash_effect(gun_exit_position, Vector2(gun_barrel_distance, gun_barrel_distance), players.entity[i]);
-                // // Camera
-                // auto projectile_direction = Math::direction_from_angle(original_angle);
-                // camera_shake(0.1f);
-                // camera_displace(projectile_direction * player_config.fire_knockback_camera);
-                // // Player knockback
-                // players.position[i].value -= projectile_direction * fire_result.knockback;
-                // // Sound
-                // Sound::queue(game_ctrl->sound_map[fire_result.sound_name], 2);
-                // // ---------------------------------
-            }
-        });
-    }
-};
-
-
-struct TravelDistanceSystem {
-    void update(ECS::ArchetypeManager &arch_manager) {
-        arch_manager.iterate<Position, TravelDistance, LifeTime>([](auto c, auto i) { // [this](auto c, auto i) {
-            auto &p = c->index<Position>(i);
-            auto &t = c->index<TravelDistance>(i);
-            auto &l = c->index<LifeTime>(i);
-
-            auto diff = p.value - p.last;
-            t.amount = t.amount + diff.length();
-            if(t.amount > t.target) {
-                l.marked_for_deletion = true;
-            }
-        });
-    }
-};
-
-struct ProjectileHitSystem {
-    void update(ECS::ArchetypeManager &arch_manager) {
-        arch_manager.iterate<TravelDistance, ProjectileDamageDistance>([&](auto c, auto i) { // [this](auto c, auto i) {
-            auto &t = c->index<TravelDistance>(i);
-            auto &pdd = c->index<ProjectileDamageDistance>(i);
-            
-            if(t.amount >= pdd.distance) {
-                pdd.distance = 999999; // we don't want to trigger this again
-                 // In a normal ecs you would probably just remove the component ;D
-                
-                if(!arch_manager.is_alive(pdd.target)) {
-                    t.target = t.target * 2;
-                    return;
-                }
-
-                if(pdd.hit == 1) {
-                    auto &hull = arch_manager.get_component<Hull>(pdd.target);
-                    hull.amount = hull.amount - pdd.damage;
-
-                    auto &position = arch_manager.get_component<Position>(pdd.target);
-                    // An event ?
-                    // Send that something took damage?
-                    Services::ui().show_text_toast(position.value, "HIT!", 1.0f);
-
-                } else {
-                    auto &position = arch_manager.get_component<Position>(pdd.target);
-
-                    // Maybe better as an event and anyone can react
-                    Services::ui().show_text_toast(position.value, "MISS!", 1.0f);
-                }
-            }
-        });
-    }
-};
-
-struct RemoveNoHullEntitiesSystem {
-    void update(ECS::ArchetypeManager &arch_manager) {
-        arch_manager.iterate<Hull, LifeTime>([](auto c, auto i) { // [this](auto c, auto i) {
-            auto &h = c->index<Hull>(i);
-            if(h.amount <= 0) {
-                auto &l = c->index<LifeTime>(i);
-                l.marked_for_deletion = true;
-
-                Services::events().push(EntityDestroyedEvent { c->entity[i] });
-            }
-        });
-    }
-};
-
-struct RemoveNoParentAliveEntitiesSystem {
-    void update(ECS::ArchetypeManager &arch_manager) {
-        arch_manager.iterate<ParentComponent, LifeTime>([&](auto c, auto i) { // [this](auto c, auto i) {
-            auto &p = c->index<ParentComponent>(i);
-
-            // if it's alive we check if it has a lifetime 
-            // and remove it if marked for deletion
-            if(arch_manager.is_alive(p.entity)) {
-                if(arch_manager.has_component<LifeTime>(p.entity)) {
-                    auto &pl = arch_manager.get_component<LifeTime>(p.entity);
-                    if(!pl.marked_for_deletion) {
-                        return;
-                    }
-                } else {
-                    return;
-                }
-            } 
-            
-            auto &l = c->index<LifeTime>(i);
-            l.marked_for_deletion = true;
-
-            Services::events().push(EntityDestroyedEvent { c->entity[i] });
-        });
-    }
-};
-
-struct AIInputSystem {
-    std::vector<std::function<void(void)>> post_update_commands;
-
-    void post_update() {
-        for(auto pc : post_update_commands) {
-            pc();
-        }
-        post_update_commands.clear();
-    }
-
-    void update(ECS::ArchetypeManager &arch_manager) {
-        arch_manager.iterate<AIComponent, Position>([&](auto c, auto i) { // [this](auto c, auto i) {
-            auto &ai = c->index<AIComponent>(i);
-            auto &p = c->index<Position>(i);
-            ai.fire_cooldown = Math::max_f(0.0f, ai.fire_cooldown - Time::delta_time);
-
-            if(ai.fire_cooldown > 0.0f) {
-                return;
-            }
-
-            ai.fire_cooldown = 2.2f;
-
-            post_update_commands.push_back([=]() {
-                GameController::enemy_projectile_fire(p.value);
-            });
-        });
-    }
-};
-*/
 #endif
