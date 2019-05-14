@@ -26,7 +26,7 @@ void MenuScene::render() {
 	// room_render();
 	renderer_draw_render_target_camera();
 	
-	draw_text_centered_str((int)(gw / 2), (int)(gh / 2), Colors::white, "Press start to continue...");
+	draw_text_centered_str((int)(gw / 2), (int)(gh / 2), Colors::white, "Press start to play new game.");
 	
 	renderer_flip();
 }

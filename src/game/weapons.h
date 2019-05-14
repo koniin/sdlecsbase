@@ -154,29 +154,7 @@ struct ValueModifier : WeaponModifier {
     }
 };
 
-int weapon_get_radius(ProjectileType type) {
-    switch(type) {
-        case ProjectileType::Bullet: {
-            return 6;
-        }
-        case ProjectileType::SmallBullet: {
-            return 5;
-        }
-        case ProjectileType::GreenLazerBeam: {
-            return 4;
-        }
-        case ProjectileType::Missile: {
-            return 5;
-        }
-        case ProjectileType::RedLazerBullet: {
-            return 5;
-        }
-    }
-    ASSERT_WITH_MSG(false, "weapon_get_radius: ProjectileType not implemented!");
-    return 0;
-}
-
-std::string weapon_projectile_sprite(ProjectileType type) {
+inline std::string weapon_projectile_sprite(ProjectileType type) {
     switch(type) {
         case ProjectileType::Bullet: {
             return "bullet_3";
@@ -198,7 +176,7 @@ std::string weapon_projectile_sprite(ProjectileType type) {
     return "";
 }
 
-ProjectilePayLoad::DamageType weapon_payload_type(ProjectileType type) {
+inline ProjectilePayLoad::DamageType weapon_payload_type(ProjectileType type) {
     switch(type) {
         case ProjectileType::Bullet: {
             return ProjectilePayLoad::DamageType::Kinetic;
@@ -220,7 +198,7 @@ ProjectilePayLoad::DamageType weapon_payload_type(ProjectileType type) {
     return ProjectilePayLoad::DamageType::Kinetic;
 }
 
-bool weapon_is_beam(ProjectileType type) {
+inline bool weapon_is_beam(ProjectileType type) {
     switch(type) {
         case ProjectileType::Bullet:
         case ProjectileType::SmallBullet:
@@ -234,6 +212,27 @@ bool weapon_is_beam(ProjectileType type) {
     return false;
 }
 
+inline int weapon_get_radius(ProjectileType type) {
+    switch(type) {
+        case ProjectileType::Bullet: {
+            return 6;
+        }
+        case ProjectileType::SmallBullet: {
+            return 5;
+        }
+        case ProjectileType::GreenLazerBeam: {
+            return 4;
+        }
+        case ProjectileType::Missile: {
+            return 5;
+        }
+        case ProjectileType::RedLazerBullet: {
+            return 5;
+        }
+    }
+    ASSERT_WITH_MSG(false, "weapon_get_radius: ProjectileType not implemented!");
+    return 0;
+}
 
 struct WeaponComponent {
     private:

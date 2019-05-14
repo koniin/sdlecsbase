@@ -828,7 +828,7 @@ int renderer_init(const char *title, unsigned vw, unsigned vh, unsigned scale) {
 		windowPos, 
 		window_w, 
 		window_h, 
-		SDL_WINDOW_SHOWN );
+		SDL_WINDOW_HIDDEN );
 	//renderer.screen = GPU_Init(w, h, GPU_DEFAULT_INIT_FLAGS);
 	//renderer.screen = GPU_InitRenderer(GPU_RENDERER_OPENGL_3, 640, 360, GPU_DEFAULT_INIT_FLAGS);
 	
@@ -880,6 +880,8 @@ int renderer_init(const char *title, unsigned vw, unsigned vh, unsigned scale) {
 	// defaultFont->set_color(defaltFontColor);
 	
 	// camera = GPU_GetDefaultCamera();
+
+	SDL_ShowWindow(renderer.sdl_window);
 
     return 1;
 }

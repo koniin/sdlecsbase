@@ -2,9 +2,9 @@
 #define GAME_STATE_H
 
 struct GameState {
-    void new_game() {
-        Engine::logn("Making new game state");
-    }
+    void new_game();
+
+    int seed;
 };
 
 #endif

@@ -67,9 +67,9 @@ int main(int argc, char* argv[]) {
     timer.accumulator = 0;
 
 	// FPS timer
-	int32_t fps_lasttime = SDL_GetTicks(); //the last recorded time.
-	int32_t fps_current = 0; //the current FPS.
-	int32_t fps_frames = 0; //frames passed since the last recorded fps.
+	uint32_t fps_lasttime = SDL_GetTicks(); //the last recorded time.
+	uint32_t fps_current = 0; //the current FPS.
+	uint32_t fps_frames = 0; //frames passed since the last recorded fps.
 
 	Time::delta_time = (float)timer.fixed_dt;
 	Time::delta_time_fixed = (float)timer.fixed_dt;
@@ -92,8 +92,8 @@ int main(int argc, char* argv[]) {
 		Engine::render();
 
 		fps_frames++;
-#define FPS_INTERVAL 1.0 //seconds.
-		if (fps_lasttime < SDL_GetTicks() - FPS_INTERVAL*1000)
+
+		if (fps_lasttime < SDL_GetTicks() - 1000U) // every second
 		{
 			fps_lasttime = SDL_GetTicks();
 			fps_current = fps_frames;

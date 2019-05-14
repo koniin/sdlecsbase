@@ -687,6 +687,12 @@ namespace RNG {
         return range(RNG_generator);
     }
 
+    template<typename RandomGenerator>
+    inline float range_f(float min, float max, RandomGenerator& g) {
+        std::uniform_real_distribution<float> range(min, max);
+        return range(g);
+    }
+
 	inline void random_point_i(int xMax, int yMax, int &xOut, int &yOut) {
 		std::uniform_int_distribution<int> xgen(0, xMax);
 		std::uniform_int_distribution<int> ygen(0, yMax);
@@ -704,6 +710,11 @@ namespace RNG {
         return range_f(0, 1);
     }
 
+    template<typename RandomGenerator>
+    inline float zero_to_one(RandomGenerator& g) {
+        return range_f(0, 1, g);
+    }
+    
     template<typename Iter, typename RandomGenerator>
     Iter select_randomly(Iter start, Iter end, RandomGenerator& g) {
         std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
