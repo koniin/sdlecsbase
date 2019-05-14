@@ -158,6 +158,14 @@ void system_update_ttl(Entity &entities) {
         }
     }
 }
+
+template<typename Entity> 
+void system_animation(Entity &entities)  {
+    // Animation system
+    for (auto &ship : entities) { 
+        ship.sprite.update_animation(Time::delta_time);
+    }
+}
 /// ============================================
 
 #endif

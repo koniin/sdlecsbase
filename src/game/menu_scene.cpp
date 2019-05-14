@@ -1,5 +1,6 @@
 #include "menu_scene.h"
 #include "game_input_wrapper.h"
+#include "services.h"
 
 void MenuScene::initialize() {
 	Engine::logn("[MENU] Init");
@@ -15,6 +16,7 @@ void MenuScene::end() {
 
 void MenuScene::update() {
 	if(GInput::pressed(GInput::Action::Start)) {
+		Services::game_state()->new_game();
 		Scenes::set_scene("map");
 	}
 }

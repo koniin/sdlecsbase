@@ -3,6 +3,7 @@
 
 #include "engine.h"
 #include "renderer.h"
+#include "services.h"
 #include "menu_scene.h"
 #include "level_scene.h"
 #include "map_scene.h"
@@ -16,6 +17,8 @@ inline void game_load() {
 	set_default_font(font);
     FrameLog::enable_at(5, 5);
 	
+	Services::init();
+
 	MenuScene *menu_scene = new MenuScene;
 	LevelScene *level = new LevelScene;
 	MapScene *map = new MapScene;

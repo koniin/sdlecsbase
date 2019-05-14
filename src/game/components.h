@@ -191,6 +191,8 @@ struct AutomaticFireComponent {
     float fire_cooldown = 2.0f;
 };
 
+const int PLAYER_FACTION = 100;
+const int ENEMY_FACTION = 200;
 struct FactionComponent {
     int faction = -1;
 };

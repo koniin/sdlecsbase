@@ -1,19 +1,23 @@
 #include "services.h"
 
 namespace Services {
-    ECS::ArchetypeManager archetype_manager;
-    UIManager ui_manager;
-    EventHub event_hub;
+    UIManager _ui_manager;
+    EventHub _event_hub;
+    std::shared_ptr<GameState> _game_state;
 
-    ECS::ArchetypeManager &arch_manager() {
-        return archetype_manager;
+    void init() {
+        _game_state = std::make_shared<GameState>();
     }
 
     UIManager &ui() {
-        return ui_manager;
+        return _ui_manager;
     }
 
     EventHub &events() {
-        return event_hub;
+        return _event_hub;
+    }
+
+    std::shared_ptr<GameState> game_state() {
+        return _game_state;
     }
 }

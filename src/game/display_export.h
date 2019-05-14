@@ -74,7 +74,7 @@ void render_export(RenderBuffer &render_buffer) {
     }
 
     for(auto &ship : GameController::_motherships) {
-        if(ship.faction.faction == GameController::PLAYER_FACTION) {
+        if(ship.faction.faction == PLAYER_FACTION) {
             int i = 0;
             for(auto weapon_id : ship.weapons.ids()) {
                 auto weapon = ship.weapons.get_weapon(weapon_id);

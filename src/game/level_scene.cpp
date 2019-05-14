@@ -3,6 +3,7 @@
 #include "systems.h"
 #include "display_export.h"
 #include "particles.h"
+#include "services.h"
 
 #include <chrono>
 
@@ -17,15 +18,12 @@ void LevelScene::initialize() {
 
 void LevelScene::begin() {
 	Engine::logn("[LEVEL] Begin");
-    GameController::create_player_mothership();
-    GameController::create_enemy_mothership();
-    GameController::create_player_fighters();
-    GameController::create_enemy_fighters();
+    GameController::create(Services::game_state());
 }
 
 void LevelScene::end() {
     Engine::logn("[LEVEL] End");
-    GameController::clear();
+    GameController::end(Services::game_state());
 	render_buffer.clear();
 }
 
