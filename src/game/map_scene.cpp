@@ -20,6 +20,42 @@ std::mt19937 not_random_generator;
 // behövs inget random då
 
 /*
+    int[] nodeQueue = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3 };
+
+	node = nodeQueue[(int)(rand((UInt32)i, (UInt32)j) * (float)nodeQueue.Length)]
+
+
+
+*/
+
+float pseudo_rand_zero_to_one(uint32_t x, uint32_t y) {
+	/* mix around the bits in x: */
+	x = x * 3266489917 + 374761393;
+	x = (x << 17) | (x >> 15);
+
+	/* mix around the bits in y and mix those into x: */
+	x += y * 3266489917;
+
+	/* Give x a good stir: */
+	x *= 668265263;
+	x ^= x >> 15;
+	x *= 2246822519;
+	x ^= x >> 13;
+	x *= 3266489917;
+	x ^= x >> 16;
+
+	/* trim the result and scale it to a float in [0,1): */
+	return (x & 0x00ffffff) * (1.0f / 0x1000000);
+}
+
+const int node_distribution_count = 17;
+const int nodes_distribution[node_distribution_count] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3 };
+
+int get_node_id(uint32_t x, uint32_t y) {
+    return nodes_distribution[(int)(pseudo_rand_zero_to_one(x, y) * node_distribution_count)];
+}
+
+/*
 void Main()
 {
 	Perlin p = new Perlin();
@@ -145,49 +181,61 @@ float scaleRange(float number, float high, float low)
 
 Node get_node(int x, int y, int seed) {
     Node node;
+    
+    int id = get_node_id(x, y);
+    //int n = pseudo_rand_zero_to_one(x, y);
 
-    float n = Noise::perlin((float)x * 10, (float)y * 10);
-    n = RNG::zero_to_one(not_random_generator);
-    if(n < 0) {
-        n = -n;
-    }
-
-    if(n <= 0.1f) {
+    if(id == 1) {
         node.color = { 65, 120, 200, 255 };
-    } else if(n <= 0.2f) {
+    } else if(id == 2) {
         node.color = { 255, 0, 0, 255 };
-    } else if(n <= 0.3f) {
+    } else if(id == 3) {
         node.color = { 255, 255, 0, 255 };
-    } else if(n <= 0.4f) {
-        node.color = { 255, 0, 255, 255 };
-    } else if(n <= 0.5f) {
-        node.color = { 0, 255, 0, 255 };
-    } else if(n <= 0.6f) {
-        node.color = { 0, 255, 255, 255 };
-    } else if(n <= 0.7f) {
-        node.color = { 0, 0, 255, 255 };
-    } else if(n <= 0.8f) {
-        node.color = { 125, 125, 255, 255 };
-    } else if(n <= 0.9f) {
-        node.color = { 125, 255, 125, 255 };
     } else {
-        node.color = { 255, 125, 125, 255 };
+        ASSERT_WITH_MSG(false, "WTF?!");
     }
+
+    // //n = RNG::zero_to_one(not_random_generator);
+    // if(n < 0) {
+    //     n = -n;
+    // }
+
+    // if(n <= 0.1f) {
+    //     node.color = { 65, 120, 200, 255 };
+    // } else if(n <= 0.2f) {
+    //     node.color = { 255, 0, 0, 255 };
+    // } else if(n <= 0.3f) {
+    //     node.color = { 255, 255, 0, 255 };
+    // } else if(n <= 0.4f) {
+    //     node.color = { 255, 0, 255, 255 };
+    // } else if(n <= 0.5f) {
+    //     node.color = { 0, 255, 0, 255 };
+    // } else if(n <= 0.6f) {
+    //     node.color = { 0, 255, 255, 255 };
+    // } else if(n <= 0.7f) {
+    //     node.color = { 0, 0, 255, 255 };
+    // } else if(n <= 0.8f) {
+    //     node.color = { 125, 125, 255, 255 };
+    // } else if(n <= 0.9f) {
+    //     node.color = { 125, 255, 125, 255 };
+    // } else {
+    //     node.color = { 255, 125, 125, 255 };
+    // }
 
     return node;
 }
 
 void make_nodes() {
     int seed = Services::game_state()->seed;
-    int global_x = 0;
-    int global_y = 0;
+    int global_x = 4000;
+    int global_y = 4000;
 
     int visual_x = 20;
     int visual_y = 20;
-    for(int y = global_y; y < 10; y++) {
-        for(int x = global_x; x < 10; x++) {
+    for(int y = global_y, vis_y = 0; vis_y < 10; y++, vis_y++) {
+        for(int x = global_x, vis_x = 0; vis_x < 10; x++, vis_x++) {
             Node n = get_node(x, y, seed);
-            n.position = Vector2(visual_x + (x * 30), visual_y + (y * 20));
+            n.position = Vector2((float)(visual_x + (vis_x * 30)), (float)(visual_y + (vis_y * 20)));
             _nodes.push_back(n);
         }   
     }
@@ -248,7 +296,7 @@ void MapScene::render() {
     
     SDL_Color color = Colors::green;
     for(auto &node: _nodes) {
-        draw_g_circle_filled_color(node.position.value.x, node.position.value.y, 8, node.color);
+        draw_g_circle_filled_color((int)node.position.value.x, (int)node.position.value.y, 8, node.color);
     }
 
     //draw_buffer(render_buffer);
