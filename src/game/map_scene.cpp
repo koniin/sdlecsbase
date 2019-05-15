@@ -182,7 +182,7 @@ float scaleRange(float number, float high, float low)
 Node get_node(int x, int y, int seed) {
     Node node;
     
-    int id = get_node_id(x, y);
+    int id = get_node_id(x + seed, y + seed);
     //int n = pseudo_rand_zero_to_one(x, y);
 
     if(id == 1) {
