@@ -391,6 +391,10 @@ namespace Math {
     	return x;
 	}
 
+    inline float floor_f(float f) {
+        return std::floorf(f);
+    }
+
 	inline int max_i(int a, int b) {
 		return std::max(a, b);
 	}

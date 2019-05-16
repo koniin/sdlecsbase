@@ -191,9 +191,9 @@ void MapScene::render() {
 
     auto camera = get_camera();
 
-    auto startCol = std::floorf(camera.x / x_spacing);
+    auto startCol = Math::floor_f(camera.x / x_spacing);
     auto endCol = startCol + (gw / x_spacing) + 1;
-    auto startRow = std::floorf(camera.y / x_spacing);
+    auto startRow = Math::floor_f(camera.y / x_spacing);
     auto endRow = startRow + (gh / x_spacing) + 1;
 
     auto offsetX = -camera.x + startCol * x_spacing;
