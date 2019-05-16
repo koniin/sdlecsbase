@@ -210,7 +210,6 @@ void MapScene::render() {
             Node n = get_node(c, r, seed);
             draw_g_circle_filled_color(x, y, 8, n.color);
 
-            
             auto x_left = (c - 1 - startCol) * x_spacing + offsetX;
             Point d_left = get_node_displacement(c - 1, r, seed);
             x_left += d_left.x;
@@ -232,49 +231,6 @@ void MapScene::render() {
             }
         }
     }
-
-
-    // for(int yi = 0; yi < visible_nodes_y + 1; yi++) {
-    //     for(int xi = 0; xi < visible_nodes_x + 1; xi++) {
-
-            
-    //     }
-    // }
-
-    // int current_x = global_x;
-    // int current_y = global_y;
-
-    // int current_visual_x = visual_x - map_position.x;
-    // int current_visual_y = visual_y - map_position.y;
-
-    // // y,x = base coordinates
-    // // yi, xi = counting variables
-    // // we loop to visible_nodes + 1 to show connections to next nodes (at the right edge and bottom edge)
-    // for(int yi = 0; yi < visible_nodes_y + 1; yi++) {
-    //     for(int xi = 0; xi < visible_nodes_x + 1; xi++) {
-    //         int x = current_x + xi;
-    //         int y = current_y + yi;
-    //         Node n = get_node(x, y, seed);
-
-    //         Point d = get_node_displacement(x, y, seed);
-            
-    //         int x_pos = current_visual_x + (xi * x_spacing) + d.x;
-    //         int y_pos = current_visual_y + (yi * y_spacing) + d.y;
-
-    //         // Point d_left = get_node_displacement(x - 1, y, seed);
-    //         // int x_left = x_pos - x_spacing - d.x + d_left.x;
-    //         // int y_left = y_pos - d.y + d_left.y;
-    //         // draw_g_line_RGBA(x_pos, y_pos, x_left, y_left, 255, 255, 255, 255);
-            
-    //         // Point d_top = get_node_displacement(x, y - 1, seed);
-    //         // int x_top = x_pos - d.x + d_top.x;
-    //         // int y_top = y_pos - y_spacing - d.y + d_top.y;
-    //         // draw_g_line_RGBA(x_pos, y_pos, x_top, y_top, 255, 255, 255, 255);
-            
-    //         // Draws centered on x,y
-    //         draw_g_circle_filled_color(x_pos, y_pos, 8, n.color);
-    //     }   
-    // }
 
     //draw_buffer(render_buffer);
 
