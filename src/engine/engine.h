@@ -682,6 +682,12 @@ namespace RNG {
         return range(RNG_generator);
     }
 
+    template<typename RandomGenerator>
+    inline int range_i(int min, int max, RandomGenerator& g) {
+        std::uniform_int_distribution<int> range(min, max);
+        return range(g);
+    }
+
     inline float range_f(float min, float max) {
         std::uniform_real_distribution<float> range(min, max);
         return range(RNG_generator);

@@ -79,7 +79,6 @@ Node get_node(int x, int y, int seed) {
 int global_x = 500000;
 int global_y = 500000;
 
-
 void MapScene::initialize() {
     Engine::logn("[MAP] Init");
  	render_buffer.init(2048);
@@ -123,6 +122,15 @@ void MapScene::update() {
 	FrameLog::log(frame_duration_ms);
 }
 
+std::mt19937 _id_displacement;
+Point get_node_displacement(int node_x, int node_y, int seed) {
+    uint32_t r_seed = (uint32_t)(pseudo_rand_zero_to_one(node_x + seed, node_y + seed) * 3450971324.f);
+    _id_displacement = std::mt19937(r_seed);
+
+    Point p(RNG::range_i(-20, 20, _id_displacement), RNG::range_i(-20, 20, _id_displacement));
+    return p;
+}
+
 void MapScene::render() {
 	renderer_clear();
     // Render Background
@@ -143,23 +151,47 @@ void MapScene::render() {
     
     int seed = Services::game_state()->seed;
 
+    Point d1 = get_node_displacement(100, 100, seed);
+    Point d2 = get_node_displacement(101, 100, seed);
+    Point d3 = get_node_displacement(100, 100, seed);
+
     // y,x = base coordinates
     // yi, xi = counting variables
     for(int y = global_y, yi = 0; yi < visible_nodes_y; y++, yi++) {
         for(int x = global_x, xi = 0; xi < visible_nodes_x; x++, xi++) {
             Node n = get_node(x, y, seed);
 
-            int x_pos = visual_x + (xi * x_spacing);
-            int y_pos = visual_y + (yi * y_spacing);
+            Point d = get_node_displacement(x, y, seed);
+            
+            int x_pos = visual_x + (xi * x_spacing) + d.x;
+            int y_pos = visual_y + (yi * y_spacing) + d.y;
 
-            Point left(x_pos - x_spacing, y_pos);
-            draw_g_line_RGBA(x_pos, y_pos, left.x, left.y, 255, 255, 255, 255);
-            Point right(x_pos + x_spacing, y_pos);
-            draw_g_line_RGBA(x_pos, y_pos, right.x, right.y, 255, 255, 255, 255);
-            Point top(x_pos, y_pos - y_spacing);
-            draw_g_line_RGBA(x_pos, y_pos, top.x, top.y, 255, 255, 255, 255);
-            Point bottom(x_pos, y_pos + y_spacing);
-            draw_g_line_RGBA(x_pos, y_pos, bottom.x, bottom.y, 255, 255, 255, 255);
+            Point d_left = get_node_displacement(x - 1, y, seed);
+            int x_left = x_pos - x_spacing - d.x + d_left.x;
+            int y_left = y_pos - d.y + d_left.y;
+            draw_g_line_RGBA(x_pos, y_pos, x_left, y_left, 255, 255, 255, 255);
+
+            // Point d_left = get_node_displacement(x - 1, y, seed);
+            // int x_left = x_pos - x_spacing - d.x + d_left.x;
+            // int y_left = y_pos - d.y + d_left.y;
+            // draw_g_line_RGBA(x_pos, y_pos, x_left, y_left, 255, 255, 255, 255);
+
+            // Point d_right = get_node_displacement(x + 1, y, seed);
+            // int x_right = x_pos + x_spacing + d.x + d_right.x;
+            // draw_g_line_RGBA(x_pos, y_pos, x_right, y_pos, 255, 255, 255, 255);
+            
+            Point d_top = get_node_displacement(x, y - 1, seed);
+            int x_top = x_pos - d.x + d_top.x;
+            int y_top = y_pos - y_spacing - d.y + d_top.y;
+            draw_g_line_RGBA(x_pos, y_pos, x_top, y_top, 255, 255, 255, 255);
+
+            // Point d_top = get_node_displacement(x, y - 1, seed);
+            // int y_top = y_pos + y_spacing + d.y + d_top.y;
+            // draw_g_line_RGBA(x_pos, y_pos, x_pos, y_top, 255, 255, 255, 255);
+            
+            // Point d_bottom = get_node_displacement(x, y - 1, seed);
+            // int y_bottom = y_pos + y_spacing + d.y + d_bottom.y;
+            // draw_g_line_RGBA(x_pos, y_pos, x_pos, y_bottom, 255, 255, 255, 255);
 
             // Draws centered on x,y
             draw_g_circle_filled_color(x_pos, y_pos, 8, n.color);
