@@ -157,8 +157,8 @@ void MapScene::render() {
 
     // y,x = base coordinates
     // yi, xi = counting variables
-    for(int y = global_y, yi = 0; yi < visible_nodes_y; y++, yi++) {
-        for(int x = global_x, xi = 0; xi < visible_nodes_x; x++, xi++) {
+    for(int y = global_y, yi = 0; yi < visible_nodes_y + 1; y++, yi++) {
+        for(int x = global_x, xi = 0; xi < visible_nodes_x + 1; x++, xi++) {
             Node n = get_node(x, y, seed);
 
             Point d = get_node_displacement(x, y, seed);
