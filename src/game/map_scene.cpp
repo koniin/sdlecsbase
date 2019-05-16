@@ -79,12 +79,29 @@ Node get_node(int x, int y, int seed) {
 int global_x = 500000;
 int global_y = 500000;
 
+const int visible_nodes_x = 6;
+const int visible_nodes_y = 4;
+    
+int x_spacing = 0;
+int y_spacing = 0;
+
+int x_width;
+int y_height;
+int visual_x;
+int visual_y;
+
+Vector2 start(0, 0);
+Vector2 map_offset(0, 0);
+
 void MapScene::initialize() {
     Engine::logn("[MAP] Init");
  	render_buffer.init(2048);
     // Resources::sprite_sheet_load("combat_sprites", "combat_sprites.data");
     
     Resources::sprite_load("background", "bkg1.png");
+
+    x_spacing = gw / visible_nodes_x;
+    y_spacing = gh / visible_nodes_y;
 }
 
 void MapScene::begin() {
@@ -92,6 +109,13 @@ void MapScene::begin() {
     Engine::logn("seed: %d",  Services::game_state()->seed);
     Noise::set_seed(Services::game_state()->seed);
     not_random_generator = std::mt19937(Services::game_state()->seed);
+
+    x_width = x_spacing * (visible_nodes_x - 1);
+    y_height = y_spacing * (visible_nodes_y - 1);
+    visual_x = (gw / 2) - x_width / 2;
+    visual_y = (gh / 2) - y_height / 2;
+
+    camera_lookat(start);
 }
 
 void MapScene::end() {
@@ -105,7 +129,32 @@ void MapScene::update() {
     if(GInput::pressed(GInput::Action::Start)) {
 	    Scenes::set_scene("level");
 	}
+
+    // if(Input::key_pressed(SDLK_LEFT)) {
+    //     global_x -= 1;
+    // }
+    // if(Input::key_pressed(SDLK_RIGHT)) {
+    //     global_x += 1;
+    // }
+    // if(Input::key_down(SDL_SCANCODE_RIGHT)) {
+    //     // start.x += 12;
+    //     global_x += 1;
+    // }
+    if(Input::key_down(SDL_SCANCODE_UP)) {
+        map_offset.y -= 12;
+    }
+    if(Input::key_down(SDL_SCANCODE_DOWN)) {
+        map_offset.y += 12;
+    }
+    if(Input::key_down(SDL_SCANCODE_LEFT)) {
+        map_offset.x -= 12;
+    }
+    if(Input::key_down(SDL_SCANCODE_RIGHT)) {
+        map_offset.x += 12;
+    }
     
+    camera_follow(start + map_offset);
+
     // Particles::update(GameController::particles, Time::delta_time);
     Services::events().emit();
     Services::ui().update();
@@ -138,89 +187,94 @@ void MapScene::render() {
     
     SDL_Color color = Colors::green;
     
-    int visible_nodes_x = 6;
-    int visible_nodes_y = 4;
-    
-    int x_spacing = gw / visible_nodes_x;
-    int y_spacing = gh / visible_nodes_y;
-
-    int x_width = x_spacing * (visible_nodes_x - 1);
-    int y_height = y_spacing * (visible_nodes_y - 1);
-    int visual_x = (gw / 2) - x_width / 2;
-    int visual_y = (gh / 2) - y_height / 2;
-    
     int seed = Services::game_state()->seed;
 
-    Point d1 = get_node_displacement(100, 100, seed);
-    Point d2 = get_node_displacement(101, 100, seed);
-    Point d3 = get_node_displacement(100, 100, seed);
+    auto camera = get_camera();
 
-    // y,x = base coordinates
-    // yi, xi = counting variables
-    for(int y = global_y, yi = 0; yi < visible_nodes_y + 1; y++, yi++) {
-        for(int x = global_x, xi = 0; xi < visible_nodes_x + 1; x++, xi++) {
-            Node n = get_node(x, y, seed);
+    auto startCol = std::floorf(camera.x / x_spacing);
+    auto endCol = startCol + (gw / x_spacing) + 1;
+    auto startRow = std::floorf(camera.y / x_spacing);
+    auto endRow = startRow + (gh / x_spacing) + 1;
 
-            Point d = get_node_displacement(x, y, seed);
+    auto offsetX = -camera.x + startCol * x_spacing;
+    auto offsetY = -camera.y + startRow * x_spacing;
+
+    for (auto c = startCol; c <= endCol; c++) {
+        for (auto r = startRow; r <= endRow; r++) {
+            auto x = (c - startCol) * x_spacing + offsetX;
+            auto y = (r - startRow) * x_spacing + offsetY;
+            Point d = get_node_displacement(c, r, seed);
+            x += d.x;
+            y += d.y;
+
+            Node n = get_node(c, r, seed);
+            draw_g_circle_filled_color(x, y, 8, n.color);
+
             
-            int x_pos = visual_x + (xi * x_spacing) + d.x;
-            int y_pos = visual_y + (yi * y_spacing) + d.y;
-
-            Point d_left = get_node_displacement(x - 1, y, seed);
-            int x_left = x_pos - x_spacing - d.x + d_left.x;
-            int y_left = y_pos - d.y + d_left.y;
-            draw_g_line_RGBA(x_pos, y_pos, x_left, y_left, 255, 255, 255, 255);
-
-            // Point d_left = get_node_displacement(x - 1, y, seed);
-            // int x_left = x_pos - x_spacing - d.x + d_left.x;
-            // int y_left = y_pos - d.y + d_left.y;
-            // draw_g_line_RGBA(x_pos, y_pos, x_left, y_left, 255, 255, 255, 255);
-
-            // Point d_right = get_node_displacement(x + 1, y, seed);
-            // int x_right = x_pos + x_spacing + d.x + d_right.x;
-            // draw_g_line_RGBA(x_pos, y_pos, x_right, y_pos, 255, 255, 255, 255);
+            auto x_left = (c - 1 - startCol) * x_spacing + offsetX;
+            Point d_left = get_node_displacement(c - 1, r, seed);
+            x_left += d_left.x;
+            int y_left = y - d.y + d_left.y;
+            draw_g_line_RGBA(x, y, x_left, y_left, 255, 255, 255, 255);
             
-            Point d_top = get_node_displacement(x, y - 1, seed);
-            int x_top = x_pos - d.x + d_top.x;
-            int y_top = y_pos - y_spacing - d.y + d_top.y;
-            draw_g_line_RGBA(x_pos, y_pos, x_top, y_top, 255, 255, 255, 255);
+            auto y_top = (r - 1 - startRow) * x_spacing + offsetY;
+            Point d_top = get_node_displacement(c, r - 1, seed);
+            y_top += d_top.y;
+            int x_top = x - d.x + d_top.x;
+            draw_g_line_RGBA(x, y, x_top, y_top, 255, 255, 255, 255);
 
-            // Point d_top = get_node_displacement(x, y - 1, seed);
-            // int y_top = y_pos + y_spacing + d.y + d_top.y;
-            // draw_g_line_RGBA(x_pos, y_pos, x_pos, y_top, 255, 255, 255, 255);
-            
-            // Point d_bottom = get_node_displacement(x, y - 1, seed);
-            // int y_bottom = y_pos + y_spacing + d.y + d_bottom.y;
-            // draw_g_line_RGBA(x_pos, y_pos, x_pos, y_bottom, 255, 255, 255, 255);
-
-            // Draws centered on x,y
-            draw_g_circle_filled_color(x_pos, y_pos, 8, n.color);
-        }   
+            if(r == endRow) {
+                auto y_bottom = (r + 1 - startRow) * x_spacing + offsetY;
+                Point d_bottom = get_node_displacement(c, r + 1, seed);
+                y_top += d_top.y;
+                int x_bottom = x - d.x + d_bottom.x;
+                draw_g_line_RGBA(x, y, x_bottom, y_bottom, 255, 255, 255, 255);
+            }
+        }
     }
 
-    // for(auto &node: _nodes) {
-        
 
-    //     if(node.connections.right) {
+    // for(int yi = 0; yi < visible_nodes_y + 1; yi++) {
+    //     for(int xi = 0; xi < visible_nodes_x + 1; xi++) {
+
             
-
-    //         int right_index = vis_y * 10 + (vis_x + 1);
-    //         if(right_index >= 0 && right_index < _nodes.size()) {
-    //             auto &right_node = _nodes[right_index];
-
-    //             int r_x = (int)right_node.position.value.x;
-    //             int r_y = (int)right_node.position.value.y;
-    //             int r_vis_x = (r_x % 10);
-    //             int r_vis_y = (r_y % 10);
-    //             int r_x_pos = visual_x + (r_vis_x * 50);
-    //             int r_y_pos = visual_y + (r_vis_y * 30);
-
-
-    //             draw_g_line_RGBA(x_pos, y_pos, r_x_pos, r_y_pos, 255, 0, 0, 255);
-    //         }
     //     }
+    // }
 
-    //}
+    // int current_x = global_x;
+    // int current_y = global_y;
+
+    // int current_visual_x = visual_x - map_position.x;
+    // int current_visual_y = visual_y - map_position.y;
+
+    // // y,x = base coordinates
+    // // yi, xi = counting variables
+    // // we loop to visible_nodes + 1 to show connections to next nodes (at the right edge and bottom edge)
+    // for(int yi = 0; yi < visible_nodes_y + 1; yi++) {
+    //     for(int xi = 0; xi < visible_nodes_x + 1; xi++) {
+    //         int x = current_x + xi;
+    //         int y = current_y + yi;
+    //         Node n = get_node(x, y, seed);
+
+    //         Point d = get_node_displacement(x, y, seed);
+            
+    //         int x_pos = current_visual_x + (xi * x_spacing) + d.x;
+    //         int y_pos = current_visual_y + (yi * y_spacing) + d.y;
+
+    //         // Point d_left = get_node_displacement(x - 1, y, seed);
+    //         // int x_left = x_pos - x_spacing - d.x + d_left.x;
+    //         // int y_left = y_pos - d.y + d_left.y;
+    //         // draw_g_line_RGBA(x_pos, y_pos, x_left, y_left, 255, 255, 255, 255);
+            
+    //         // Point d_top = get_node_displacement(x, y - 1, seed);
+    //         // int x_top = x_pos - d.x + d_top.x;
+    //         // int y_top = y_pos - y_spacing - d.y + d_top.y;
+    //         // draw_g_line_RGBA(x_pos, y_pos, x_top, y_top, 255, 255, 255, 255);
+            
+    //         // Draws centered on x,y
+    //         draw_g_circle_filled_color(x_pos, y_pos, 8, n.color);
+    //     }   
+    // }
 
     //draw_buffer(render_buffer);
 
