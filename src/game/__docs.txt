@@ -15,7 +15,10 @@
 		  when timer is up you add the ship to the other list (e.g. _fighter_ships)
 		  and spawn the warp effect?
 
-
+	- some random spacing of nodes on world_map
+		- make a function to get rendering coordinates for any node x, y in global scope (int local coordinate space)
+		- get spacing based on x,y ?
+		- node x,y is then: global x + x_max_distance * (-1 to 1 based on x, y), where x_max_distance is something like 10 ?
 
 	- Simple ship to ship battle
 		- defensive measures? like anti missiles, beam deflector, whatevs
