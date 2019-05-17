@@ -36,8 +36,21 @@
 		- you could have different "deployment zones" like front, middle and back and that is the distance to the enemy ships
 			which could be good depending on what kind of stats the ship hans
 
+Nodes
+===================
+- combat
+- nothing
+- interactions 
+	- quest? like chance of x when going to planet?
+	- shop?
+	- mine planet? (like azurite nodes)
+
+
 Fleet 
 =====================
+select mothership?
+select starting things?
+
 To make it easy we treat the fleet ships as weapons/systems in FTL
 so you "find" other fleet ships and no building or UI to manage them
 
