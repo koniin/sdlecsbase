@@ -10,6 +10,8 @@
 		- create the player mothership and fighters from the game state
 		
 	- spawn in ships at start of battle (warp them in)
+		- show it small and scale to correct size in some time 
+		- show some effect over it (behind it)
 		- add ships to one list, move them in and then move to correct list?
 		- so two vectors, one with ships and one with data struct (spawn_time, timer)
 		  when timer is up you add the ship to the other list (e.g. _fighter_ships)
@@ -33,6 +35,117 @@
 			"abilities/items" to buff shields (regeneration amount, time, start time etc)
 		- you could have different "deployment zones" like front, middle and back and that is the distance to the enemy ships
 			which could be good depending on what kind of stats the ship hans
+
+Fleet 
+=====================
+To make it easy we treat the fleet ships as weapons/systems in FTL
+so you "find" other fleet ships and no building or UI to manage them
+
+so a node on the delve map can be "fighter ship"
+
+Then we can have different types of ships like healers or tanks etc 
+
+do they get destroyed in fights or do they respawn at the start of every fight?
+
+
+Items/Skills
+=====================
+
+	Games to check
+
+	Nova drift:
+		- https://nova-drift.fandom.com/wiki/Nova_Drift_Wiki
+		- chose gear (base weapon, body and shield)
+		- body -> t.ex en som är bra för constructs/mines, en/två som är bra för shield, en för att köra in i saker ( https://nova-drift.fandom.com/wiki/Category:Ships )
+		- weapons - 10 bas-vapen (typ flak, rail, split mm  - https://nova-drift.fandom.com/wiki/Category:Weapons)
+		- shields - lite som weapons fast med olika saker med skölden - https://nova-drift.fandom.com/wiki/Category:Shields
+
+		- mods - typ "rapid fire" som i sin tur kan uppgraderas i 2 steg till
+		- mods kan ändra body, weapons och shield (alla tre) - tror att gears utgör basen och sen räknas mods på det 
+		- mods kan också lägga till helt nya saker t.ex att alla projectiler blir homing
+
+	Borderlands
+	Magic the gathering / Hearthstone
+	Nuclear throne
+	Luftrausers
+	Binding of isaac
+	Halcyon 6
+	FTL
+	Into the breach
+
+	====
+
+	This is what we can work with atm
+
+		- number of ships in fleet
+
+		- Defense stats
+			hp/hull _max
+			shield_max
+			
+			=> SHOULD WE ADD shield_recharge_cooldown   ?
+			shield_recharge_rate
+			shield_recharge_amount
+
+		- offense stats
+			enum DamageType {
+				Energy,
+				Explosive,
+				Kinetic,
+				Molten
+			} damage_type;
+
+			enum ProjectileType {
+				Bullet,
+				SmallBullet,
+				GreenLazerBeam,
+				Missile,
+				RedLazerBullet
+			};
+
+			enum WeaponProperty {
+				Accuracy,
+				ReloadTime,
+				Damage,
+				Projectile_Type,
+				Projectile_Count,
+				BurstDelay,
+				Radius,
+				ProjectileSpeed,
+				ProjectileSpeedIncrease,
+				ProjectileSpeedMax,
+			};
+
+			Targeting
+
+Ideas:
+Mothership/Fighter weapons/usables
+- can also be found/upgraded ?
+EMP Shock - disables a ship completely for x time
+Shield disruptor - disables X enemy shields (different versions ?)
+Sensor shock - Decreases accuracy (except for beams)
+(Super/Mega)Charge - all weapons do x amount of extra damage for x time
+
+Cleanser - removes negative effects
+- one for fire also
+
+Fighters are already configured when found but can be altered by mods 
+so fighters come as they are when you find them
+
+Dots ? (negative status effects basically - same as shield disabler etc)
+should be simple to implement - just add a component and count and deal damage
+
+Fire Dot - from a projectile (beam)
+
+Healing - heals targets on press or repeatedly
+
+Passives
+- X projectiletype does more damage/better accuracy, etc etc (dot/negative)
+- enemies take more damage from x Projectile_Type/DamageType (dot/negative)
+- shield increase (more shield_max)
+
+
+================================
 
 Dynamic components
 	- dynamic component = move the entity to another list
