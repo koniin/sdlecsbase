@@ -140,6 +140,8 @@ Fire Dot - from a projectile (beam)
 Healing - heals targets on press or repeatedly
 
 Passives
+- chance to double fire
+- chance to X, Y, Z (recharge 1 shield, 100 accuracy etc etc)
 - X projectiletype does more damage/better accuracy, etc etc (dot/negative)
 - enemies take more damage from x Projectile_Type/DamageType (dot/negative)
 - shield increase (more shield_max)
