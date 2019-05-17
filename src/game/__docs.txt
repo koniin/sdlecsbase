@@ -36,7 +36,7 @@
 		- you could have different "deployment zones" like front, middle and back and that is the distance to the enemy ships
 			which could be good depending on what kind of stats the ship hans
 
-Nodes
+Nodes/Map
 ===================
 - combat
 - nothing
@@ -44,12 +44,19 @@ Nodes
 	- quest? like chance of x when going to planet?
 	- shop?
 	- mine planet? (like azurite nodes)
+- population "events"
 
+- upgrades that make special options available (like blue options in FTL or special options in Fallout)
+
+- some sense of urgency (like the rebel pursuing in FTL)
 
 Fleet 
 =====================
 select mothership?
 select starting things?
+
+Metagame Health - Population + Mothership health
+Population also used to "build ships"?
 
 To make it easy we treat the fleet ships as weapons/systems in FTL
 so you "find" other fleet ships and no building or UI to manage them
@@ -60,6 +67,14 @@ Then we can have different types of ships like healers or tanks etc
 
 do they get destroyed in fights or do they respawn at the start of every fight?
 
+Captain on the mothership? 
+Crew for mothership and fighters?
+
+Lose population in combat depending on if mothership is hit or not 
+
+Combat
+=====================
+so enemies could try to escape before the fight is 100% over
 
 Items/Skills
 =====================
