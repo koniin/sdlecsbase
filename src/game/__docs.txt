@@ -36,6 +36,51 @@
 		- you could have different "deployment zones" like front, middle and back and that is the distance to the enemy ships
 			which could be good depending on what kind of stats the ship hans
 
+Overall 
+===================
+Manage your fleet/population
+Jump between nodes to do things
+Upgrade ship/fleet (upgrade here means find new things and replace old)
+
+- Population
+ - decreases when mothership is hit
+ - increases sometimes when entering/leaving a node or after an event
+ - can also decrease randomly - sickness etc
+ - decreases when a fighter is destroyed (could also be that pop ejects before destruction and if you do't leave
+ 		they can be retrieved)
+- Mothership
+	- buy/find new weapons / utility abilities (if not full replace old ones)
+	- resource capacity max for each resource - start with one resource
+- fighters
+    - buy new fighters that either adds (when not full or replaces when full (select which to replace))
+	- fighters take population to manage also (so population is left but its allocated to a fighter)
+- retreat from a fight can be done (some cooldown and random nearby node)
+
+Core loop
+- select a node to go to
+	=> NodeEvent
+  - fight the battle -> get a reward
+  - station - buy things with resources (different values for different resources at different places?)
+  - resource node - get resources 
+- after fight handle ship/fleet business
+
+Required parts
+- Population and connection to ships
+- node map
+- fight config
+- NodeEventScreen 
+- NodeEventRewardScreen
+- Fleet Handling UI
+  - mothership slots (weapons / utilities)
+  - fighter slots 
+
+So the cookie clicker part could be
+- train population -> requires x pop of each type to fly y ship
+- research upgrades for the things you found (like passive XP)
+- get other resource from basic resource
+- standing at the same node for too long could trigger things like population lost in boredom/disease/whatevs
+
+
 Nodes/Map
 ===================
 - combat
@@ -49,6 +94,21 @@ Nodes/Map
 - upgrades that make special options available (like blue options in FTL or special options in Fallout)
 
 - some sense of urgency (like the rebel pursuing in FTL)
+
+- or it could be that you need to stay on a set of nodes to gather shit and then move on 
+ - you can only progress to the next system if you have X amount of resource Y
+
+macro level is (like stellaris)
+ - delve node map (galaxy map);
+ 	- star system;
+	 	- star, planets, stations, debris fields, artifacts, rock clusters, etc
+ - to go between nodes costs some resource 
+	- some nodes (systems are pure mining / uninhabitated) -> azurite nodes
+		- could be placing things permanently to get resources (like stellaris)
+	- some nodes are inhabitated systems - fighting etc
+		- hostile zones (boss encounters at al)
+		- neutral zones (rewards and loot)
+
 
 Fleet 
 =====================
