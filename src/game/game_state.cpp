@@ -40,5 +40,22 @@ void GameState::new_game() {
     fighters_max = 8;
 
     // std::vector<FighterConfig> fighters;
+    
+    for(int i = 0; i < 4; i++) {
+        FighterConfig f;
+        f.defense = { 10, 5 };
+        f.sprite_base = "cs1";
 
+        WeaponConfig wc;
+        wc.targeting = 2;
+
+        wc.weapon = GLOBAL_BASE_WEAPON;
+        wc.weapon.name = "Lazer Gun";
+        wc.weapon.projectile_type = ProjectileType::RedLazerBullet;
+        wc.weapon.accuracy = 0.8f;
+
+        f.weapons.push_back(wc);
+
+        fighters.push_back(f);
+    }
 }

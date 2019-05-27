@@ -187,10 +187,6 @@ struct CollisionData {
 // Game specific components
 // ========
 
-struct AutomaticFireComponent {
-    float fire_cooldown = 2.0f;
-};
-
 const int PLAYER_FACTION = 100;
 const int ENEMY_FACTION = 200;
 struct FactionComponent {
@@ -256,7 +252,6 @@ struct FighterShip {
 
     CollisionData collision;
     FactionComponent faction;
-    AutomaticFireComponent automatic_fire;
     MultiWeaponComponent weapons;
     DefenseComponent defense;
 };

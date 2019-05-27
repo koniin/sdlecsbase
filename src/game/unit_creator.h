@@ -97,7 +97,7 @@ namespace UnitCreator {
         }
 
         auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
-        auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, "mother1");
+        auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, mothership.sprite_base);
         ship.collision = CollisionData(rect.w, rect.h);
 
         motherships.push_back(ship);
@@ -137,60 +137,68 @@ namespace UnitCreator {
     void create_player_fighters(const std::vector<FighterConfig> &fighter_configs, ECS::EntityManager &entity_manager, std::vector<FighterShip> &fighters) {
         Vector2 position = Vector2(170, 50);
 
-        for(int i = 0; i < 10; i++) {
+        float i = 0.0f;
+        for(auto &f_cfg : fighter_configs) {
             FighterShip ship(entity_manager.create());
             ship.faction = FactionComponent { PLAYER_FACTION };
             float y = position.y + i * 30.f;
             ship.position = RNG::vector2(position.x - 10, position.x + 10, y - 8, y + 8);
-            ship.defense = DefenseComponent(10, 5);
+            ship.defense = DefenseComponent(f_cfg.defense.hp, f_cfg.defense.shield);
+
+            std::string fighter_white_sprite = f_cfg.sprite_base + "_w";
 
             SpriteComponent s = SpriteComponent({ 
-                Animation("idle", { { "combat_sprites", "cs1" } }, 0, false),
+                Animation("idle", { { "combat_sprites", f_cfg.sprite_base } }, 0, false),
                 Animation("hit", { 
-                    { "combat_sprites", "cs1_w" },
-                    { "combat_sprites", "cs1" },
-                    { "combat_sprites", "cs1_w" },
-                    { "combat_sprites", "cs1" },
-                    { "combat_sprites", "cs1_w" },
-                    { "combat_sprites", "cs1" },
-                    { "combat_sprites", "cs1_w" }
+                    { "combat_sprites", fighter_white_sprite },
+                    { "combat_sprites", f_cfg.sprite_base },
+                    { "combat_sprites", fighter_white_sprite },
+                    { "combat_sprites", f_cfg.sprite_base },
+                    { "combat_sprites", fighter_white_sprite },
+                    { "combat_sprites", f_cfg.sprite_base },
+                    { "combat_sprites", fighter_white_sprite }
                 },  6, false)
             });
             s.layer = FIGHTER_LAYER;
             s.flip = 0;
             ship.sprite = s;
 
-            int w_choice = RNG::range_i(0, 2);
-
-            WeaponComponent weaponComponent;
-            if(w_choice == 0) {
-                weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Missiles", _random_targeter, ProjectileType::Missile);
-                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.4f));
-                weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Damage, 1));
-                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -400.0f));
-                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeedIncrease, 1.051f));
-                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeedMax, 300.5f));
-                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 2.0f));
-            } else if(w_choice == 1) {
-                weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Lazer Beam", _random_targeter, ProjectileType::GreenLazerBeam);
-                // Beams dont miss
-                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.5f));
-                weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Damage, 2));
-                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -500.0f));
-                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 4.0f));
-            } else {
-                weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Lazer Gun", _random_targeter, ProjectileType::RedLazerBullet);
-                weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.3f));        
+            for(auto &w : f_cfg.weapons) {
+                WeaponComponent weaponComponent = WeaponComponent(w.weapon,
+                    w.weapon.name, 
+                    w.targeting == 1 ? _random_multi_targeter : _random_targeter, 
+                    w.weapon.projectile_type);
+                
+                ship.weapons.add(weaponComponent, true);
             }
-
-            ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
-            ship.weapons.add(weaponComponent);
-
+            
+            // if(w_choice == 0) {
+            //     weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Missiles", _random_targeter, ProjectileType::Missile);
+            //     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.4f));
+            //     weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Damage, 1));
+            //     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -400.0f));
+            //     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeedIncrease, 1.051f));
+            //     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeedMax, 300.5f));
+            //     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 2.0f));
+            // } else if(w_choice == 1) {
+            //     weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Lazer Beam", _random_targeter, ProjectileType::GreenLazerBeam);
+            //     // Beams dont miss
+            //     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.5f));
+            //     weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Damage, 2));
+            //     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -500.0f));
+            //     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 4.0f));
+            // } else {
+            //     weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Lazer Gun", _random_targeter, ProjectileType::RedLazerBullet);
+            //     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.3f));        
+            // }
+            
             auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
-            auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, "cs1");
+            auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, f_cfg.sprite_base);
             ship.collision = CollisionData(rect.w, rect.h);
 
             fighters.push_back(ship);
+
+            i++;
         }
     }
 
@@ -225,9 +233,7 @@ namespace UnitCreator {
             // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<float>("temp", WeaponProperty::BurstDelay, 0.1f)));
 
             ship.weapons.add(weaponComponent);
-
-            ship.automatic_fire = AutomaticFireComponent { weaponComponent.get_weapon().reload_time };
-
+            
             auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
             auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, "cs2");
             ship.collision = CollisionData(rect.w, rect.h);
