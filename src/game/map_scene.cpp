@@ -181,6 +181,64 @@ Point get_node_displacement(int node_x, int node_y, int seed) {
     return p;
 }
 
+/*
+static void drawOpenings(Tilemap &t, const int startX, const int startY, const Directions &dir, 
+							const int roomX, const int roomY) {
+	static GPU_Rect bottom { 0, 0, 32, 32 };
+	static GPU_Rect right { 32, 0, 32, 32 };
+	static GPU_Rect left { 64, 0, 32, 32 };
+	static GPU_Rect top { 96, 0, 32, 32 };
+
+	auto temp_connections = Resources::getSprite("connections");
+	
+	if ((dir & Directions::West) == Directions::West) {
+		draw_sprite(t.tile_sheet, &t.sprites[19], startX + (t.sprite_size / 2), startY + (t.rows*t.sprite_size / 2));
+		if(!room_is_visited(roomX - 1, roomY))
+			draw_sprite(temp_connections, &left, (int)(startX - (left.w / 2)), (int)(startY + (t.rows*t.sprite_size / 2)));
+	}
+	if ((dir & Directions::East) == Directions::East) {
+		draw_sprite(t.tile_sheet, &t.sprites[20], startX + (t.cols * t.sprite_size - (t.sprite_size / 2)), startY + (t.rows*t.sprite_size / 2));
+		if(!room_is_visited(roomX + 1, roomY))
+			draw_sprite(temp_connections, &right, (int)(startX + (t.cols*t.sprite_size) + (right.w / 2)), (int)(startY + (t.rows*t.sprite_size / 2)));
+	}
+	if ((dir & Directions::North) == Directions::North) {
+		draw_sprite(t.tile_sheet, &t.sprites[18], startX + (t.cols * t.sprite_size / 2), startY + (t.sprite_size / 2));
+		if(!room_is_visited(roomX, roomY - 1))
+			draw_sprite(temp_connections, &top, (int)(startX + (t.cols*t.sprite_size / 2)), (int)(startY - (top.h / 2)));
+	}
+	if ((dir & Directions::South) == Directions::South) {
+		draw_sprite(t.tile_sheet, &t.sprites[21], (int)(startX + (t.cols * t.sprite_size / 2)), (int)(startY + (t.rows * t.sprite_size - (t.sprite_size / 2))));
+		if(!room_is_visited(roomX, roomY + 1))
+			draw_sprite(temp_connections, &bottom, (int)(startX + (t.cols*t.sprite_size / 2)), (int)(startY + (t.rows*t.sprite_size) + (bottom.h / 2)));
+	}
+}
+
+static void draw_room(const Maze* maze, const int &room_x, const int &room_y, const int &render_x, const int &render_y) {
+	// auto t = getRoomTileMap(x, y);
+	drawTilemap(testTileMap, render_x + 8, render_y + 8);
+
+	if(room_is_exit(room_x, room_y)) {
+		draw_sprite(Resources::getSprite("portal"), NULL, render_x + (roomSize / 2), render_y + (roomSize / 2));
+		Lights::light("portallight", render_x + (roomSize / 2), render_y + (roomSize / 2));
+	}
+	if (room_is_exit(room_x, room_y) || room_is_visited(room_x, room_y)) {
+		drawOpenings(testTileMap, render_x, render_y, maze->buffer[maze->index(room_x, room_y)].Openings, room_x, room_y);
+	}
+}
+
+void MazeScene::drawMaze(Maze* maze) {
+	for (int y = 0; y < maze->rows; y++) {
+        for (int x = 0; x < maze->cols; x++){
+			if (room_is_exit(x, y) || room_is_visited(x, y) || game_state.room_current_index == (int)room_index(x, y)) {
+				int render_x = mazeStartX + x * roomCenterDistance;
+				int render_y = mazeStartY + y * roomCenterDistance;
+				draw_room(maze, x, y, render_x, render_y);
+			}
+        }
+    }
+}
+*/
+
 void MapScene::render() {
 	renderer_clear();
     // Render Background
@@ -192,46 +250,64 @@ void MapScene::render() {
 
     auto camera = get_camera();
 
-    auto startCol = Math::floor_f(camera.x / x_spacing);
-    auto endCol = startCol + (gw / x_spacing) + 1;
-    auto startRow = Math::floor_f(camera.y / x_spacing);
-    auto endRow = startRow + (gh / x_spacing) + 1;
+    Maze *maze = &Services::game_state()->maze;
 
-    auto offsetX = -camera.x + startCol * x_spacing;
-    auto offsetY = -camera.y + startRow * x_spacing;
+    int start_x = 50;
+    int start_y = 50;
 
-    for (auto c = startCol; c <= endCol; c++) {
-        for (auto r = startRow; r <= endRow; r++) {
-            auto x = (c - startCol) * x_spacing + offsetX;
-            auto y = (r - startRow) * x_spacing + offsetY;
-            Point d = get_node_displacement(c, r, seed);
-            x += d.x;
-            y += d.y;
+    for (int y = 0; y < maze->rows; y++) {
+        for (int x = 0; x < maze->cols; x++){
+			// if (room_is_exit(x, y) || room_is_visited(x, y) || game_state.room_current_index == (int)room_index(x, y)) {
+			// 	int render_x = mazeStartX + x * roomCenterDistance;
+			// 	int render_y = mazeStartY + y * roomCenterDistance;
+			// 	draw_room(maze, x, y, render_x, render_y);
+			// }
 
-            Node n = get_node(c, r, seed);
-            draw_g_circle_filled_color(x, y, 8, n.color);
+            draw_g_circle_filled_color(start_x + x * 30, start_y + y * 30, 8, color);
 
-            auto x_left = (c - 1 - startCol) * x_spacing + offsetX;
-            Point d_left = get_node_displacement(c - 1, r, seed);
-            x_left += d_left.x;
-            int y_left = y - d.y + d_left.y;
-            draw_g_line_RGBA(x, y, x_left, y_left, 255, 255, 255, 255);
-            
-            auto y_top = (r - 1 - startRow) * x_spacing + offsetY;
-            Point d_top = get_node_displacement(c, r - 1, seed);
-            y_top += d_top.y;
-            int x_top = x - d.x + d_top.x;
-            draw_g_line_RGBA(x, y, x_top, y_top, 255, 255, 255, 255);
-
-            if(r == endRow) {
-                auto y_bottom = (r + 1 - startRow) * x_spacing + offsetY;
-                Point d_bottom = get_node_displacement(c, r + 1, seed);
-                y_top += d_top.y;
-                int x_bottom = x - d.x + d_bottom.x;
-                draw_g_line_RGBA(x, y, x_bottom, y_bottom, 255, 255, 255, 255);
-            }
         }
     }
+
+    // auto startCol = Math::floor_f(camera.x / x_spacing);
+    // auto endCol = startCol + (gw / x_spacing) + 1;
+    // auto startRow = Math::floor_f(camera.y / x_spacing);
+    // auto endRow = startRow + (gh / x_spacing) + 1;
+
+    // auto offsetX = -camera.x + startCol * x_spacing;
+    // auto offsetY = -camera.y + startRow * x_spacing;
+
+    // for (auto c = startCol; c <= endCol; c++) {
+    //     for (auto r = startRow; r <= endRow; r++) {
+    //         auto x = (c - startCol) * x_spacing + offsetX;
+    //         auto y = (r - startRow) * x_spacing + offsetY;
+    //         Point d = get_node_displacement(c, r, seed);
+    //         x += d.x;
+    //         y += d.y;
+
+    //         Node n = get_node(c, r, seed);
+    //         draw_g_circle_filled_color(x, y, 8, n.color);
+
+    //         auto x_left = (c - 1 - startCol) * x_spacing + offsetX;
+    //         Point d_left = get_node_displacement(c - 1, r, seed);
+    //         x_left += d_left.x;
+    //         int y_left = y - d.y + d_left.y;
+    //         draw_g_line_RGBA(x, y, x_left, y_left, 255, 255, 255, 255);
+            
+    //         auto y_top = (r - 1 - startRow) * x_spacing + offsetY;
+    //         Point d_top = get_node_displacement(c, r - 1, seed);
+    //         y_top += d_top.y;
+    //         int x_top = x - d.x + d_top.x;
+    //         draw_g_line_RGBA(x, y, x_top, y_top, 255, 255, 255, 255);
+
+    //         if(r == endRow) {
+    //             auto y_bottom = (r + 1 - startRow) * x_spacing + offsetY;
+    //             Point d_bottom = get_node_displacement(c, r + 1, seed);
+    //             y_top += d_top.y;
+    //             int x_bottom = x - d.x + d_bottom.x;
+    //             draw_g_line_RGBA(x, y, x_bottom, y_bottom, 255, 255, 255, 255);
+    //         }
+    //     }
+    // }
 
     //draw_buffer(render_buffer);
 

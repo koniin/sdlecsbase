@@ -44,11 +44,37 @@ bool maze_connection_is_open(const Maze *maze, const int x, const int y, const i
 }
 
 void maze_close_all(Maze *maze) {
-	static const struct Cell EmptyCell;
+	static const struct Cell UnconnectedCell;
 
 	for (int y = 0; y < maze->rows; y++) {
         for (int x = 0; x < maze->cols; x++){
-			maze->buffer[maze->index(x,y)] = EmptyCell;
+			maze->buffer[maze->index(x,y)] = UnconnectedCell;
+		}
+	}
+}
+
+void maze_open_all(Maze *maze) {
+    static const struct Cell UnconnectedCell;
+
+	for (int y = 0; y < maze->rows; y++) {
+        for (int x = 0; x < maze->cols; x++){
+            maze->buffer[maze->index(x,y)] = UnconnectedCell;
+
+			maze->buffer[maze->index(x,y)].IsLeftWallOpen = x > 0;
+            maze->buffer[maze->index(x,y)].IsTopWallOpen = y > 0;
+            
+            if(x > 0) {
+                maze->buffer[maze->index(x,y)].Openings |= Directions::West;
+            }
+            if(x < maze->cols) {
+                maze->buffer[maze->index(x,y)].Openings |= Directions::East;
+            }
+            if(y > 0) {
+                maze->buffer[maze->index(x,y)].Openings |= Directions::North;
+            }
+            if(y < maze->rows) {
+                maze->buffer[maze->index(x,y)].Openings |= Directions::South;
+            }
 		}
 	}
 }

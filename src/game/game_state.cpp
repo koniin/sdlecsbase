@@ -8,8 +8,9 @@ void GameState::new_game() {
     seed = 15;
 
     maze_generate(maze, 21, 21);
-	maze_grow_tree(&maze);
-
+	//maze_grow_tree(&maze);
+    maze_open_all(&maze);
+    
     // mothership.abilities;
 
     mothership.defense.hp = 100;

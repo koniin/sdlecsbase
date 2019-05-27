@@ -50,6 +50,7 @@ void maze_open_connection(Maze *maze, Point start, Point target);
 void maze_open_connection(Maze *maze, int x, int y, int x2, int y2);
 void maze_close_connection(Maze *maze, Point start, Point target);
 void maze_close_all(Maze *maze);
+void maze_open_all(Maze *maze);
 void maze_close_connection(Maze *maze, int x, int y, int x2, int y2);
 void maze_close_all_connection(Maze *maze, const int x, const int y);
 void maze_rotate_room(Maze *maze, int x, int y, bool rotate_clockwise = false);
