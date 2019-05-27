@@ -66,34 +66,35 @@ namespace UnitCreator {
 
         MotherShip ship(entity_manager.create());
         ship.faction = FactionComponent { PLAYER_FACTION };
+
+        std::string mothership_white_sprite = mothership.sprite_base + "_w";
+
         SpriteComponent s = SpriteComponent({ 
-                Animation("idle", { { "combat_sprites", "mother1" } }, 0, false),
+                Animation("idle", { { "combat_sprites", mothership.sprite_base } }, 0, false),
                 Animation("hit", { 
-                    { "combat_sprites", "mother1_w" },
-                    { "combat_sprites", "mother1" },
-                    { "combat_sprites", "mother1_w" },
-                    { "combat_sprites", "mother1" },
-                    { "combat_sprites", "mother1_w" },
-                    { "combat_sprites", "mother1" },
-                    { "combat_sprites", "mother1_w" }
+                    { "combat_sprites", mothership_white_sprite },
+                    { "combat_sprites", mothership.sprite_base },
+                    { "combat_sprites", mothership_white_sprite },
+                    { "combat_sprites", mothership.sprite_base },
+                    { "combat_sprites", mothership_white_sprite },
+                    { "combat_sprites", mothership.sprite_base },
+                    { "combat_sprites", mothership_white_sprite }
                 },  8, false)
             });
         s.layer = MOTHERSHIP_LAYER;
         s.flip = 0;
         ship.sprite = s;
         ship.position = position;
-        ship.defense = DefenseComponent(100, 50);
+        ship.defense = DefenseComponent(mothership.defense.hp, mothership.defense.shield);
 
-        WeaponComponent weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Mothership blast cannon", _random_multi_targeter, ProjectileType::Missile);
-        weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -400.0f));
-        weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeedIncrease, 1.031f));
-        weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.5f));
-        weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Damage, 2));
-        weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 3.0f));
-        weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Projectile_Count, 7));
-        weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::BurstDelay, 0.1f));
-
-        ship.weapons.add(weaponComponent, true);
+        for(auto &w : mothership.weapons) {
+            WeaponComponent weaponComponent = WeaponComponent(w.weapon,
+                w.weapon.name, 
+                w.targeting == 1 ? _random_multi_targeter : _random_targeter, 
+                w.weapon.projectile_type);
+            
+            ship.weapons.add(weaponComponent, true);
+        }
 
         auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
         auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, "mother1");

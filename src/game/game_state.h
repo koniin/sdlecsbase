@@ -11,6 +11,7 @@ struct DefenseConfig {
 
 struct WeaponConfig {
     Weapon weapon;
+    short targeting;
 };
 
 struct AbilityConfig {

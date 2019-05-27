@@ -1,14 +1,31 @@
 
 
  next:
-    = Goal: 
-	- simple overworld/delve map
+    = Goal:  CORE LOOP
+	 - Start the level scene from gamestate data
+
+
 	
-	- reduce game_controller size (move out systems and creation ?)
-		- game_controller => combat_controller
-		- make a "gamestate struct" 
-		- create the player mothership and fighters from the game state
-		
+		Core loop
+		- select a node to go to
+			=> NodeEvent
+		- fight the battle -> get a reward
+		- station - buy things with resources (different values for different resources at different places?)
+		- resource node - get resources 
+		- after fight handle ship/fleet business
+
+		Required parts
+		- Population and connection to ships
+		- node map + UI
+		- fight config
+		- NodeEventScreen 
+		- NodeEventRewardScreen
+		- Fleet Handling UI
+		- mothership slots (weapons / utilities)
+		- fighter slots 
+
+
+
 	- spawn in ships at start of battle (warp them in)
 		- show it small and scale to correct size in some time 
 		- show some effect over it (behind it)
@@ -17,24 +34,10 @@
 		  when timer is up you add the ship to the other list (e.g. _fighter_ships)
 		  and spawn the warp effect?
 
-	- some random spacing of nodes on world_map
-		- make a function to get rendering coordinates for any node x, y in global scope (int local coordinate space)
-		- get spacing based on x,y ?
-		- node x,y is then: global x + x_max_distance * (-1 to 1 based on x, y), where x_max_distance is something like 10 ?
 
-	- Simple ship to ship battle
-		- defensive measures? like anti missiles, beam deflector, whatevs
-		- hit/miss/accuracy/crit
-		- damage range for weapons? 8-12 etc
-		- shield + armor combo (shield regenerates)
-		- borderlands weapons [ damage, accuracy, reload time | fire rate (shots/s), projectile count (for burst etc) ]
-		- borderlands shield [ regenerates slow ]
-			shield regeneration starts after x amount of time
-			so if you don't get hit it will start after some time
-			"abilities" to not take damage
-			"abilities/items" to buff shields (regeneration amount, time, start time etc)
-		- you could have different "deployment zones" like front, middle and back and that is the distance to the enemy ships
-			which could be good depending on what kind of stats the ship hans
+
+
+	
 
 Overall 
 ===================
@@ -56,23 +59,6 @@ Upgrade ship/fleet (upgrade here means find new things and replace old)
 	- fighters take population to manage also (so population is left but its allocated to a fighter)
 - retreat from a fight can be done (some cooldown and random nearby node)
 
-Core loop
-- select a node to go to
-	=> NodeEvent
-  - fight the battle -> get a reward
-  - station - buy things with resources (different values for different resources at different places?)
-  - resource node - get resources 
-- after fight handle ship/fleet business
-
-Required parts
-- Population and connection to ships
-- node map
-- fight config
-- NodeEventScreen 
-- NodeEventRewardScreen
-- Fleet Handling UI
-  - mothership slots (weapons / utilities)
-  - fighter slots 
 
 So the cookie clicker part could be
 - train population -> requires x pop of each type to fly y ship
@@ -135,6 +121,20 @@ Lose population in combat depending on if mothership is hit or not
 Combat
 =====================
 so enemies could try to escape before the fight is 100% over
+
+- Simple ship to ship battle
+		- defensive measures? like anti missiles, beam deflector, whatevs
+		- hit/miss/accuracy/crit
+		- damage range for weapons? 8-12 etc
+		- shield + armor combo (shield regenerates)
+		- borderlands weapons [ damage, accuracy, reload time | fire rate (shots/s), projectile count (for burst etc) ]
+		- borderlands shield [ regenerates slow ]
+			shield regeneration starts after x amount of time
+			so if you don't get hit it will start after some time
+			"abilities" to not take damage
+			"abilities/items" to buff shields (regeneration amount, time, start time etc)
+		- you could have different "deployment zones" like front, middle and back and that is the distance to the enemy ships
+			which could be good depending on what kind of stats the ship hans
 
 Items/Skills
 =====================
