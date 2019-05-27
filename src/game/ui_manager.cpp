@@ -4,7 +4,7 @@
 #include "game_input_wrapper.h"
 
 void UIManager::frame() {
-    _textElements.clear();
+    clear();
 }
 
 void UIManager::update() {
@@ -67,4 +67,8 @@ void UIManager::game_over() {
 
 void UIManager::battle_win() {
     is_battle_over = true;
+}
+
+void UIManager::clear() {
+    _textElements.clear();
 }

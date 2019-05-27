@@ -25,6 +25,7 @@ void LevelScene::end() {
     Engine::logn("[LEVEL] End");
     GameController::end(Services::game_state());
 	render_buffer.clear();
+    Services::ui().clear();
 }
 
 void LevelScene::update() {

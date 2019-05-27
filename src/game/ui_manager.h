@@ -47,6 +47,7 @@ class UIManager {
         void add_element(ImageElement t);
         void game_over();
         void battle_win();
+        void clear();
 };
 
 #endif
