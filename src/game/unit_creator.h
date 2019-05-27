@@ -83,7 +83,7 @@ namespace UnitCreator {
         ship.position = position;
         ship.defense = DefenseComponent(100, 50);
 
-        WeaponComponent weaponComponent = WeaponComponent("Mothership blast cannon", _random_multi_targeter, ProjectileType::Missile);
+        WeaponComponent weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Mothership blast cannon", _random_multi_targeter, ProjectileType::Missile);
         weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -400.0f));
         weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeedIncrease, 1.031f));
         weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.5f));
@@ -162,7 +162,7 @@ namespace UnitCreator {
 
             WeaponComponent weaponComponent;
             if(w_choice == 0) {
-                weaponComponent = WeaponComponent("Missiles", _random_targeter, ProjectileType::Missile);
+                weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Missiles", _random_targeter, ProjectileType::Missile);
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.4f));
                 weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Damage, 1));
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -400.0f));
@@ -170,14 +170,14 @@ namespace UnitCreator {
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeedMax, 300.5f));
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 2.0f));
             } else if(w_choice == 1) {
-                weaponComponent = WeaponComponent("Lazer Gun", _random_targeter, ProjectileType::GreenLazerBeam);
+                weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Lazer Beam", _random_targeter, ProjectileType::GreenLazerBeam);
                 // Beams dont miss
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.5f));
                 weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Damage, 2));
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -500.0f));
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 4.0f));
             } else {
-                weaponComponent = WeaponComponent("Player Gun", _random_targeter, ProjectileType::RedLazerBullet);
+                weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Lazer Gun", _random_targeter, ProjectileType::RedLazerBullet);
                 weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.3f));        
             }
 
@@ -215,7 +215,7 @@ namespace UnitCreator {
             s.flip = 1;
             ship.sprite = s;
 
-            WeaponComponent weaponComponent = WeaponComponent("Enemy Gun", _random_targeter, ProjectileType::RedLazerBullet);
+            WeaponComponent weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Enemy Gun", _random_targeter, ProjectileType::RedLazerBullet);
             weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.3f));
             weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 1.0f));
             // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<ProjectileType>("temp", WeaponProperty::Projectile_Type, )));

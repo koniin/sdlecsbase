@@ -121,6 +121,7 @@ void MapScene::begin() {
 void MapScene::end() {
     Engine::logn("[MAP] End");
 	render_buffer.clear();
+    camera_lookat(Vector2((gw / 2), (gh / 2)));
 }
 
 void MapScene::update() {

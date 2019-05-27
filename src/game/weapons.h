@@ -62,18 +62,20 @@ struct Targeting {
 };
 
 struct Weapon {
-    std::string name = "Basic weapon"; // (Blaster MK2 etc)
-    float reload_time = 1.0f; // in seconds (0.2f)
-    int damage = 1;
-    float accuracy = 0.5f;
-    ProjectileType projectile_type; // name of sprite for projectile
-    int projectile_count = 1;
-    float burst_delay = 0.0f;
-    int radius = 8;
-    float projectile_speed = 500.0f;
-    float projectile_speed_increase = 0.0f;
-    float projectile_speed_max = 0.0f;
+    std::string name;
+    float reload_time;
+    int damage;
+    float accuracy;
+    ProjectileType projectile_type;
+    int projectile_count;
+    float burst_delay;
+    int radius;
+    float projectile_speed;
+    float projectile_speed_increase;
+    float projectile_speed_max;
 };
+
+extern Weapon GLOBAL_BASE_WEAPON;
 
 enum WeaponProperty {
     Accuracy,
@@ -91,6 +93,10 @@ enum WeaponProperty {
 struct WeaponModifier {
     virtual void modify(Weapon &weapon) = 0;
 };
+
+struct WeaponAddModifier {
+    
+};  
 
 template<typename T>
 struct ValueModifier : WeaponModifier {
@@ -242,7 +248,8 @@ struct WeaponComponent {
 
     public:
     WeaponComponent() {}
-    WeaponComponent(std::string name, std::shared_ptr<Targeting> targeting, ProjectileType type) : _targeting(targeting) {
+    WeaponComponent(Weapon base_weapon, std::string name, std::shared_ptr<Targeting> targeting, ProjectileType type) : _targeting(targeting) {
+        _weapon = base_weapon;
         _weapon.name = name;
         _weapon.projectile_type = type;
 
