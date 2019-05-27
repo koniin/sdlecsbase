@@ -106,6 +106,8 @@ namespace Resources {
 
 namespace TextCache {
     void clear();
+    void size(Font *font, const char *text, int *w, int *h);
+	void size(const char *text, int *w, int *h);
 }
 
 namespace Colors {

@@ -2,26 +2,7 @@
 #define UI_MANAGER_H
 
 #include "engine.h"
-
-enum UIAlign {
-    Left,
-    Center
-};
-
-struct Element {
-    int layer = 0;
-    Point position;
-};
-
-struct TextElement : public Element {
-    std::string text;
-    SDL_Color color;
-    UIAlign align = UIAlign::Center;
-};
-
-struct ImageElement : public Element {
-    
-};
+#include "gui.h"
 
 class UIManager {
     private:
@@ -36,7 +17,8 @@ class UIManager {
         bool is_game_over = false;
         bool is_battle_over = false;
 
-        std::vector<TextElement> _textElements;
+        std::vector<std::shared_ptr<Element>> _elements;
+        std::vector<std::shared_ptr<Element>> _immediate_elements;
 
     public:
         void frame();
@@ -44,9 +26,11 @@ class UIManager {
         void render();
         void show_text_toast(Vector2 position, std::string text, float ttl);
         void add_element(TextElement t);
-        void add_element(ImageElement t);
-        void game_over();
-        void battle_win();
+        void add_element(Button b);
+
+        void add_immediate_element(TextElement t);
+        void add_immediate_element(Button b);
+
         void clear();
 };
 

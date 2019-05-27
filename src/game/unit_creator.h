@@ -169,7 +169,7 @@ namespace UnitCreator {
                     w.targeting == 1 ? _random_multi_targeter : _random_targeter, 
                     w.weapon.projectile_type);
                 
-                ship.weapons.add(weaponComponent, true);
+                ship.weapons.add(weaponComponent);
             }
             
             auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");

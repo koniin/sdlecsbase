@@ -2,6 +2,7 @@
 #define COMPONENTS_H
 
 #include "engine.h"
+#include "renderer.h"
 #include "weapons.h"
 
 // Should be components for the engine/renderer really

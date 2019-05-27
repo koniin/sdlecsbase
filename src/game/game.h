@@ -28,6 +28,7 @@ inline void game_load() {
 
 	Scenes::set_scene("menu");
 
+	SDL_ShowCursor(SDL_ENABLE);
 	// engine_test();
 }
 

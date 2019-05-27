@@ -5,6 +5,7 @@
 #include "renderer.h"
 #include "services.h"
 #include "components.h"
+#include "game_controller.h"
 
 void export_sprite_data(const Position &position, const SpriteComponent &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets);
 
@@ -61,7 +62,7 @@ void render_export(RenderBuffer &render_buffer) {
         t.color = Colors::white;
         t.position = Point((int)pos.x, (int)pos.y - 12);
         t.text = std::to_string(ship.defense.hp) + "/" + std::to_string(ship.defense.shield);
-        Services::ui().add_element(t);
+        Services::ui().add_immediate_element(t);
     }
 
     for(auto &ship : GameController::_motherships) {
@@ -70,7 +71,7 @@ void render_export(RenderBuffer &render_buffer) {
         t.color = Colors::white;
         t.position = Point((int)pos.x, (int)pos.y - 12);
         t.text = std::to_string(ship.defense.hp) + "/" + std::to_string(ship.defense.shield);
-        Services::ui().add_element(t);
+        Services::ui().add_immediate_element(t);
     }
 
     for(auto &ship : GameController::_motherships) {
@@ -85,7 +86,7 @@ void render_export(RenderBuffer &render_buffer) {
                 t.position = Point(10, gh - 60 + i * 15);
                 float reload_time = weapon.reload_time - reload_timer;
                 t.text = Text::format("%d. %s (%.2f)", i + 1, weapon.name.c_str(), reload_time > 0.f ? reload_time : 0);
-                Services::ui().add_element(t);
+                Services::ui().add_immediate_element(t);
                 i++;
             }
         }

@@ -8,6 +8,10 @@ struct EntityDestroyedEvent {
     ECS::Entity entity;
 };
 
+struct BattleOverEvent {
+    int winner_faction = -1;
+};
+
 struct EventBaseQueue {
     virtual void emit() = 0;
 };
@@ -40,7 +44,8 @@ struct EventQueue : public EventBaseQueue {
 struct EventHub {
     private:
         std::map<size_t, EventBaseQueue*> const _queues {
-            { TypeID::value<EntityDestroyedEvent>(), new EventQueue<EntityDestroyedEvent>() }
+            { TypeID::value<EntityDestroyedEvent>(), new EventQueue<EntityDestroyedEvent>() },
+            { TypeID::value<BattleOverEvent>(), new EventQueue<BattleOverEvent>() }
         };
 
         class TypeID {

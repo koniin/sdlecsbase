@@ -4,8 +4,11 @@
 #include "display_export.h"
 #include "particles.h"
 #include "services.h"
+#include "game_input_wrapper.h"
 
 #include <chrono>
+
+bool battle_over = false;
 
 void LevelScene::initialize() {
     Engine::logn("[LEVEL] Init");
@@ -19,6 +22,17 @@ void LevelScene::initialize() {
 void LevelScene::begin() {
 	Engine::logn("[LEVEL] Begin");
     GameController::create(Services::game_state());
+
+    Services::events().listen<BattleOverEvent>([](BattleOverEvent e) { 
+        Engine::logn("MAKE UI FOR END OF BATTLE!");
+        // if(e.winner_faction == PLAYER_FACTION) {
+        //     draw_text_centered_str((int)(gw / 2), (int)(gh / 2), Colors::white, "YOU ROCK!");
+        //     draw_text_centered_str((int)(gw / 2), (int)(gh / 2) + 10, Colors::white, "Press start to continue...");
+        // } else {
+        //     draw_text_centered_str((int)(gw / 2), (int)(gh / 2), Colors::white, "GAME OVER!");
+        //     draw_text_centered_str((int)(gw / 2), (int)(gh / 2) + 10, Colors::white, "Press start to continue...");
+        // }
+    });
 }
 
 void LevelScene::end() {
@@ -26,6 +40,8 @@ void LevelScene::end() {
     GameController::end(Services::game_state());
 	render_buffer.clear();
     Services::ui().clear();
+
+    battle_over = false;
 }
 
 void LevelScene::update() {
@@ -35,6 +51,10 @@ void LevelScene::update() {
     Particles::update(GameController::particles, Time::delta_time);
     Services::events().emit();
     Services::ui().update();
+    
+	if(battle_over && GInput::pressed(GInput::Action::Start)) {
+		Scenes::set_scene("map");
+	}
     
     render_export(render_buffer);
 
@@ -59,6 +79,7 @@ void LevelScene::render() {
     draw_buffer(render_buffer);
     Particles::render_circles_filled(GameController::particles);
 	Services::ui().render();
+        
     renderer_draw_render_target_camera();
 	renderer_flip();
 }

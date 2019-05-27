@@ -275,6 +275,14 @@ namespace TextCache {
 		return text_cache[key];
 	}
 
+	void size(Font *font, const char *text, int *w, int *h) {
+		TTF_SizeText(font->font, text, w, h);
+	}
+
+	void size(const char *text, int *w, int *h) {
+		TTF_SizeText(default_font->font, text, w, h);
+	}
+
 	void clear() {
 		for(auto &cache_item : text_cache) {
 			SDL_DestroyTexture(cache_item.second.image);

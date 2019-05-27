@@ -249,6 +249,11 @@ namespace Input {
     bool key_pressed(const SDL_Keycode &keyCode) {
         return keysDownNow.count(keyCode) > 0;
     }
+
+	void mouse_current(Point &p) {
+		p.x = mousex;
+		p.y = mousey;
+	}
 }
 
 namespace Scenes {
@@ -269,6 +274,7 @@ namespace Scenes {
 	void set_scene(Scene* scene) {
 		if(current_scene == nullptr) {
 			current_scene = scene;
+			current_scene->begin();
 			return;
 		} 
 		

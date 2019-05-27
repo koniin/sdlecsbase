@@ -336,6 +336,8 @@ namespace Input {
 	bool key_down_k(const SDL_Keycode &keyCode);
     bool key_released(const SDL_Keycode &keyCode);
     bool key_pressed(const SDL_Keycode &keyCode);
+
+    void mouse_current(Point &p);
 }
 
 struct Scene {
