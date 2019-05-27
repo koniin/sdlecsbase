@@ -88,10 +88,11 @@ namespace GameController {
     }
 
     void create(std::shared_ptr<GameState> game_state) {
-        UnitCreator::create_player_mothership(entity_manager, _motherships);
-        UnitCreator::create_enemy_mothership(entity_manager, _motherships);
-        UnitCreator::create_player_fighters(entity_manager, _fighter_ships);
-        UnitCreator::create_enemy_fighters(entity_manager, _fighter_ships);
+        UnitCreator::create_player_mothership(game_state->mothership, entity_manager, _motherships);
+        UnitCreator::create_player_fighters(game_state->fighters, entity_manager, _fighter_ships);
+
+        UnitCreator::create_enemy_mothership(game_state->seed, game_state->difficulty, game_state->node_distance, entity_manager, _motherships);
+        UnitCreator::create_enemy_fighters(game_state->seed, game_state->difficulty, game_state->node_distance, entity_manager, _fighter_ships);
     }
 
     void end(std::shared_ptr<GameState> game_state) {

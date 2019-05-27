@@ -35,6 +35,8 @@ struct GameState {
     void new_game();
 
     int seed;
+    int difficulty = 0;
+    int node_distance = 0;
 
     MothershipConfig mothership;
     std::vector<FighterConfig> fighters;

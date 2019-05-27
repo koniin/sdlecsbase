@@ -4,6 +4,7 @@
 #include "engine.h"
 #include "renderer.h"
 #include "components.h"
+#include "game_state.h"
 
 namespace UnitCreator {
     const int MOTHERSHIP_LAYER = 100;
@@ -60,7 +61,7 @@ namespace UnitCreator {
         lazer_rect.h = height;
     }
     
-    void create_player_mothership(ECS::EntityManager &entity_manager, std::vector<MotherShip> &motherships) {
+    void create_player_mothership(const MothershipConfig &mothership, ECS::EntityManager &entity_manager, std::vector<MotherShip> &motherships) {
         Vector2 position = Vector2(70, (float)gh / 2);
 
         MotherShip ship(entity_manager.create());
@@ -101,7 +102,7 @@ namespace UnitCreator {
         motherships.push_back(ship);
     }
 
-    void create_enemy_mothership(ECS::EntityManager &entity_manager, std::vector<MotherShip> &motherships) {
+    void create_enemy_mothership(const int &seed, const int &difficulty, const int &node_distance, ECS::EntityManager &entity_manager, std::vector<MotherShip> &motherships) {
         Vector2 position = Vector2((float)gw - 70, (float)gh / 2);
 
         MotherShip ship(entity_manager.create());
@@ -132,7 +133,7 @@ namespace UnitCreator {
         motherships.push_back(ship);
     }
 
-    void create_player_fighters(ECS::EntityManager &entity_manager, std::vector<FighterShip> &fighters) {
+    void create_player_fighters(const std::vector<FighterConfig> &fighter_configs, ECS::EntityManager &entity_manager, std::vector<FighterShip> &fighters) {
         Vector2 position = Vector2(170, 50);
 
         for(int i = 0; i < 10; i++) {
@@ -192,7 +193,7 @@ namespace UnitCreator {
         }
     }
 
-    void create_enemy_fighters(ECS::EntityManager &entity_manager, std::vector<FighterShip> &fighters) {
+    void create_enemy_fighters(const int &seed, const int &difficulty, const int &node_distance, ECS::EntityManager &entity_manager, std::vector<FighterShip> &fighters) {
         Vector2 position = Vector2((float)gw - 170, 50);
 
         for(int i = 0; i < 10; i++) {

@@ -94,8 +94,42 @@ struct WeaponModifier {
     virtual void modify(Weapon &weapon) = 0;
 };
 
-struct WeaponAddModifier {
-    
+struct WeaponAddModifier : WeaponModifier {
+    Weapon _w;
+
+    void modify(Weapon &weapon) override {
+        weapon.name += _w.name;
+        weapon.projectile_type = _w.projectile_type;
+
+        weapon.reload_time += _w.reload_time;
+        weapon.damage += _w.damage;
+        weapon.accuracy += _w.accuracy;
+        weapon.projectile_count += _w.projectile_count;
+        weapon.burst_delay += _w.burst_delay;
+        weapon.radius += _w.radius;
+        weapon.projectile_speed += _w.projectile_speed;
+        weapon.projectile_speed_increase += _w.projectile_speed_increase;
+        weapon.projectile_speed_max += _w.projectile_speed_max;
+    }
+};  
+
+struct WeaponMultiModifier : WeaponModifier {
+    Weapon _w;
+
+    void modify(Weapon &weapon) override {
+        weapon.name += _w.name;
+        weapon.projectile_type = _w.projectile_type;
+
+        weapon.reload_time *= _w.reload_time;
+        weapon.damage *= _w.damage;
+        weapon.accuracy *= _w.accuracy;
+        weapon.projectile_count *= _w.projectile_count;
+        weapon.burst_delay *= _w.burst_delay;
+        weapon.radius *= _w.radius;
+        weapon.projectile_speed *= _w.projectile_speed;
+        weapon.projectile_speed_increase *= _w.projectile_speed_increase;
+        weapon.projectile_speed_max *= _w.projectile_speed_max;
+    }
 };  
 
 template<typename T>
@@ -114,7 +148,7 @@ struct ValueModifier : WeaponModifier {
         return std::make_shared<ValueModifier<T>>(ValueModifier<T>(name, property, value));
     }
 
-    void modify(Weapon &weapon) {
+    void modify(Weapon &weapon) override {
         switch(_property) {
             case WeaponProperty::Accuracy: {
                 weapon.accuracy += _value;
