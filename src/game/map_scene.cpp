@@ -235,6 +235,10 @@ void MapScene::render() {
 
     //draw_buffer(render_buffer);
 
+    int population = Services::game_state()->population;
+    std::string population_text = "Population: " + std::to_string(population);
+    draw_text_centered_str((int)(gw / 2), 10, Colors::white, population_text);
+
     draw_text_str(10, (int)(gh - 10), Colors::white, "Select a node to continue.. (just press start.)");
     //Particles::render_circles_filled(GameController::particles);
 	Services::ui().render();

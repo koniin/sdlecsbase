@@ -80,6 +80,10 @@ void LevelScene::render() {
     Particles::render_circles_filled(GameController::particles);
 	Services::ui().render();
         
+    int population = Services::game_state()->population;
+    std::string population_text = "Population: " + std::to_string(population);
+    draw_text_centered_str((int)(gw / 2), 10, Colors::white, population_text);
+    
     renderer_draw_render_target_camera();
 	renderer_flip();
 }

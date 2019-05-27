@@ -7,6 +7,9 @@ void GameState::new_game() {
     //seed = RNG::range_i(0, 3000000);
     seed = 15;
 
+    maze_generate(maze, 21, 21);
+	maze_grow_tree(&maze);
+
     // mothership.abilities;
 
     mothership.defense.hp = 100;

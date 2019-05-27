@@ -2,10 +2,11 @@
 
  next:
     = Goal:  CORE LOOP
-	 
+		We need to simplify and perhaps do it as a generated maze instead of infinity sized
+			- show current node as selected
+	 		- select a node connected to current one
 
 
-	
 		Core loop
 		- select a node to go to
 			=> NodeEvent
@@ -15,9 +16,9 @@
 		- after fight handle ship/fleet business
 
 		Required parts
-		- Population and connection to ships
+		- Population connection to ships
 		- node map + UI
-		- fight config
+		
 		- NodeEventScreen 
 		- NodeEventRewardScreen
 		- Fleet Handling UI

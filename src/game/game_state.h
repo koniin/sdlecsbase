@@ -3,6 +3,7 @@
 
 #include "engine.h"
 #include "weapons.h"
+#include "maze.h"
 
 struct DefenseConfig {
     int hp;
@@ -38,6 +39,8 @@ struct GameState {
     int seed;
     int difficulty = 0;
     int node_distance = 0;
+
+    Maze maze;
 
     MothershipConfig mothership;
     std::vector<FighterConfig> fighters;
