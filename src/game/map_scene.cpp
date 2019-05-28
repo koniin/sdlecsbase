@@ -8,7 +8,7 @@
 #include <chrono>
 
 struct Node {
-    Position position;
+    Vector2 position;
     SDL_Color color;
     struct Connections {
         bool top = false;
@@ -17,6 +17,8 @@ struct Node {
         bool right = false;
     } connections;
 };
+
+std::vector<Node> _nodes;
 
 std::mt19937 not_random_generator;
 
@@ -84,6 +86,8 @@ void MapScene::initialize() {
     // Resources::sprite_sheet_load("combat_sprites", "combat_sprites.data");
     
     Resources::sprite_load("background", "bkg1.png");
+
+    _nodes.reserve(200);
 }
 
 const int distance_to_next_node = 128;
@@ -166,6 +170,43 @@ void MapScene::update() {
 
     camera_y_speed *= 0.5f;
     camera_x_speed *= 0.5f;
+
+    _nodes.clear();
+
+    SDL_Color color = Colors::green;
+    int seed = Services::game_state()->seed;
+    auto camera = get_camera();
+    
+    auto startCol = Math::floor_f(camera.x / distance_to_next_node);
+    auto endCol = startCol + (gw / distance_to_next_node);
+    auto startRow = Math::floor_f(camera.y / distance_to_next_node);
+    auto endRow = startRow + (gh / distance_to_next_node) + 1;
+
+    auto offsetX = -camera.x + startCol * distance_to_next_node;
+    auto offsetY = -camera.y + startRow * distance_to_next_node;
+    
+    for (auto c = startCol; c <= endCol; c++) {
+        for (auto r = startRow; r <= endRow; r++) {
+            auto x = (c - startCol) * distance_to_next_node + offsetX;
+            auto y = (r - startRow) * distance_to_next_node + offsetY;
+
+            Point d = get_node_displacement(c, r, seed);
+            x += d.x;
+            y += d.y;
+
+            SDL_Color color = Colors::green;
+            if(c == 0 || r == 0) {
+                color = Colors::white;
+            } else if(c == maze->cols || r == maze->rows) {
+                color = Colors::red;
+            }
+
+            Node n = get_node(c, r, seed);
+            n.position.x = x;
+            n.position.y = y;
+            _nodes.push_back(n);
+        }
+    }
 
     // Particles::update(GameController::particles, Time::delta_time);
     Services::events().emit();
@@ -255,41 +296,8 @@ void MapScene::render() {
     // Render Background
     draw_sprite(Resources::sprite_get("background"), 0, 0);
     
-    SDL_Color color = Colors::green;
-    
-    int seed = Services::game_state()->seed;
-
-    auto camera = get_camera();
-
-    Maze *maze = &Services::game_state()->maze;
-
-    auto startCol = Math::floor_f(camera.x / distance_to_next_node);
-    auto endCol = startCol + (gw / distance_to_next_node);
-    auto startRow = Math::floor_f(camera.y / distance_to_next_node);
-    auto endRow = startRow + (gh / distance_to_next_node) + 1;
-
-    auto offsetX = -camera.x + startCol * distance_to_next_node;
-    auto offsetY = -camera.y + startRow * distance_to_next_node;
-    
-    for (auto c = startCol; c <= endCol; c++) {
-        for (auto r = startRow; r <= endRow; r++) {
-            auto x = (c - startCol) * distance_to_next_node + offsetX;
-            auto y = (r - startRow) * distance_to_next_node + offsetY;
-
-            Point d = get_node_displacement(c, r, seed);
-            x += d.x;
-            y += d.y;
-
-            SDL_Color color = Colors::green;
-            if(c == 0 || r == 0) {
-                color = Colors::white;
-            } else if(c == maze->cols || r == maze->rows) {
-                color = Colors::red;
-            }
-            Node n = get_node(c, r, seed);
-            draw_g_circle_filled_color(x, y, 8, n.color);
-            //draw_g_circle_filled_color(x, y, 8, color);
-        }
+    for(auto &n : _nodes) {
+        draw_g_circle_filled_color(n.position.x, n.position.y, 8, n.color);
     }
 
     // for (int y = 0; y < maze->rows; y++) {
