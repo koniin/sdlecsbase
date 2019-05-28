@@ -286,8 +286,9 @@ void MapScene::render() {
             } else if(c == maze->cols || r == maze->rows) {
                 color = Colors::red;
             }
-
-            draw_g_circle_filled_color(x, y, 8, color);
+            Node n = get_node(c, r, seed);
+            draw_g_circle_filled_color(x, y, 8, n.color);
+            //draw_g_circle_filled_color(x, y, 8, color);
         }
     }
 
