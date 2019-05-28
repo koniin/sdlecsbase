@@ -1006,6 +1006,10 @@ void camera_set_clamp_area(float x_min, float x_max, float y_min, float y_max) {
 	camera.y_max = y_max;
 }
 
+void camera_set_speed(const float speed) {
+	camera.speed = speed;
+}
+
 static const float traumaDropOff = 0.8f; // trauma reduction per 60 frames
 static const float maxAngle = 5; // degrees // maxAngle might be something like 5 or 10 degrees
 static const float maxOffsetX = 10; // pixels

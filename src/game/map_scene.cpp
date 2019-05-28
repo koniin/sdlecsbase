@@ -76,22 +76,7 @@ Node get_node(int x, int y, int seed) {
     return node;
 }
 
-int global_x = 500000;
-int global_y = 500000;
-
-const int visible_nodes_x = 6;
-const int visible_nodes_y = 4;
-    
-int x_spacing = 0;
-int y_spacing = 0;
-
-int x_width;
-int y_height;
-int visual_x;
-int visual_y;
-
-Vector2 start(0, 0);
-Vector2 map_offset(0, 0);
+Vector2 camera_pos(0, 0);
 
 void MapScene::initialize() {
     Engine::logn("[MAP] Init");
@@ -99,10 +84,10 @@ void MapScene::initialize() {
     // Resources::sprite_sheet_load("combat_sprites", "combat_sprites.data");
     
     Resources::sprite_load("background", "bkg1.png");
-
-    x_spacing = gw / visible_nodes_x;
-    y_spacing = gh / visible_nodes_y;
 }
+
+const int distance_to_next_node = 64;
+const float camera_gutter = 16.0f;
 
 void MapScene::begin() {
 	Engine::logn("[MAP] Begin");
@@ -110,19 +95,29 @@ void MapScene::begin() {
     Noise::set_seed(Services::game_state()->seed);
     not_random_generator = std::mt19937(Services::game_state()->seed);
 
-    x_width = x_spacing * (visible_nodes_x - 1);
-    y_height = y_spacing * (visible_nodes_y - 1);
-    visual_x = (gw / 2) - x_width / 2;
-    visual_y = (gh / 2) - y_height / 2;
-
-    camera_lookat(start);
+    Maze *maze = &Services::game_state()->maze;
+    
+    camera_set_clamp_area(
+        -camera_gutter, 
+        (float)(maze->cols * distance_to_next_node - gw + camera_gutter), 
+        -camera_gutter, 
+        (float)(maze->rows * distance_to_next_node - gh + camera_gutter)
+    );
+    
+    camera_pos = Vector2(maze->cols * distance_to_next_node / 2, maze->rows * distance_to_next_node / 2);
+    camera_lookat(camera_pos);
+    camera_set_speed(0.8f);
 }
 
 void MapScene::end() {
+    camera_reset_clamp_area();
     Engine::logn("[MAP] End");
 	render_buffer.clear();
     camera_lookat(Vector2((gw / 2), (gh / 2)));
 }
+
+float camera_y_speed = 0;
+float camera_x_speed = 0;
 
 void MapScene::update() {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
@@ -141,20 +136,36 @@ void MapScene::update() {
     //     // start.x += 12;
     //     global_x += 1;
     // }
+
     if(Input::key_down(SDL_SCANCODE_UP)) {
-        map_offset.y -= 12;
-    }
+        camera_y_speed -= 15;
+    } 
     if(Input::key_down(SDL_SCANCODE_DOWN)) {
-        map_offset.y += 12;
-    }
+        camera_y_speed += 15;
+    } 
     if(Input::key_down(SDL_SCANCODE_LEFT)) {
-        map_offset.x -= 12;
-    }
+        camera_x_speed -= 15;
+    } 
     if(Input::key_down(SDL_SCANCODE_RIGHT)) {
-        map_offset.x += 12;
-    }
+        camera_x_speed += 15;
+    } 
+
+    static const int max_camera_speed = 30;
+
+    camera_y_speed = Math::clamp_i(camera_y_speed, -max_camera_speed, max_camera_speed);
+    camera_x_speed = Math::clamp_i(camera_x_speed, -max_camera_speed, max_camera_speed);
     
-    camera_follow(start + map_offset);
+    camera_pos.y += camera_y_speed;
+    camera_pos.x += camera_x_speed;
+
+    Maze *maze = &Services::game_state()->maze;
+    camera_pos.y = Math::clamp_f(camera_pos.y, -camera_gutter, (float)((maze->cols) * distance_to_next_node + camera_gutter));
+    camera_pos.x = Math::clamp_f(camera_pos.x, -camera_gutter, (float)((maze->rows) * distance_to_next_node + camera_gutter));
+    
+    camera_follow(camera_pos);
+
+    camera_y_speed *= 0.5f;
+    camera_x_speed *= 0.5f;
 
     // Particles::update(GameController::particles, Time::delta_time);
     Services::events().emit();
@@ -252,21 +263,47 @@ void MapScene::render() {
 
     Maze *maze = &Services::game_state()->maze;
 
-    int start_x = 50;
-    int start_y = 50;
+    auto startCol = Math::floor_f(camera.x / distance_to_next_node);
+    auto endCol = startCol + (gw / distance_to_next_node);
+    auto startRow = Math::floor_f(camera.y / distance_to_next_node);
+    auto endRow = startRow + (gh / distance_to_next_node) + 1;
 
-    for (int y = 0; y < maze->rows; y++) {
-        for (int x = 0; x < maze->cols; x++){
-			// if (room_is_exit(x, y) || room_is_visited(x, y) || game_state.room_current_index == (int)room_index(x, y)) {
-			// 	int render_x = mazeStartX + x * roomCenterDistance;
-			// 	int render_y = mazeStartY + y * roomCenterDistance;
-			// 	draw_room(maze, x, y, render_x, render_y);
-			// }
+    auto offsetX = -camera.x + startCol * distance_to_next_node;
+    auto offsetY = -camera.y + startRow * distance_to_next_node;
+    
+    for (auto c = startCol; c <= endCol; c++) {
+        for (auto r = startRow; r <= endRow; r++) {
+            auto x = (c - startCol) * distance_to_next_node + offsetX;
+            auto y = (r - startRow) * distance_to_next_node + offsetY;
 
-            draw_g_circle_filled_color(start_x + x * 30, start_y + y * 30, 8, color);
+            SDL_Color color = Colors::green;
+            if(c == 0 || r == 0) {
+                color = Colors::white;
+            } else if(c == maze->cols || r == maze->rows) {
+                color = Colors::red;
+            }
 
+            draw_g_circle_filled_color(x, y, 8, color);
         }
     }
+
+    // for (int y = 0; y < maze->rows; y++) {
+    //     for (int x = 0; x < maze->cols; x++){
+    // //         auto y = (r - startRow) * x_spacing + offsetY;
+    // //         Point d = get_node_displacement(c, r, seed);
+    // //         x += d.x;
+    // //         y += d.y;
+
+    // //         Node n = get_node(c, r, seed);
+	// 		// if (room_is_exit(x, y) || room_is_visited(x, y) || game_state.room_current_index == (int)room_index(x, y)) {
+	// 		// 	int render_x = mazeStartX + x * roomCenterDistance;
+	// 		// 	int render_y = mazeStartY + y * roomCenterDistance;
+	// 		// 	draw_room(maze, x, y, render_x, render_y);
+	// 		// }
+
+
+    //     }
+    // }
 
     // auto startCol = Math::floor_f(camera.x / x_spacing);
     // auto endCol = startCol + (gw / x_spacing) + 1;

@@ -387,9 +387,9 @@ namespace Math {
     	return x;
 	}
 
-	inline float clamp_f(float x, float a, float b) {
-    	x = std::fmax(x, a);
-    	x = std::fmin(x, b);
+	inline float clamp_f(float x, float low, float high) {
+    	x = std::fmax(x, low);
+    	x = std::fmin(x, high);
     	return x;
 	}
 
