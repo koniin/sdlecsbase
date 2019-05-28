@@ -10,6 +10,7 @@
 struct Node {
     Vector2 position;
     SDL_Color color;
+    int radius;
     struct Connections {
         bool top = false;
         bool bottom = false;
@@ -76,6 +77,15 @@ Node get_node(int x, int y, int seed) {
     }
 
     return node;
+}
+
+std::mt19937 _id_displacement;
+Point get_node_displacement(int node_x, int node_y, int seed) {
+    uint32_t r_seed = (uint32_t)(pseudo_rand_zero_to_one(node_x + seed, node_y + seed) * 3450971324.f);
+    _id_displacement = std::mt19937(r_seed);
+
+    Point p(RNG::range_i(-20, 20, _id_displacement), RNG::range_i(-20, 20, _id_displacement));
+    return p;
 }
 
 Vector2 camera_pos(0, 0);
@@ -171,9 +181,6 @@ void MapScene::update() {
     camera_y_speed *= 0.5f;
     camera_x_speed *= 0.5f;
 
-    _nodes.clear();
-
-    SDL_Color color = Colors::green;
     int seed = Services::game_state()->seed;
     auto camera = get_camera();
     
@@ -185,6 +192,7 @@ void MapScene::update() {
     auto offsetX = -camera.x + startCol * distance_to_next_node;
     auto offsetY = -camera.y + startRow * distance_to_next_node;
     
+    _nodes.clear();
     for (auto c = startCol; c <= endCol; c++) {
         for (auto r = startRow; r <= endRow; r++) {
             auto x = (c - startCol) * distance_to_next_node + offsetX;
@@ -204,9 +212,11 @@ void MapScene::update() {
             Node n = get_node(c, r, seed);
             n.position.x = x;
             n.position.y = y;
+            n.radius = 8;
             _nodes.push_back(n);
         }
     }
+
 
     // Particles::update(GameController::particles, Time::delta_time);
     Services::events().emit();
@@ -222,15 +232,6 @@ void MapScene::update() {
 	std::string frame_duration_ms = "update time ms: " + std::to_string(duration_ms);
 	FrameLog::log(frame_duration_mu);
 	FrameLog::log(frame_duration_ms);
-}
-
-std::mt19937 _id_displacement;
-Point get_node_displacement(int node_x, int node_y, int seed) {
-    uint32_t r_seed = (uint32_t)(pseudo_rand_zero_to_one(node_x + seed, node_y + seed) * 3450971324.f);
-    _id_displacement = std::mt19937(r_seed);
-
-    Point p(RNG::range_i(-20, 20, _id_displacement), RNG::range_i(-20, 20, _id_displacement));
-    return p;
 }
 
 /*
@@ -293,11 +294,11 @@ void MazeScene::drawMaze(Maze* maze) {
 
 void MapScene::render() {
 	renderer_clear();
-    // Render Background
+    
     draw_sprite(Resources::sprite_get("background"), 0, 0);
     
     for(auto &n : _nodes) {
-        draw_g_circle_filled_color(n.position.x, n.position.y, 8, n.color);
+        draw_g_circle_filled_color(n.position.x, n.position.y, n.radius, n.color);
     }
 
     // for (int y = 0; y < maze->rows; y++) {
