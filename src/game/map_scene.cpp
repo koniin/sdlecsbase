@@ -200,6 +200,10 @@ void MapScene::update() {
     _nodes.clear();
     for (auto c = startCol; c <= endCol; c++) {
         for (auto r = startRow; r <= endRow; r++) {
+            // if(c < 0 || r < 0 || c > maze->cols || r > maze->rows) {
+            //     continue;
+            // }
+
             auto x = (c - startCol) * distance_to_next_node + offsetX;
             auto y = (r - startRow) * distance_to_next_node + offsetY;
 
