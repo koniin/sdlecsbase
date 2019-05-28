@@ -2,9 +2,8 @@
 
  next:
     = Goal:  CORE LOOP
-		We need to simplify and perhaps do it as a generated maze instead of infinity sized
-			- show current node as selected
-	 		- select a node connected to current one
+		- show current node as selected
+	 	- select a node connected to current one
 
 
 		Core loop
@@ -16,16 +15,19 @@
 		- after fight handle ship/fleet business
 
 		Required parts
-		- Population connection to ships
 		- node map + UI
-		
+		- Population connection to ships
 		- NodeEventScreen 
 		- NodeEventRewardScreen
 		- Fleet Handling UI
-		- mothership slots (weapons / utilities)
-		- fighter slots 
+			- mothership slots (weapons / utilities)
+			- fighter slots 
 
 
+	- Make base weapons (like a few base energy weapons, kinetic, explosive and molten)
+		-> weapons DB
+	- Make upgrades / abilities
+		-> item db (think binding of isaac or nuclear throne like things)
 
 	- spawn in ships at start of battle (warp them in)
 		- show it small and scale to correct size in some time 
@@ -36,7 +38,7 @@
 		  and spawn the warp effect?
 
 
-
+- SHIELD PIERCE (as a upgrade/ability/skill)
 
 	
 

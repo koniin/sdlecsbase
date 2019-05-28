@@ -209,8 +209,6 @@ void MapScene::update() {
                 color = Colors::red;
             }
 
-            
-
             Node n = get_node(c, r, seed);
             n.position.x = x;
             n.position.y = y;
@@ -220,6 +218,7 @@ void MapScene::update() {
             Input::mouse_current(p);
             if(Intersects::circle_contains_point(Vector2(x, y), n.radius, p.to_vector2())) {
                 n.color = Colors::white;
+                n.radius = 16;
                 if(Input::mouse_left_down) {
                     Scenes::set_scene("level");
                 }
