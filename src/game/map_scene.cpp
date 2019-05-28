@@ -209,10 +209,22 @@ void MapScene::update() {
                 color = Colors::red;
             }
 
+            
+
             Node n = get_node(c, r, seed);
             n.position.x = x;
             n.position.y = y;
             n.radius = 8;
+
+            Point p;
+            Input::mouse_current(p);
+            if(Intersects::circle_contains_point(Vector2(x, y), n.radius, p.to_vector2())) {
+                n.color = Colors::white;
+                if(Input::mouse_left_down) {
+                    Scenes::set_scene("level");
+                }
+            }
+
             _nodes.push_back(n);
         }
     }
