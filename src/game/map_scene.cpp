@@ -86,8 +86,8 @@ void MapScene::initialize() {
     Resources::sprite_load("background", "bkg1.png");
 }
 
-const int distance_to_next_node = 64;
-const float camera_gutter = 16.0f;
+const int distance_to_next_node = 128;
+const float camera_gutter = 32.0f;
 
 void MapScene::begin() {
 	Engine::logn("[MAP] Begin");
@@ -275,6 +275,10 @@ void MapScene::render() {
         for (auto r = startRow; r <= endRow; r++) {
             auto x = (c - startCol) * distance_to_next_node + offsetX;
             auto y = (r - startRow) * distance_to_next_node + offsetY;
+
+            Point d = get_node_displacement(c, r, seed);
+            x += d.x;
+            y += d.y;
 
             SDL_Color color = Colors::green;
             if(c == 0 || r == 0) {
