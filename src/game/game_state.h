@@ -41,6 +41,7 @@ struct GameState {
     int node_distance = 0;
 
     Maze maze;
+    Point current_node;
 
     MothershipConfig mothership;
     std::vector<FighterConfig> fighters;

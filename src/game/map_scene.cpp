@@ -17,6 +17,11 @@ struct Node {
         bool left = false;
         bool right = false;
     } connections;
+
+    Vector2 neighbour_left;
+    Vector2 neighbour_right;
+    Vector2 neighbour_top;
+    Vector2 neighbour_bottom;
 };
 
 std::vector<Node> _nodes;
@@ -118,7 +123,7 @@ void MapScene::begin() {
         (float)(maze->rows * distance_to_next_node - gh + camera_gutter)
     );
     
-    camera_pos = Vector2(maze->cols * distance_to_next_node / 2, maze->rows * distance_to_next_node / 2);
+    camera_pos = Vector2(Services::game_state()->current_node.x * distance_to_next_node, Services::game_state()->current_node.y * distance_to_next_node);
     camera_lookat(camera_pos);
     camera_set_speed(0.8f);
 }
@@ -185,9 +190,9 @@ void MapScene::update() {
     auto camera = get_camera();
     
     auto startCol = Math::floor_f(camera.x / distance_to_next_node);
-    auto endCol = startCol + (gw / distance_to_next_node);
+    auto endCol = startCol + (gw / distance_to_next_node) + 3;
     auto startRow = Math::floor_f(camera.y / distance_to_next_node);
-    auto endRow = startRow + (gh / distance_to_next_node) + 1;
+    auto endRow = startRow + (gh / distance_to_next_node) + 3;
 
     auto offsetX = -camera.x + startCol * distance_to_next_node;
     auto offsetY = -camera.y + startRow * distance_to_next_node;
@@ -202,17 +207,19 @@ void MapScene::update() {
             x += d.x;
             y += d.y;
 
-            SDL_Color color = Colors::green;
-            if(c == 0 || r == 0) {
-                color = Colors::white;
-            } else if(c == maze->cols || r == maze->rows) {
-                color = Colors::red;
-            }
 
             Node n = get_node(c, r, seed);
             n.position.x = x;
             n.position.y = y;
             n.radius = 8;
+            n.color = Colors::blue;
+
+            if(c == 0 || r == 0) {
+                n.color = Colors::green;
+            } else if(c == maze->cols || r == maze->rows) {
+                n.color = Colors::red;
+            }
+
 
             Point p;
             Input::mouse_current(p);
@@ -224,6 +231,51 @@ void MapScene::update() {
                 }
             }
 
+            auto cell = maze->cell(c, r);
+            
+            if ((cell.Openings & Directions::West) == Directions::West) {
+                auto x_left = (c - 1 - startCol) * distance_to_next_node + offsetX;
+                Point d_left = get_node_displacement(c - 1, r, seed);
+                x_left += d_left.x;
+                int y_left = y - d.y + d_left.y;
+                n.neighbour_left.x = x_left;
+                n.neighbour_left.y = y_left;
+
+                n.connections.left = true;
+            }
+
+            // if ((cell.Openings & Directions::East) == Directions::East) {
+            //     auto x_right = (c + 1 - startCol) * distance_to_next_node + offsetX;
+            //     Point d_right = get_node_displacement(c + 1, r, seed);
+            //     x_right += d_right.x;
+            //     int y_right = y - d.y + d_right.y;
+            //     n.neighbour_right.x = x_right;
+            //     n.neighbour_right.y = y_right;
+
+            //     n.connections.right = true;
+            // }
+            
+            if ((cell.Openings & Directions::North) == Directions::North) {
+                auto y_top = (r - 1 - startRow) * distance_to_next_node + offsetY;
+                Point d_top = get_node_displacement(c, r - 1, seed);
+                y_top += d_top.y;
+                int x_top = x - d.x + d_top.x;
+                n.neighbour_top.x = x_top;
+                n.neighbour_top.y = y_top;
+
+                n.connections.top = true;
+            }
+
+            // if ((cell.Openings & Directions::South) == Directions::South) {
+            //     auto y_bottom = (r + 1 - startRow) * distance_to_next_node + offsetY;
+            //     Point d_bottom = get_node_displacement(c, r + 1, seed);
+            //     y_bottom += d_bottom.y;
+            //     int x_bottom = x - d.x + d_bottom.x;
+            //     n.neighbour_bottom.x = x_bottom;
+            //     n.neighbour_bottom.y = y_bottom;
+
+            //     n.connections.bottom = true;
+            // }
             _nodes.push_back(n);
         }
     }
@@ -309,6 +361,18 @@ void MapScene::render() {
     draw_sprite(Resources::sprite_get("background"), 0, 0);
     
     for(auto &n : _nodes) {
+        if(n.connections.left) {
+            draw_g_line_RGBA(n.position.x, n.position.y, n.neighbour_left.x, n.neighbour_left.y, 255, 255, 255, 255);
+        }
+        if(n.connections.top) {
+            draw_g_line_RGBA(n.position.x, n.position.y, n.neighbour_top.x, n.neighbour_top.y, 255, 255, 255, 255);
+        }
+        if(n.connections.right) {
+            draw_g_line_RGBA(n.position.x, n.position.y, n.neighbour_right.x, n.neighbour_right.y, 255, 255, 255, 255);
+        }
+        if(n.connections.bottom) {
+            draw_g_line_RGBA(n.position.x, n.position.y, n.neighbour_bottom.x, n.neighbour_bottom.y, 255, 255, 255, 255);
+        }
         draw_g_circle_filled_color(n.position.x, n.position.y, n.radius, n.color);
     }
 

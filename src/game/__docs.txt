@@ -3,8 +3,7 @@
  next:
     = Goal:  CORE LOOP
 		- show current node as selected
-	 	- select a node connected to current one
-
+	 	- only select a node connected to current one
 
 		Core loop
 		- select a node to go to
@@ -24,10 +23,15 @@
 			- fighter slots 
 
 
+	= Look at "Items/Skills" further down for more ideas
 	- Make base weapons (like a few base energy weapons, kinetic, explosive and molten)
 		-> weapons DB
+		https://ftl.fandom.com/wiki/Weapons
+		https://nuclear-throne.fandom.com/wiki/Weapons
 	- Make upgrades / abilities
 		-> item db (think binding of isaac or nuclear throne like things)
+		https://forager.gamepedia.com/Skills
+		https://bindingofisaac.fandom.com/wiki/Category:Items
 
 	- spawn in ships at start of battle (warp them in)
 		- show it small and scale to correct size in some time 

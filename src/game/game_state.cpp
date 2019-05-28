@@ -7,9 +7,11 @@ void GameState::new_game() {
     //seed = RNG::range_i(0, 3000000);
     seed = 15;
 
-    maze_generate(maze, 21, 21);
-	//maze_grow_tree(&maze);
-    maze_open_all(&maze);
+    maze_generate(maze, 22, 22);
+	maze_grow_tree(&maze);
+
+    current_node = Point(10, 10);
+    //maze_open_all(&maze);
     
     // mothership.abilities;
 

@@ -140,7 +140,7 @@ void maze_grow_tree(Maze* maze) {
 	while(!cellsToVisit.empty()) {
 		// How we select the next cell determines the properties of the maze
 		// Selection is important !!
-		int index = RNG::range_i(0, cellsToVisit.size());
+		int index = RNG::range_i(0, cellsToVisit.size() - 1);
 		
 		std::shuffle(std::begin(pointDirections), std::end(pointDirections), RNG::RNG_generator);
 		

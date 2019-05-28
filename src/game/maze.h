@@ -39,6 +39,7 @@ struct Maze {
 	Cell* buffer = nullptr;
 	size_t index(int x, int y) const { return x + cols * y; }
 	Cell &cell(Point &p) { return buffer[index(p.x, p.y)]; };
+	Cell &cell(int x, int y) { return buffer[index(x, y)]; };
 };
 
 void maze_generate(Maze &maze, int cols, int rows);
