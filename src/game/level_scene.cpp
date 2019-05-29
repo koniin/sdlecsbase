@@ -54,12 +54,12 @@ void LevelScene::update() {
     
 	if(battle_over && GInput::pressed(GInput::Action::Start)) {
 		Scenes::set_scene("map");
-        Services::game_state()->end_node();
+        Services::game_state()->set_current_node_completed();
 	}
 
     if(Input::key_pressed(SDLK_m)) {
 		Scenes::set_scene("map");
-        Services::game_state()->end_node();
+        Services::game_state()->set_current_node_completed();
 	}
     
     render_export(render_buffer);

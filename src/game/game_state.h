@@ -35,16 +35,20 @@ struct FighterConfig {
 
 struct GameState {
     void new_game();
-    void prepare_node(const Point &next_node);
-    void end_node();
+    void set_current_node(const Point &next_node);
+    void set_current_node_completed();
+    bool is_visited(const Point &node);
 
     int seed;
     int difficulty = 0;
     int node_distance = 0;
 
     Maze maze;
+    Point start_node;
     Point current_node;
-    Point _next_node;
+    Point _last_completed_node;
+
+    std::vector<Point> _visited_nodes;
 
     MothershipConfig mothership;
     std::vector<FighterConfig> fighters;

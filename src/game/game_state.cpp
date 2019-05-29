@@ -13,8 +13,9 @@ void GameState::new_game() {
     // std::ostringstream out;
     // maze_log(&maze, out);
     // Engine::logn(out.str().c_str());
-
-    current_node = Point(10, 10);
+    
+    start_node = Point(10, 10);
+    current_node = start_node;
     //maze_open_all(&maze);
     
     // mothership.abilities;
@@ -90,10 +91,25 @@ void GameState::new_game() {
     }
 }
 
-void GameState::prepare_node(const Point &next_node) {
-    _next_node = next_node;
+void GameState::set_current_node(const Point &next_node) {
+    current_node = next_node;
+    
+    int distance = (int)Math::distance_v(current_node.to_vector2(), start_node.to_vector2());
+    node_distance = distance;
+    _visited_nodes.push_back(current_node);    
 }
 
-void GameState::end_node() {
-    current_node = _next_node;
+void GameState::set_current_node_completed() {
+    _last_completed_node = current_node;
+}
+
+bool GameState::is_visited(const Point &n) {
+    bool is_node_visited = false;
+    for(auto &node : _visited_nodes) {
+        if(node == n) {
+            is_node_visited = true;
+            break;
+        }
+    }
+    return is_node_visited;
 }

@@ -76,6 +76,85 @@ Point get_node_displacement(int node_x, int node_y, int seed) {
     return p;
 }
 
+struct EventScreenOption {
+    std::string text;
+    std::function<void(void)> on_action;
+};
+
+struct EventScreen {
+    std::string description;
+    std::vector<EventScreenOption> options;
+};
+
+struct NodeEventManager {
+    std::vector<EventScreen> screens;
+    
+    SDL_Color text_color = Colors::white;
+
+    void next_screen() {
+        // remove first item
+        screens.erase(screens.begin());
+    }
+
+    void update() {
+        if(screens.size() == 0) {
+            Engine::logn("GET OUT OF HERE!");
+            return;
+        }
+        auto &scr = screens[0];
+        int i = 0;
+        for(auto &option : scr.options) {
+            if(i == 0 && Input::key_pressed(SDLK_1)) {
+                option.on_action();
+            }
+            if(i == 1 && Input::key_pressed(SDLK_2)) {
+                option.on_action();
+            }
+            if(i == 2 && Input::key_pressed(SDLK_3)) {
+                option.on_action();
+            }
+            if(i == 3 && Input::key_pressed(SDLK_4)) {
+                option.on_action();
+            }
+            i++;
+        }
+    }
+
+    void render() {
+        if(screens.size() == 0) {
+            Engine::logn("GET OUT OF HERE!");
+            return;
+        }
+
+        auto &scr = screens[0];
+
+        draw_text_str(gw / 2 - 100, 120, text_color, scr.description);
+        int i = 1;
+        for(auto &option : scr.options) {
+            draw_text_str(gw / 2 - 100, 120 + i * 20, text_color, option.text);
+            i++;
+        }
+    }
+
+    void test() {
+        {
+            EventScreen e;
+            e.description = "Your sensors pick up small fleet in the outskirts of this system...";
+            e.options.push_back( { "Continue", [&]() { next_screen(); } } );
+            screens.push_back(e);
+        }
+        {
+            EventScreen e;
+            e.description = "Do you want to investigate?";
+            e.options.push_back( { "yes", [&]() { Engine::logn("yes"); next_screen(); } } );
+            e.options.push_back( { "no", [&]() { Engine::logn("no"); next_screen(); } } );
+            screens.push_back(e);
+        }
+    }
+};
+
+NodeEventManager node_event_manager;
+
 struct MapNavigation {
     Vector2 camera_pos;
     const int distance_to_next_node = 128;
@@ -113,9 +192,23 @@ struct MapNavigation {
                 n.color = Colors::white;
                 n.radius = 16;
                 if(Input::mouse_left_down) {
-                    Services::game_state()->prepare_node(next_node);
-                    //Scenes::set_scene("level");
                     camera_pos = n.maze_pos.to_vector2() * (float)distance_to_next_node;
+
+                    if(!Services::game_state()->is_visited(next_node)) {
+                        Services::game_state()->set_current_node(next_node);
+                        
+                        if(n.type == 1) {
+                            Scenes::set_scene("level");
+                        } else if(n.type == 2) {
+                            node_event_manager.test();
+                            Engine::logn("Node type 2 clicked, what to do?");
+                        } else if(n.type == 3) {
+                            node_event_manager.test();
+                            Engine::logn("Node type 3 clicked, what to do?");
+                        } else {
+                            ASSERT_WITH_MSG(false, "get_node: returned non specified node");
+                        }
+                    }
                 }
             } else {
                 n.color = Colors::white;
@@ -302,6 +395,7 @@ void MapScene::update() {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 	
     map_navigator.update();
+    node_event_manager.update();
 
     // Particles::update(GameController::particles, Time::delta_time);
     Services::events().emit();
@@ -325,6 +419,7 @@ void MapScene::render() {
     draw_sprite(Resources::sprite_get("background"), 0, 0);
     
     map_navigator.render();
+    node_event_manager.render();
 
     int population = Services::game_state()->population;
     std::string population_text = "Population: " + std::to_string(population);
