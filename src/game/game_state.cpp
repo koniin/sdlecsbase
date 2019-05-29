@@ -89,3 +89,11 @@ void GameState::new_game() {
         fighters.push_back(f);
     }
 }
+
+void GameState::prepare_node(const Point &next_node) {
+    _next_node = next_node;
+}
+
+void GameState::end_node() {
+    current_node = _next_node;
+}

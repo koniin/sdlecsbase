@@ -35,6 +35,8 @@ struct FighterConfig {
 
 struct GameState {
     void new_game();
+    void prepare_node(const Point &next_node);
+    void end_node();
 
     int seed;
     int difficulty = 0;
@@ -42,6 +44,7 @@ struct GameState {
 
     Maze maze;
     Point current_node;
+    Point _next_node;
 
     MothershipConfig mothership;
     std::vector<FighterConfig> fighters;

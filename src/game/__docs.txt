@@ -2,8 +2,7 @@
 
  next:
     = Goal:  CORE LOOP
-	 	- only select a node connected to current one ( render a big circle and smaller one inside when hovered if selecteble )
-		 
+	 	when going to a node => update game_state
 
 		Core loop
 		- select a node to go to

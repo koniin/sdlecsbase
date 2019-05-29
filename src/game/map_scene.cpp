@@ -229,11 +229,12 @@ void MapScene::update() {
             Point p;
             Input::mouse_current(p);
             if(Intersects::circle_contains_point(Vector2(x, y), (float)n.radius, p.to_vector2())) {
-
-                if(maze_connection_is_open(maze, current_node, Point(c, r))) {
+                auto next_node = Point(c, r);
+                if(maze_connection_is_open(maze, current_node, next_node)) {
                     n.color = Colors::white;
                     n.radius = 16;
                     if(Input::mouse_left_down) {
+                        Services::game_state()->prepare_node(next_node);
                         Scenes::set_scene("level");
                     }
                 } else {
