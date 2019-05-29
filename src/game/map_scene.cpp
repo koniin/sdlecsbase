@@ -136,19 +136,32 @@ struct NodeEventManager {
         }
     }
 
-    void test() {
-        {
-            EventScreen e;
-            e.description = "Your sensors pick up small fleet in the outskirts of this system...";
-            e.options.push_back( { "Continue", [&]() { next_screen(); } } );
-            screens.push_back(e);
-        }
-        {
-            EventScreen e;
-            e.description = "Do you want to investigate?";
-            e.options.push_back( { "yes", [&]() { Engine::logn("yes"); next_screen(); } } );
-            e.options.push_back( { "no", [&]() { Engine::logn("no"); next_screen(); } } );
-            screens.push_back(e);
+    void test(const Node &n) {
+        if(n.type == 1) {
+            {
+                EventScreen e;
+                e.description = "You jumped straight into an ambush!";
+                e.options.push_back( { "Continue", [&]() { Scenes::set_scene("level"); } } );
+                screens.push_back(e);
+            }
+        } else if(n.type == 2) {
+            {
+                EventScreen e;
+                e.description = "Your sensors pick up small fleet in the outskirts of this system...";
+                e.options.push_back( { "Continue", [&]() { next_screen(); } } );
+                screens.push_back(e);
+            }
+            {
+                EventScreen e;
+                e.description = "Do you want to investigate?";
+                e.options.push_back( { "yes", [&]() { Engine::logn("yes"); next_screen(); } } );
+                e.options.push_back( { "no", [&]() { Engine::logn("no"); next_screen(); } } );
+                screens.push_back(e);
+            }
+        } else if(n.type == 3) {
+            Engine::logn("Node type 3 clicked, what to do?");
+        } else {
+            ASSERT_WITH_MSG(false, "get_node: returned non specified node");
         }
     }
 };
@@ -197,17 +210,7 @@ struct MapNavigation {
                     if(!Services::game_state()->is_visited(next_node)) {
                         Services::game_state()->set_current_node(next_node);
                         
-                        if(n.type == 1) {
-                            Scenes::set_scene("level");
-                        } else if(n.type == 2) {
-                            node_event_manager.test();
-                            Engine::logn("Node type 2 clicked, what to do?");
-                        } else if(n.type == 3) {
-                            node_event_manager.test();
-                            Engine::logn("Node type 3 clicked, what to do?");
-                        } else {
-                            ASSERT_WITH_MSG(false, "get_node: returned non specified node");
-                        }
+                        node_event_manager.test(n);
                     }
                 }
             } else {
