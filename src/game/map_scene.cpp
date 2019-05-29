@@ -237,8 +237,6 @@ void MapScene::update() {
                 }
             }
 
-            ASSERT_WITH_MSG(c <= maze->cols && r <= maze->rows, "Whut?!");
-
             auto cell = maze->cell(c, r);
             
             if ((cell.Openings & Directions::West) == Directions::West) {
@@ -252,7 +250,7 @@ void MapScene::update() {
                 n.connections.left = true;
             }
 
-            // if ((cell.Openings & Directions::East) == Directions::East) {
+            if ((cell.Openings & Directions::East) == Directions::East) {
             //     auto x_right = (c + 1 - startCol) * distance_to_next_node + offsetX;
             //     Point d_right = get_node_displacement(c + 1, r, seed);
             //     x_right += d_right.x;
@@ -260,8 +258,8 @@ void MapScene::update() {
             //     n.neighbour_right.x = x_right;
             //     n.neighbour_right.y = y_right;
 
-            //     n.connections.right = true;
-            // }
+                n.connections.right = true;
+            }
             
             if ((cell.Openings & Directions::North) == Directions::North) {
                 auto y_top = (r - 1 - startRow) * distance_to_next_node + offsetY;
@@ -274,7 +272,7 @@ void MapScene::update() {
                 n.connections.top = true;
             }
 
-            // if ((cell.Openings & Directions::South) == Directions::South) {
+            if ((cell.Openings & Directions::South) == Directions::South) {
             //     auto y_bottom = (r + 1 - startRow) * distance_to_next_node + offsetY;
             //     Point d_bottom = get_node_displacement(c, r + 1, seed);
             //     y_bottom += d_bottom.y;
@@ -282,8 +280,8 @@ void MapScene::update() {
             //     n.neighbour_bottom.x = x_bottom;
             //     n.neighbour_bottom.y = y_bottom;
 
-            //     n.connections.bottom = true;
-            // }
+                n.connections.bottom = true;
+            }
 
 
             _nodes.push_back(n);
