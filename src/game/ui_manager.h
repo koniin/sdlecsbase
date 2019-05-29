@@ -4,6 +4,36 @@
 #include "engine.h"
 #include "gui.h"
 
+/// Usage
+/*
+    * Declare:
+        UIManager ui; 
+    
+    * Call in update:
+        ui.update();
+    
+    * Call in render:
+        ui.render();
+
+    * For long living elements (like a button in a menu) that doesn't change:
+        Button start_button = Button(gw / 2, gh / 2, "Start");
+	    start_button.on_click = [] {
+		    new_game();
+	    };
+	    ui.add_element(start_button);
+
+    * If you want to update an item every frame it's better to use an immediate mode item like:
+        TextElement t;
+        t.color = Colors::white;
+        t.position = Point(pos.x, pos.y); // where pos can change
+        t.text = std::to_string(CHANGING_VARIABLE) + ""; // CHANGING_VARIABLE can change
+        ui.add_immediate_element(t);
+
+        => call ui.frame(); whenever you want to clear all immediate items
+
+    * Toasts are for showing text that disappears after som TTL
+*/
+
 class UIManager {
     private:
         struct Toast {

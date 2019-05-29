@@ -157,7 +157,11 @@ struct Vector2 {
 		x = xPos;
 		y = yPos;
 	}
-	
+
+    static inline Vector2 from_i(const int x, const int y) {
+        return Vector2((float)x, (float)y);
+    }
+
 	static const Vector2 Zero;
 	static const Vector2 One;
 	inline Vector2 Vector2::operator-() const {

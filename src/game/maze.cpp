@@ -39,7 +39,6 @@ bool maze_connection_is_open(const Maze *maze, const int x, const int y, const i
 		return (maze->buffer[maze->index(x, y)].Openings & Directions::East) == Directions::East;
 	}
 
-	ASSERT_WITH_MSG(false, "maze_connection_is_open: No direction defined");
 	return false;
 }
 

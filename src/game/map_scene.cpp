@@ -8,9 +8,10 @@
 #include <chrono>
 
 struct Node {
-    Vector2 position;
+    Point position;
     SDL_Color color;
     int radius;
+    bool current = false;
     struct Connections {
         bool top = false;
         bool bottom = false;
@@ -18,10 +19,10 @@ struct Node {
         bool right = false;
     } connections;
 
-    Vector2 neighbour_left;
-    Vector2 neighbour_right;
-    Vector2 neighbour_top;
-    Vector2 neighbour_bottom;
+    Point neighbour_left;
+    Point neighbour_right;
+    Point neighbour_top;
+    Point neighbour_bottom;
 };
 
 std::vector<Node> _nodes;
@@ -123,7 +124,7 @@ void MapScene::begin() {
         (float)(maze->rows * distance_to_next_node - gh + camera_gutter)
     );
     
-    camera_pos = Vector2(Services::game_state()->current_node.x * distance_to_next_node, Services::game_state()->current_node.y * distance_to_next_node);
+    camera_pos = Vector2::from_i(Services::game_state()->current_node.x * distance_to_next_node, Services::game_state()->current_node.y * distance_to_next_node);
     camera_lookat(camera_pos);
     camera_set_speed(0.8f);
 }
@@ -132,7 +133,7 @@ void MapScene::end() {
     camera_reset_clamp_area();
     Engine::logn("[MAP] End");
 	render_buffer.clear();
-    camera_lookat(Vector2((gw / 2), (gh / 2)));
+    camera_lookat(Vector2::from_i(gw / 2, gh / 2));
 }
 
 float camera_y_speed = 0;
@@ -141,10 +142,6 @@ float camera_x_speed = 0;
 void MapScene::update() {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 	
-    if(GInput::pressed(GInput::Action::Start)) {
-	    Scenes::set_scene("level");
-	}
-
     // if(Input::key_pressed(SDLK_LEFT)) {
     //     global_x -= 1;
     // }
@@ -169,10 +166,10 @@ void MapScene::update() {
         camera_x_speed += 15;
     } 
 
-    static const int max_camera_speed = 30;
+    static const float max_camera_speed = 30;
 
-    camera_y_speed = Math::clamp_i(camera_y_speed, -max_camera_speed, max_camera_speed);
-    camera_x_speed = Math::clamp_i(camera_x_speed, -max_camera_speed, max_camera_speed);
+    camera_y_speed = Math::clamp_f(camera_y_speed, -max_camera_speed, max_camera_speed);
+    camera_x_speed = Math::clamp_f(camera_x_speed, -max_camera_speed, max_camera_speed);
     
     camera_pos.y += camera_y_speed;
     camera_pos.x += camera_x_speed;
@@ -191,19 +188,21 @@ void MapScene::update() {
     int seed = Services::game_state()->seed;
     auto camera = get_camera();
     
-    auto startCol = Math::floor_f(camera.x / distance_to_next_node);
-    auto endCol = startCol + (gw / distance_to_next_node) + 1;
-    auto startRow = Math::floor_f(camera.y / distance_to_next_node);
-    auto endRow = startRow + (gh / distance_to_next_node) + 2;
+    int startCol = (int)Math::floor_f(camera.x / distance_to_next_node);
+    int endCol = startCol + (gw / distance_to_next_node) + 1;
+    int startRow = (int)Math::floor_f(camera.y / distance_to_next_node);
+    int endRow = startRow + (gh / distance_to_next_node) + 2;
 
-    startRow = Math::clamp_f(startRow, 0, maze->rows - 1);
-    startCol = Math::clamp_f(startCol, 0, maze->cols - 1);
-    endRow = Math::clamp_f(endRow, 0, maze->rows - 1);
-    endCol = Math::clamp_f(endCol, 0, maze->cols - 1);
+    startRow = Math::clamp_i(startRow, 0, maze->rows - 1);
+    startCol = Math::clamp_i(startCol, 0, maze->cols - 1);
+    endRow = Math::clamp_i(endRow, 0, maze->rows - 1);
+    endCol = Math::clamp_i(endCol, 0, maze->cols - 1);
 
     auto offsetX = -camera.x + startCol * distance_to_next_node;
     auto offsetY = -camera.y + startRow * distance_to_next_node;
     
+    auto &current_node = Services::game_state()->current_node;
+
     _nodes.clear();
     for (auto c = startCol; c <= endCol; c++) {
         for (auto r = startRow; r <= endRow; r++) {
@@ -215,10 +214,11 @@ void MapScene::update() {
             y += d.y;
 
             Node n = get_node(c, r, seed);
-            n.position.x = x;
-            n.position.y = y;
+            n.position.x = (int)x;
+            n.position.y = (int)y;
             n.radius = 8;
             n.color = Colors::blue;
+            n.current = c == current_node.x && r == current_node.y;
 
             if(c == 0 || r == 0) {
                 n.color = Colors::green;
@@ -226,15 +226,23 @@ void MapScene::update() {
                 n.color = Colors::red;
             }
 
-
             Point p;
             Input::mouse_current(p);
-            if(Intersects::circle_contains_point(Vector2(x, y), n.radius, p.to_vector2())) {
-                n.color = Colors::white;
-                n.radius = 16;
-                if(Input::mouse_left_down) {
-                    Scenes::set_scene("level");
+            if(Intersects::circle_contains_point(Vector2(x, y), (float)n.radius, p.to_vector2())) {
+
+                if(maze_connection_is_open(maze, current_node, Point(c, r))) {
+                    n.color = Colors::white;
+                    n.radius = 16;
+                    if(Input::mouse_left_down) {
+                        Scenes::set_scene("level");
+                    }
+                } else {
+                    n.color = Colors::white;
+                    if(Input::mouse_left_down) {
+                        Engine::logn("Show node stats or sumtin");
+                    }
                 }
+                
             }
 
             auto cell = maze->cell(c, r);
@@ -243,9 +251,9 @@ void MapScene::update() {
                 auto x_left = (c - 1 - startCol) * distance_to_next_node + offsetX;
                 Point d_left = get_node_displacement(c - 1, r, seed);
                 x_left += d_left.x;
-                int y_left = y - d.y + d_left.y;
-                n.neighbour_left.x = x_left;
-                n.neighbour_left.y = y_left;
+                float y_left = y - d.y + d_left.y;
+                n.neighbour_left.x = (int)x_left;
+                n.neighbour_left.y = (int)y_left;
 
                 n.connections.left = true;
             }
@@ -265,9 +273,9 @@ void MapScene::update() {
                 auto y_top = (r - 1 - startRow) * distance_to_next_node + offsetY;
                 Point d_top = get_node_displacement(c, r - 1, seed);
                 y_top += d_top.y;
-                int x_top = x - d.x + d_top.x;
-                n.neighbour_top.x = x_top;
-                n.neighbour_top.y = y_top;
+                float x_top = x - d.x + d_top.x;
+                n.neighbour_top.x = (int)x_top;
+                n.neighbour_top.y = (int)y_top;
 
                 n.connections.top = true;
             }
@@ -323,6 +331,10 @@ void MapScene::render() {
         // if(n.connections.bottom) {
         //     draw_g_line_RGBA(n.position.x, n.position.y, n.neighbour_bottom.x, n.neighbour_bottom.y, 255, 255, 255, 255);
         // }
+        if(n.current) {
+            static SDL_Color color = Colors::yellow;
+            draw_g_circle_color(n.position.x, n.position.y, n.radius + 8, color);    
+        }
         draw_g_circle_filled_color(n.position.x, n.position.y, n.radius, n.color);
     }
 
@@ -330,7 +342,7 @@ void MapScene::render() {
     std::string population_text = "Population: " + std::to_string(population);
     draw_text_centered_str((int)(gw / 2), 10, Colors::white, population_text);
 
-    draw_text_str(10, (int)(gh - 10), Colors::white, "Select a node to continue.. (just press start.)");
+    draw_text_str(10, (int)(gh - 10), Colors::white, "Select a node to continue..");
     //Particles::render_circles_filled(GameController::particles);
 	Services::ui().render();
     renderer_draw_render_target_camera();

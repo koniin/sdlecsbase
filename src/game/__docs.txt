@@ -2,8 +2,8 @@
 
  next:
     = Goal:  CORE LOOP
-		- show current node as selected
-	 	- only select a node connected to current one
+	 	- only select a node connected to current one ( render a big circle and smaller one inside when hovered if selecteble )
+		 
 
 		Core loop
 		- select a node to go to
