@@ -8,9 +8,11 @@
 #include <chrono>
 
 struct Node {
-    Point position;
+    Point maze_pos;
+    Point render_position;
     SDL_Color color;
     int radius;
+    int type;
     bool current = false;
     struct Connections {
         bool top = false;
@@ -72,6 +74,8 @@ Node get_node(int x, int y, int seed) {
     int id = get_node_type(x + seed, y + seed);
     //int n = pseudo_rand_zero_to_one(x, y);
 
+    node.type = id;
+
     if(id == 1) {
         node.color = { 65, 120, 200, 255 };
     } else if(id == 2) {
@@ -94,7 +98,32 @@ Point get_node_displacement(int node_x, int node_y, int seed) {
     return p;
 }
 
-Vector2 camera_pos(0, 0);
+struct MapInputManager {
+    void node_click(Node &n) {
+        Point p;
+        Input::mouse_current(p);
+        if(Intersects::circle_contains_point(n.render_position.to_vector2(), (float)n.radius, p.to_vector2())) {
+            auto next_node = Point(n.maze_pos.x, n.maze_pos.y);
+            Maze *maze = &Services::game_state()->maze;
+            auto &current_node = Services::game_state()->current_node;
+            if(maze_connection_is_open(maze, current_node, next_node)) {
+                n.color = Colors::white;
+                n.radius = 16;
+                if(Input::mouse_left_down) {
+                    Services::game_state()->prepare_node(next_node);
+                    Scenes::set_scene("level");
+                }
+            } else {
+                n.color = Colors::white;
+                if(Input::mouse_left_down) {
+                    Engine::logn("Show node stats or sumtin");
+                }
+            }
+        }
+    }
+};
+
+MapInputManager map_input_manager;
 
 void MapScene::initialize() {
     Engine::logn("[MAP] Init");
@@ -105,9 +134,6 @@ void MapScene::initialize() {
 
     _nodes.reserve(200);
 }
-
-const int distance_to_next_node = 128;
-const float camera_gutter = 128.0f;
 
 void MapScene::begin() {
 	Engine::logn("[MAP] Begin");
@@ -135,9 +161,6 @@ void MapScene::end() {
 	render_buffer.clear();
     camera_lookat(Vector2::from_i(gw / 2, gh / 2));
 }
-
-float camera_y_speed = 0;
-float camera_x_speed = 0;
 
 void MapScene::update() {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
@@ -173,8 +196,6 @@ void MapScene::update() {
     
     camera_pos.y += camera_y_speed;
     camera_pos.x += camera_x_speed;
-
-
 
     Maze *maze = &Services::game_state()->maze;
     camera_pos.y = Math::clamp_f(camera_pos.y, -camera_gutter, (float)((maze->cols) * distance_to_next_node) + camera_gutter);
@@ -214,37 +235,13 @@ void MapScene::update() {
             y += d.y;
 
             Node n = get_node(c, r, seed);
-            n.position.x = (int)x;
-            n.position.y = (int)y;
+            n.render_position.x = (int)x;
+            n.render_position.y = (int)y;
             n.radius = 8;
-            n.color = Colors::blue;
             n.current = c == current_node.x && r == current_node.y;
-
-            if(c == 0 || r == 0) {
-                n.color = Colors::green;
-            } else if(c == maze->cols || r == maze->rows) {
-                n.color = Colors::red;
-            }
-
-            Point p;
-            Input::mouse_current(p);
-            if(Intersects::circle_contains_point(Vector2(x, y), (float)n.radius, p.to_vector2())) {
-                auto next_node = Point(c, r);
-                if(maze_connection_is_open(maze, current_node, next_node)) {
-                    n.color = Colors::white;
-                    n.radius = 16;
-                    if(Input::mouse_left_down) {
-                        Services::game_state()->prepare_node(next_node);
-                        Scenes::set_scene("level");
-                    }
-                } else {
-                    n.color = Colors::white;
-                    if(Input::mouse_left_down) {
-                        Engine::logn("Show node stats or sumtin");
-                    }
-                }
-                
-            }
+            n.maze_pos.x = c;
+            n.maze_pos.y = r;
+            map_input_manager.node_click(n);
 
             auto cell = maze->cell(c, r);
             
@@ -321,10 +318,10 @@ void MapScene::render() {
     
     for(auto &n : _nodes) {
         if(n.connections.left) {
-            draw_g_line_RGBA(n.position.x, n.position.y, n.neighbour_left.x, n.neighbour_left.y, 255, 255, 255, 255);
+            draw_g_line_RGBA(n.render_position.x, n.render_position.y, n.neighbour_left.x, n.neighbour_left.y, 255, 255, 255, 255);
         }
         if(n.connections.top) {
-            draw_g_line_RGBA(n.position.x, n.position.y, n.neighbour_top.x, n.neighbour_top.y, 255, 255, 255, 255);
+            draw_g_line_RGBA(n.render_position.x, n.render_position.y, n.neighbour_top.x, n.neighbour_top.y, 255, 255, 255, 255);
         }
         // if(n.connections.right) {
         //     draw_g_line_RGBA(n.position.x, n.position.y, n.neighbour_right.x, n.neighbour_right.y, 255, 255, 255, 255);
@@ -334,9 +331,9 @@ void MapScene::render() {
         // }
         if(n.current) {
             static SDL_Color color = Colors::yellow;
-            draw_g_circle_color(n.position.x, n.position.y, n.radius + 8, color);    
+            draw_g_circle_color(n.render_position.x, n.render_position.y, n.radius + 8, color);    
         }
-        draw_g_circle_filled_color(n.position.x, n.position.y, n.radius, n.color);
+        draw_g_circle_filled_color(n.render_position.x, n.render_position.y, n.radius, n.color);
     }
 
     int population = Services::game_state()->population;

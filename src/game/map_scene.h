@@ -15,6 +15,11 @@ class MapScene : public Scene {
         private:
                 RenderBuffer render_buffer;
                 Sprite _background;
+                Vector2 camera_pos;
+                const int distance_to_next_node = 128;
+                const float camera_gutter = 128.0f;
+                float camera_y_speed = 0;
+                float camera_x_speed = 0;
 };
 
 #endif

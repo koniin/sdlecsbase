@@ -2,8 +2,7 @@
 
  next:
     = Goal:  CORE LOOP
-	 	when going to a node => update game_state
-
+	 	
 		Core loop
 		- select a node to go to
 			=> NodeEvent
