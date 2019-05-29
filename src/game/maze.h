@@ -59,6 +59,7 @@ void maze_close_and_scramble_room(Maze *maze, const int x, const int y, const in
 void maze_free(Maze* maze);
 void maze_serialize(std::ostream &stream, Maze &maze);
 void maze_deserialize(std::istream &stream, Maze &maze);
+void maze_log(Maze* maze, std::ostringstream &ss);
 
 //void connectRooms(Maze *maze, int x, int y, int x2, int y2);
 //int getNumExits(Maze* maze);

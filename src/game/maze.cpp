@@ -305,6 +305,34 @@ void maze_deserialize(std::istream &stream, Maze &maze) {
 	}
 }
 
+void maze_log(Maze* maze, std::ostringstream &ss) {
+	for (int y = 0; y < maze->rows; y++) {
+		for (int x = 0; x < maze->cols; x++) {
+			if((maze->buffer[maze->index(x, y)].Openings & Directions::North) == Directions::North) {
+				 ss << " |";
+			 } else {
+				 ss << "  ";
+			 }
+		}
+		ss << "\n";
+ 		for (int x = 0; x < maze->cols; x++) {
+			 if((maze->buffer[maze->index(x, y)].Openings & Directions::West) == Directions::West) {
+				 ss << "-O";
+			 } else {
+				 ss << " O";
+			 }
+			 // -O--O
+			 //  | 
+
+// 			if(maze->buffer[maze->index(x, y)].IsOpen)
+// 				printf("\n");
+// 			printf("y:%d, x:%d isopen: %s , istopwallopen: %s | ", y, x, maze->buffer[maze->index(x, y)].IsOpen ? "true" : "false", maze->buffer[maze->index(x, y)].IsTopWallOpen ? "true" : "false");
+ 		}
+		ss << "\n";
+// 		printf("\n");
+	}
+}
+
 /*
 Maze* generateMaze(int cols, int rows) {
 	Cell* maze = new Cell[cols*rows];

@@ -106,7 +106,7 @@ void MapScene::initialize() {
 }
 
 const int distance_to_next_node = 128;
-const float camera_gutter = 32.0f;
+const float camera_gutter = 128.0f;
 
 void MapScene::begin() {
 	Engine::logn("[MAP] Begin");
@@ -177,9 +177,11 @@ void MapScene::update() {
     camera_pos.y += camera_y_speed;
     camera_pos.x += camera_x_speed;
 
+
+
     Maze *maze = &Services::game_state()->maze;
-    camera_pos.y = Math::clamp_f(camera_pos.y, -camera_gutter, (float)((maze->cols) * distance_to_next_node + camera_gutter));
-    camera_pos.x = Math::clamp_f(camera_pos.x, -camera_gutter, (float)((maze->rows) * distance_to_next_node + camera_gutter));
+    // camera_pos.y = Math::clamp_f(camera_pos.y, 0, (float)((maze->cols) * distance_to_next_node));
+    // camera_pos.x = Math::clamp_f(camera_pos.x, 0, (float)((maze->rows) * distance_to_next_node));
     
     camera_follow(camera_pos);
 
@@ -190,9 +192,14 @@ void MapScene::update() {
     auto camera = get_camera();
     
     auto startCol = Math::floor_f(camera.x / distance_to_next_node);
-    auto endCol = startCol + (gw / distance_to_next_node) + 3;
+    auto endCol = startCol + (gw / distance_to_next_node) + 1;
     auto startRow = Math::floor_f(camera.y / distance_to_next_node);
-    auto endRow = startRow + (gh / distance_to_next_node) + 3;
+    auto endRow = startRow + (gh / distance_to_next_node) + 1;
+
+    startRow = Math::clamp_f(startRow, 0, maze->rows - 1);
+    startCol = Math::clamp_f(startCol, 0, maze->cols - 1);
+    endRow = Math::clamp_f(endRow, 0, maze->rows - 1);
+    endCol = Math::clamp_f(endCol, 0, maze->cols - 1);
 
     auto offsetX = -camera.x + startCol * distance_to_next_node;
     auto offsetY = -camera.y + startRow * distance_to_next_node;
@@ -235,6 +242,8 @@ void MapScene::update() {
                 }
             }
 
+            ASSERT_WITH_MSG(c <= maze->cols && r <= maze->rows, "Whut?!");
+
             auto cell = maze->cell(c, r);
             
             if ((cell.Openings & Directions::West) == Directions::West) {
@@ -270,16 +279,18 @@ void MapScene::update() {
                 n.connections.top = true;
             }
 
-            // if ((cell.Openings & Directions::South) == Directions::South) {
-            //     auto y_bottom = (r + 1 - startRow) * distance_to_next_node + offsetY;
-            //     Point d_bottom = get_node_displacement(c, r + 1, seed);
-            //     y_bottom += d_bottom.y;
-            //     int x_bottom = x - d.x + d_bottom.x;
-            //     n.neighbour_bottom.x = x_bottom;
-            //     n.neighbour_bottom.y = y_bottom;
+            if ((cell.Openings & Directions::South) == Directions::South) {
+                auto y_bottom = (r + 1 - startRow) * distance_to_next_node + offsetY;
+                Point d_bottom = get_node_displacement(c, r + 1, seed);
+                y_bottom += d_bottom.y;
+                int x_bottom = x - d.x + d_bottom.x;
+                n.neighbour_bottom.x = x_bottom;
+                n.neighbour_bottom.y = y_bottom;
 
-            //     n.connections.bottom = true;
-            // }
+                n.connections.bottom = true;
+            }
+
+
             _nodes.push_back(n);
         }
     }

@@ -10,6 +10,10 @@ void GameState::new_game() {
     maze_generate(maze, 22, 22);
 	maze_grow_tree(&maze);
 
+    std::ostringstream out;
+    maze_log(&maze, out);
+    Engine::logn(out.str().c_str());
+
     current_node = Point(10, 10);
     //maze_open_all(&maze);
     
