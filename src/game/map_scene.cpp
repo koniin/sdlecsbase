@@ -194,7 +194,7 @@ void MapScene::update() {
     auto startCol = Math::floor_f(camera.x / distance_to_next_node);
     auto endCol = startCol + (gw / distance_to_next_node) + 1;
     auto startRow = Math::floor_f(camera.y / distance_to_next_node);
-    auto endRow = startRow + (gh / distance_to_next_node) + 1;
+    auto endRow = startRow + (gh / distance_to_next_node) + 2;
 
     startRow = Math::clamp_f(startRow, 0, maze->rows - 1);
     startCol = Math::clamp_f(startCol, 0, maze->cols - 1);
@@ -207,17 +207,12 @@ void MapScene::update() {
     _nodes.clear();
     for (auto c = startCol; c <= endCol; c++) {
         for (auto r = startRow; r <= endRow; r++) {
-            // if(c < 0 || r < 0 || c > maze->cols || r > maze->rows) {
-            //     continue;
-            // }
-
             auto x = (c - startCol) * distance_to_next_node + offsetX;
             auto y = (r - startRow) * distance_to_next_node + offsetY;
 
             Point d = get_node_displacement(c, r, seed);
             x += d.x;
             y += d.y;
-
 
             Node n = get_node(c, r, seed);
             n.position.x = x;
@@ -279,16 +274,16 @@ void MapScene::update() {
                 n.connections.top = true;
             }
 
-            if ((cell.Openings & Directions::South) == Directions::South) {
-                auto y_bottom = (r + 1 - startRow) * distance_to_next_node + offsetY;
-                Point d_bottom = get_node_displacement(c, r + 1, seed);
-                y_bottom += d_bottom.y;
-                int x_bottom = x - d.x + d_bottom.x;
-                n.neighbour_bottom.x = x_bottom;
-                n.neighbour_bottom.y = y_bottom;
+            // if ((cell.Openings & Directions::South) == Directions::South) {
+            //     auto y_bottom = (r + 1 - startRow) * distance_to_next_node + offsetY;
+            //     Point d_bottom = get_node_displacement(c, r + 1, seed);
+            //     y_bottom += d_bottom.y;
+            //     int x_bottom = x - d.x + d_bottom.x;
+            //     n.neighbour_bottom.x = x_bottom;
+            //     n.neighbour_bottom.y = y_bottom;
 
-                n.connections.bottom = true;
-            }
+            //     n.connections.bottom = true;
+            // }
 
 
             _nodes.push_back(n);
