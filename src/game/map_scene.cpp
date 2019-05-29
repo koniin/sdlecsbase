@@ -180,8 +180,8 @@ void MapScene::update() {
 
 
     Maze *maze = &Services::game_state()->maze;
-    // camera_pos.y = Math::clamp_f(camera_pos.y, 0, (float)((maze->cols) * distance_to_next_node));
-    // camera_pos.x = Math::clamp_f(camera_pos.x, 0, (float)((maze->rows) * distance_to_next_node));
+    camera_pos.y = Math::clamp_f(camera_pos.y, -camera_gutter, (float)((maze->cols) * distance_to_next_node) + camera_gutter);
+    camera_pos.x = Math::clamp_f(camera_pos.x, -camera_gutter, (float)((maze->rows) * distance_to_next_node) + camera_gutter);
     
     camera_follow(camera_pos);
 
