@@ -2,6 +2,10 @@
 
  next:
     = Goal:  CORE LOOP
+		
+		maybe make the level scene a part of the map_scene so you don't have to remember where you where in the event
+			-> map_scene has a state and that uses the different "managers"
+
 		 Start with simple 
 		  -> the starting point should be small and simple 
 		    - basic laser for mothership and fighters
@@ -21,7 +25,7 @@
 		 	- not bought in the fleet UI but they can be stored there and switched out in this view
 
 		 
-		 
+
 
 		Core loop
 		- fight the battle -> get a reward
