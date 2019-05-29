@@ -11,6 +11,10 @@
 		- resource node - get resources 
 		- after fight handle ship/fleet business
 
+		FTL - Ship UI is always present
+			- when going to a new node it's just a matter of shrinking the ship => change background => resize the ship => show text
+			- everything is in the "same scene"
+
 		Required parts
 		- node map + UI
 		- Population connection to ships

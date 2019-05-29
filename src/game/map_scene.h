@@ -4,6 +4,26 @@
 #include "engine.h"
 #include "renderer.h"
 
+struct Node {
+    Point maze_pos;
+    Point render_position;
+    SDL_Color color;
+    int radius;
+    int type;
+    bool current = false;
+    struct Connections {
+        bool top = false;
+        bool bottom = false;
+        bool left = false;
+        bool right = false;
+    } connections;
+
+    Point neighbour_left;
+    Point neighbour_right;
+    Point neighbour_top;
+    Point neighbour_bottom;
+};
+
 class MapScene : public Scene {
         public:
                 void initialize() override;
@@ -15,11 +35,6 @@ class MapScene : public Scene {
         private:
                 RenderBuffer render_buffer;
                 Sprite _background;
-                Vector2 camera_pos;
-                const int distance_to_next_node = 128;
-                const float camera_gutter = 128.0f;
-                float camera_y_speed = 0;
-                float camera_x_speed = 0;
 };
 
 #endif
