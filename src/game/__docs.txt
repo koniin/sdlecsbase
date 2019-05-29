@@ -2,10 +2,28 @@
 
  next:
     = Goal:  CORE LOOP
-	 	
+		 Start with simple 
+		  -> the starting point should be small and simple 
+		    - basic laser for mothership and fighters
+			  - one mothership (with no addons)
+			  - 2 fighters (basic lasers)
+
+			- enemy in distance one could be no mothership and just fighters
+				- 2 fighters (basic lasers)
+
+		 - make the first reward that you get (after battle)
+		 	- that reward can be spent directly to buy something in that UI (next point)
+
+		 - show the fleet UI where you can buy mothership upgrades that you buy from resources
+		 	- simple upgrades at first (hp, shield, reload time etc)
+
+		 - fighters can only be bought in shops/found/rewarded (they are like weapons in FTL)
+		 	- not bought in the fleet UI but they can be stored there and switched out in this view
+
+		 
+		 
+
 		Core loop
-		- select a node to go to
-			=> NodeEvent
 		- fight the battle -> get a reward
 		- station - buy things with resources (different values for different resources at different places?)
 		- resource node - get resources 
@@ -18,8 +36,6 @@
 		Required parts
 		- node map + UI
 		- Population connection to ships
-		- NodeEventScreen 
-		- NodeEventRewardScreen
 		- Fleet Handling UI
 			- mothership slots (weapons / utilities)
 			- fighter slots 

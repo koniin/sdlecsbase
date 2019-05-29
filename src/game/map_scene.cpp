@@ -98,7 +98,6 @@ struct NodeEventManager {
 
     void update() {
         if(screens.size() == 0) {
-            Engine::logn("GET OUT OF HERE!");
             return;
         }
         auto &scr = screens[0];
@@ -122,7 +121,6 @@ struct NodeEventManager {
 
     void render() {
         if(screens.size() == 0) {
-            Engine::logn("GET OUT OF HERE!");
             return;
         }
 
