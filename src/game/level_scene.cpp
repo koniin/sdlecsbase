@@ -24,14 +24,24 @@ void LevelScene::begin() {
     GameController::create(Services::game_state());
 
     Services::events().listen<BattleOverEvent>([](BattleOverEvent e) { 
-        Engine::logn("MAKE UI FOR END OF BATTLE!");
-        // if(e.winner_faction == PLAYER_FACTION) {
-        //     draw_text_centered_str((int)(gw / 2), (int)(gh / 2), Colors::white, "YOU ROCK!");
-        //     draw_text_centered_str((int)(gw / 2), (int)(gh / 2) + 10, Colors::white, "Press start to continue...");
-        // } else {
-        //     draw_text_centered_str((int)(gw / 2), (int)(gh / 2), Colors::white, "GAME OVER!");
-        //     draw_text_centered_str((int)(gw / 2), (int)(gh / 2) + 10, Colors::white, "Press start to continue...");
-        // }
+        battle_over = true;
+
+        TextElement t, t2;
+        t.align = t2.align = UIAlign::Center;
+        t.color = t2.color = Colors::white;
+        t.position = Point((int)(gw / 2), (int)(gh / 2));
+        t2.position = Point(t.position.x, t.position.y + 10);
+
+        if(e.winner_faction == PLAYER_FACTION) {
+            t.text = "YOU ROCK!";
+        } else {
+            t.text = "GAME OVER";
+        }
+        
+        t2.text = "Press start to continue...";
+
+        Services::ui().add_element(t);
+        Services::ui().add_element(t2);
     });
 }
 
@@ -85,7 +95,7 @@ void LevelScene::render() {
     draw_buffer(render_buffer);
     Particles::render_circles_filled(GameController::particles);
 	Services::ui().render();
-        
+
     int population = Services::game_state()->population;
     std::string population_text = "Population: " + std::to_string(population);
     draw_text_centered_str((int)(gw / 2), 10, Colors::white, population_text);

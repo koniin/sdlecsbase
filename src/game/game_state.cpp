@@ -79,7 +79,6 @@ void GameState::new_game() {
 //     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.3f));        
 // }
 
-
     for(int i = 0; i < 2; i++) {
         FighterConfig f;
         f.defense = { 10, 5 };

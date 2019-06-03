@@ -139,7 +139,7 @@ struct NodeEventManager {
             {
                 EventScreen e;
                 e.description = "You jumped straight into an ambush!";
-                e.options.push_back( { "Continue", [&]() { Scenes::set_scene("level"); } } );
+                e.options.push_back( { "Continue", [&]() { Scenes::set_scene("level"); next_screen(); } } );
                 screens.push_back(e);
             }
         } else if(n.type == 2) {
