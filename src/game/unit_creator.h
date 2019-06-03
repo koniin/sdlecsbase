@@ -104,6 +104,10 @@ namespace UnitCreator {
     }
 
     void create_enemy_mothership(const int &seed, const int &difficulty, const int &node_distance, ECS::EntityManager &entity_manager, std::vector<MotherShip> &motherships) {
+        if(node_distance < 3) {
+            return;
+        }
+
         Vector2 position = Vector2((float)gw - 70, (float)gh / 2);
 
         MotherShip ship(entity_manager.create());
@@ -183,9 +187,11 @@ namespace UnitCreator {
     }
 
     void create_enemy_fighters(const int &seed, const int &difficulty, const int &node_distance, ECS::EntityManager &entity_manager, std::vector<FighterShip> &fighters) {
+        int fighters_to_generate = node_distance + 1;
+
         Vector2 position = Vector2((float)gw - 170, 50);
 
-        for(int i = 0; i < 10; i++) {
+        for(int i = 0; i < fighters_to_generate; i++) {
             FighterShip ship(entity_manager.create());
             ship.faction = FactionComponent { ENEMY_FACTION };
             float y = position.y + i * 30.f;
@@ -207,7 +213,7 @@ namespace UnitCreator {
 
             WeaponComponent weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Enemy Gun", _random_targeter, ProjectileType::RedLazerBullet);
             weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.3f));
-            weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 1.0f));
+            
             // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<ProjectileType>("temp", WeaponProperty::Projectile_Type, )));
             // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<int>("temp", WeaponProperty::Projectile_Count, 0)));
             // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<float>("temp", WeaponProperty::BurstDelay, 0.1f)));

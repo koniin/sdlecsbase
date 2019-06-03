@@ -3,9 +3,6 @@
  next:
     = Goal:  CORE LOOP
 		
-		maybe make the level scene a part of the map_scene so you don't have to remember where you where in the event
-			-> map_scene has a state and that uses the different "managers"
-
 		 Start with simple 
 		  -> the starting point should be small and simple 
 		    - basic laser for mothership and fighters
@@ -17,15 +14,12 @@
 
 		 - make the first reward that you get (after battle)
 		 	- that reward can be spent directly to buy something in that UI (next point)
-
-		 - show the fleet UI where you can buy mothership upgrades that you buy from resources
-		 	- simple upgrades at first (hp, shield, reload time etc)
-
-		 - fighters can only be bought in shops/found/rewarded (they are like weapons in FTL)
-		 	- not bought in the fleet UI but they can be stored there and switched out in this view
-
 		 
+		 - First mothership ability -> shield recharge boost (x seconds increases shield recharge for all ships)
 
+		 - MORE (UI for upgrades/crafting etc)
+
+		 - Focus on Fighters first (building them)
 
 		Core loop
 		- fight the battle -> get a reward
@@ -84,11 +78,39 @@ Upgrade ship/fleet (upgrade here means find new things and replace old)
 	- buy/find new weapons / utility abilities (if not full replace old ones)
 	- resource capacity max for each resource - start with one resource
 - fighters
-    - buy new fighters that either adds (when not full or replaces when full (select which to replace))
-	- fighters take population to manage also (so population is left but its allocated to a fighter)
+    - they are like weapons in FTL / Void Bastards
+
 - retreat from a fight can be done (some cooldown and random nearby node)
 
 
+	Different kinds of setups
+	- what data should we work with?
+	
+	Mothership
+		- upgradeable (skill tree / perks / modules)
+		- modules/upgrades/research
+			- like poe uniques and passives
+			- laser engineer (makes lasers better when built)
+			- shield maiden (makes shields better when built)
+		
+		- mothership weapons
+			- base weapon + special modules (or research/crafts?)
+	
+	Fighters
+		- craftable/buildable from menu
+		- crafts requires materials
+		- crafts can be found/bought (blueprints)
+		- click to craft in UI if spot is open in fleet
+		- direct craft or time?
+		- craft example:
+			- double laser ship
+			- missile ship
+			- extended flak cannon ship
+			- fast laser ship (fast laser mk 1-2)
+			- gatling laser ship
+		
+		- random ship layouts (like diablo) or is it fixed ones?
+	
 So the cookie clicker part could be
 - train population -> requires x pop of each type to fly y ship
 - research upgrades for the things you found (like passive XP)
@@ -124,6 +146,7 @@ macro level is (like stellaris)
 		- hostile zones (boss encounters at al)
 		- neutral zones (rewards and loot)
 
+You could make it so you can only move forward and also make it like Drakborgen
 
 Fleet 
 =====================
@@ -236,8 +259,7 @@ Items/Skills
 			Targeting
 
 Ideas:
-Mothership/Fighter weapons/usables
-- can also be found/upgraded ?
+
 EMP Shock - disables a ship completely for x time
 Shield disruptor - disables X enemy shields (different versions ?)
 Sensor shock - Decreases accuracy (except for beams)
@@ -246,7 +268,7 @@ Sensor shock - Decreases accuracy (except for beams)
 Cleanser - removes negative effects
 - one for fire also
 
-Fighters are already configured when found but can be altered by mods 
+Fighters are already configured when found/bought/crafted but can be altered by mods 
 so fighters come as they are when you find them
 
 Dots ? (negative status effects basically - same as shield disabler etc)

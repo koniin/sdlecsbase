@@ -20,8 +20,8 @@ void GameState::new_game() {
     
     // mothership.abilities;
 
-    mothership.defense.hp = 100;
-    mothership.defense.shield = 50;
+    mothership.defense.hp = 40;
+    mothership.defense.shield = 5;
 
     mothership.population_max = 1000;
 
@@ -32,17 +32,25 @@ void GameState::new_game() {
     
     // Initialise with base
     w.weapon = GLOBAL_BASE_WEAPON;
-    
     w.targeting = 1;
-    w.weapon.name = "Mothership blast cannon";
-    w.weapon.projectile_type = ProjectileType::Missile;
-    w.weapon.accuracy = 1.0f;
+
+    w.weapon.name = "Dual Lazer";
+    w.weapon.projectile_type = ProjectileType::RedLazerBullet;
+    w.weapon.accuracy = 0.8f;
+    w.weapon.projectile_count = 2;
     w.weapon.burst_delay = 0.1f;
-    w.weapon.damage = 3;
-    w.weapon.reload_time = 4.0f;
-    w.weapon.projectile_speed = 100.0f;
-    w.weapon.projectile_speed_increase = 1.031f;
-    w.weapon.projectile_count = 8;
+
+    // Multi missile launcher
+    // =========================
+    // w.weapon.name = "Mothership blast cannon";
+    // w.weapon.projectile_type = ProjectileType::Missile;
+    // w.weapon.accuracy = 1.0f;
+    // w.weapon.burst_delay = 0.1f;
+    // w.weapon.damage = 3;
+    // w.weapon.reload_time = 4.0f;
+    // w.weapon.projectile_speed = 100.0f;
+    // w.weapon.projectile_speed_increase = 1.031f;
+    // w.weapon.projectile_count = 8;
     
     mothership.weapons.push_back(w);
 
@@ -72,7 +80,7 @@ void GameState::new_game() {
 // }
 
 
-    for(int i = 0; i < 4; i++) {
+    for(int i = 0; i < 2; i++) {
         FighterConfig f;
         f.defense = { 10, 5 };
         f.sprite_base = "cs1";
