@@ -124,8 +124,10 @@ struct NodeEventManager {
             return;
         }
 
-        auto &scr = screens[0];
+        SDL_Color bkg_color = Colors::blue;
+        draw_g_rectangle_filled(150, 100, 340, 160, bkg_color);
 
+        auto &scr = screens[0];
         draw_text_str(gw / 2 - 100, 120, text_color, scr.description);
         int i = 1;
         for(auto &option : scr.options) {
