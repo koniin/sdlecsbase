@@ -386,8 +386,12 @@ struct MultiAbilityComponent {
         }    
     }
 
-    Weapon get_weapon(int id) {
-        return _weapons[id].get_weapon();
+    float get_cooldown(int id) {
+        return _weapons[id].get_weapon().reload_time;
+    }
+
+    std::string get_name(int id) {
+        return _weapons[id].get_weapon().name;
     }
 
     float get_timer(int id) {

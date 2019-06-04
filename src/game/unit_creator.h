@@ -93,7 +93,7 @@ namespace UnitCreator {
                 w.targeting == 1 ? _random_multi_targeter : _random_targeter, 
                 w.weapon.projectile_type);
             
-            ship.weapons.add(weaponComponent, true);
+            ship.abilities.add(weaponComponent, true);
         }
 
         auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
@@ -173,7 +173,7 @@ namespace UnitCreator {
                     w.targeting == 1 ? _random_multi_targeter : _random_targeter, 
                     w.weapon.projectile_type);
                 
-                ship.weapons.add(weaponComponent);
+                ship.abilities.add(weaponComponent);
             }
             
             auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
@@ -218,7 +218,7 @@ namespace UnitCreator {
             // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<int>("temp", WeaponProperty::Projectile_Count, 0)));
             // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<float>("temp", WeaponProperty::BurstDelay, 0.1f)));
 
-            ship.weapons.add(weaponComponent);
+            ship.abilities.add(weaponComponent);
             
             auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
             auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, "cs2");

@@ -55,15 +55,16 @@ void render_export(RenderBuffer &render_buffer) {
     for(auto &ship : BattleController::_motherships) {
         if(ship.faction.faction == PLAYER_FACTION) {
             int i = 0;
-            for(auto weapon_id : ship.weapons.ids()) {
-                auto weapon = ship.weapons.get_weapon(weapon_id);
-                auto reload_timer = ship.weapons.get_timer(weapon_id);
+            for(auto ability_id : ship.abilities.ids()) {
+                auto cooldown = ship.abilities.get_cooldown(ability_id);
+                auto name = ship.abilities.get_name(ability_id);
+                auto reload_timer = ship.abilities.get_timer(ability_id);
                 TextElement t;
-                t.color = reload_timer < weapon.reload_time ? Colors::red : Colors::green;
+                t.color = reload_timer < cooldown ? Colors::red : Colors::green;
                 t.align = UIAlign::Left;
                 t.position = Point(10, gh - 60 + i * 15);
-                float reload_time = weapon.reload_time - reload_timer;
-                t.text = Text::format("%d. %s (%.2f)", i + 1, weapon.name.c_str(), reload_time > 0.f ? reload_time : 0);
+                float reload_time = cooldown - reload_timer;
+                t.text = Text::format("%d. %s (%.2f)", i + 1, name.c_str(), reload_time > 0.f ? reload_time : 0);
                 Services::ui().add_immediate_element(t);
                 i++;
             }

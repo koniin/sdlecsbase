@@ -118,19 +118,19 @@ namespace BattleController {
     }
     
     template<typename Entity>
-    void system_weapons(Entity &entities) {
+    void system_abilities(Entity &entities) {
         for (auto &entity : entities) {
-            entity.weapons.update_timer(Time::delta_time);
+            entity.abilities.update_timer(Time::delta_time);
             
-            for(auto &id : entity.weapons.ids()) {
-                if(entity.weapons.is_manual(id)) {
-                    int weapon_id = GInput::pressed_id();
-                    if(entity.weapons.can_use(weapon_id)) {
-                        entity.weapons.use(weapon_id, entity.faction.faction, entity.position.value, _projectile_spawns);
+            for(auto &id : entity.abilities.ids()) {
+                if(entity.abilities.is_manual(id)) {
+                    int ability_id = GInput::pressed_id();
+                    if(entity.abilities.can_use(ability_id)) {
+                        entity.abilities.use(ability_id, entity.faction.faction, entity.position.value, _projectile_spawns);
                     }
                 } else {
-                    if(entity.weapons.can_use(id)) {
-                        entity.weapons.use(id, entity.faction.faction, entity.position.value, _projectile_spawns);
+                    if(entity.abilities.can_use(id)) {
+                        entity.abilities.use(id, entity.faction.faction, entity.position.value, _projectile_spawns);
                     }
                 }
             }
@@ -198,8 +198,8 @@ namespace BattleController {
     void update() {
         Particles::update(particles, Time::delta_time);
 
-        system_weapons(_motherships);
-        system_weapons(_fighter_ships);
+        system_abilities(_motherships);
+        system_abilities(_fighter_ships);
 
         system_shield_recharge(_motherships);
         system_shield_recharge(_fighter_ships);
