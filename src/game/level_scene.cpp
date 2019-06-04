@@ -1,5 +1,5 @@
 #include "level_scene.h"
-#include "game_controller.h"
+#include "battle_controller.h"
 #include "systems.h"
 #include "display_export.h"
 #include "particles.h"
@@ -14,14 +14,14 @@ void LevelScene::initialize() {
     Engine::logn("[LEVEL] Init");
  	render_buffer.init(2048);
     Resources::sprite_sheet_load("combat_sprites", "combat_sprites.data");
-    GameController::initialize();
+    BattleController::initialize();
 
     Resources::sprite_load("background", "bkg1.png");
 }
 
 void LevelScene::begin() {
 	Engine::logn("[LEVEL] Begin");
-    GameController::create(Services::game_state());
+    BattleController::create(Services::game_state());
 
     Services::events().listen<BattleOverEvent>([](BattleOverEvent e) { 
         battle_over = true;
@@ -47,7 +47,7 @@ void LevelScene::begin() {
 
 void LevelScene::end() {
     Engine::logn("[LEVEL] End");
-    GameController::end(Services::game_state());
+    BattleController::end(Services::game_state());
 	render_buffer.clear();
     Services::ui().clear();
 
@@ -57,8 +57,8 @@ void LevelScene::end() {
 void LevelScene::update() {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 	
-    GameController::update();
-    Particles::update(GameController::particles, Time::delta_time);
+    BattleController::update();
+    Particles::update(BattleController::particles, Time::delta_time);
     Services::events().emit();
     Services::ui().update();
     
@@ -83,8 +83,8 @@ void LevelScene::update() {
 	FrameLog::log(frame_duration_mu);
 	FrameLog::log(frame_duration_ms);
 
-    FrameLog::log("projectiles: " + std::to_string(GameController::_projectiles.size()));
-    FrameLog::log("projectiles missed: " + std::to_string(GameController::_projectile_missed.size()));
+    FrameLog::log("projectiles: " + std::to_string(BattleController::_projectiles.size()));
+    FrameLog::log("projectiles missed: " + std::to_string(BattleController::_projectile_missed.size()));
 }
 
 void LevelScene::render() {
@@ -93,7 +93,7 @@ void LevelScene::render() {
     draw_sprite(Resources::sprite_get("background"), 0, 0);
     
     draw_buffer(render_buffer);
-    Particles::render_circles_filled(GameController::particles);
+    Particles::render_circles_filled(BattleController::particles);
 	Services::ui().render();
 
     int population = Services::game_state()->population;

@@ -55,7 +55,7 @@ void GameState::new_game() {
     mothership.weapons.push_back(w);
 
     population = mothership.population_max / 4;
-    resources = 40;
+    resources = 30;
     fighters_max = 8;
 
     

@@ -240,7 +240,7 @@ struct MotherShip {
 
     CollisionData collision;
     FactionComponent faction;
-    MultiWeaponComponent weapons;
+    MultiAbilityComponent weapons;
     DefenseComponent defense;
 };
 
@@ -253,7 +253,7 @@ struct FighterShip {
 
     CollisionData collision;
     FactionComponent faction;
-    MultiWeaponComponent weapons;
+    MultiAbilityComponent weapons;
     DefenseComponent defense;
 };
 

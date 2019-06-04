@@ -357,7 +357,7 @@ struct WeaponComponent {
     }
 };
 
-struct MultiWeaponComponent {
+struct MultiAbilityComponent {
     private:
     std::vector<WeaponComponent> _weapons;
     std::vector<bool> _manual_control;
@@ -380,7 +380,7 @@ struct MultiWeaponComponent {
         return _manual_control[id];
     }
 
-    void update_reload_timer(float dt) {
+    void update_timer(float dt) {
         for(auto &timer : _reload_timer) {
             timer += Time::delta_time;
         }    
@@ -390,11 +390,11 @@ struct MultiWeaponComponent {
         return _weapons[id].get_weapon();
     }
 
-    float get_reload_timer(int id) {
+    float get_timer(int id) {
         return _reload_timer[id];
     }
 
-    bool can_fire(int id) {
+    bool can_use(int id) {
         size_t index = id;
         if(index < 0 || index >= _weapons.size()) {
             return false;
@@ -402,7 +402,7 @@ struct MultiWeaponComponent {
         return _reload_timer[index] > _weapons[index].get_weapon().reload_time;
     }
 
-    void fire(int id, int faction, Vector2 position, std::vector<ProjectileSpawn> &projectile_spawns) {
+    void use(int id, int faction, Vector2 position, std::vector<ProjectileSpawn> &projectile_spawns) {
         size_t index = id;
          _weapons[index].make_spawns(faction, position, projectile_spawns);    
          _reload_timer[index] = 0.0f;

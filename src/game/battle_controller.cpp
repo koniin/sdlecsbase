@@ -1,4 +1,4 @@
-#include "game_controller.h"
+#include "battle_controller.h"
 
 #include "engine.h"
 #include "services.h"
@@ -9,7 +9,7 @@
 
 #include <unordered_set>
 
-namespace GameController {
+namespace BattleController {
     const int c_mothership_count = 2;
     const int c_fighter_count = 40;
     const int c_projectile_count = 300;
@@ -120,17 +120,17 @@ namespace GameController {
     template<typename Entity>
     void system_weapons(Entity &entities) {
         for (auto &entity : entities) {
-            entity.weapons.update_reload_timer(Time::delta_time);
+            entity.weapons.update_timer(Time::delta_time);
             
             for(auto &id : entity.weapons.ids()) {
                 if(entity.weapons.is_manual(id)) {
-                    int weapon_id = GInput::pressed_weapon_id();
-                    if(entity.weapons.can_fire(weapon_id)) {
-                        entity.weapons.fire(weapon_id, entity.faction.faction, entity.position.value, _projectile_spawns);
+                    int weapon_id = GInput::pressed_id();
+                    if(entity.weapons.can_use(weapon_id)) {
+                        entity.weapons.use(weapon_id, entity.faction.faction, entity.position.value, _projectile_spawns);
                     }
                 } else {
-                    if(entity.weapons.can_fire(id)) {
-                        entity.weapons.fire(id, entity.faction.faction, entity.position.value, _projectile_spawns);
+                    if(entity.weapons.can_use(id)) {
+                        entity.weapons.use(id, entity.faction.faction, entity.position.value, _projectile_spawns);
                     }
                 }
             }
@@ -196,7 +196,7 @@ namespace GameController {
     }
 
     void update() {
-        Particles::update(GameController::particles, Time::delta_time);
+        Particles::update(particles, Time::delta_time);
 
         system_weapons(_motherships);
         system_weapons(_fighter_ships);

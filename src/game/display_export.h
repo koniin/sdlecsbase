@@ -5,7 +5,7 @@
 #include "renderer.h"
 #include "services.h"
 #include "components.h"
-#include "game_controller.h"
+#include "battle_controller.h"
 
 void export_sprite_data(const Position &position, const SpriteComponent &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets);
 
@@ -22,32 +22,10 @@ void render_export(RenderBuffer &render_buffer) {
     auto sprite_data_buffer = render_buffer.sprite_data_buffer;
     auto &sprite_count = render_buffer.sprite_count;
 
-    export_entities(GameController::_motherships, sprite_data_buffer, sprite_sheets, sprite_count);
-    // for(size_t i = 0; i < GameController::_motherships.size(); i++) {
-    //     export_sprite_data(GameController::_motherships[i].position, GameController::_motherships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
-    // }
-
-    export_entities(GameController::_fighter_ships, sprite_data_buffer, sprite_sheets, sprite_count);
-    // for(size_t i = 0; i < GameController::_fighter_ships.size(); i++) {
-    //     export_sprite_data(GameController::_fighter_ships[i].position, GameController::_fighter_ships[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
-    // }
-    
-    export_entities(GameController::_projectiles, sprite_data_buffer, sprite_sheets, sprite_count);
-    // for(size_t i = 0; i < GameController::_projectiles.size(); i++) {
-
-    //     export_sprite_data(GameController::_projectiles[i].position, GameController::_projectiles[i].sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
-    // }
-    
-    // for(size_t i = 0; i < GameController::_projectiles.size(); i++) {
-    //     auto &projectile = GameController::_projectiles[i];
-    //     export_sprite_data(projectile.position, projectile.sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
-    // }
-
-    export_entities(GameController::_projectile_missed, sprite_data_buffer, sprite_sheets, sprite_count);
-    // for(size_t i = 0; i < GameController::_projectile_missed.size(); i++) {
-    //     auto &projectile = GameController::_projectile_missed[i];
-    //     export_sprite_data(projectile.position, projectile.sprite, sprite_data_buffer[sprite_count++], sprite_sheets);
-    // }
+    export_entities(BattleController::_motherships, sprite_data_buffer, sprite_sheets, sprite_count);
+    export_entities(BattleController::_fighter_ships, sprite_data_buffer, sprite_sheets, sprite_count);
+    export_entities(BattleController::_projectiles, sprite_data_buffer, sprite_sheets, sprite_count);
+    export_entities(BattleController::_projectile_missed, sprite_data_buffer, sprite_sheets, sprite_count);
     
     std::sort(sprite_data_buffer, sprite_data_buffer + sprite_count);
 
@@ -56,7 +34,7 @@ void render_export(RenderBuffer &render_buffer) {
 
     Services::ui().frame();
     
-    for(auto &ship : GameController::_fighter_ships) {
+    for(auto &ship : BattleController::_fighter_ships) {
         auto pos = ship.position.value;
         TextElement t;
         t.color = Colors::white;
@@ -65,7 +43,7 @@ void render_export(RenderBuffer &render_buffer) {
         Services::ui().add_immediate_element(t);
     }
 
-    for(auto &ship : GameController::_motherships) {
+    for(auto &ship : BattleController::_motherships) {
         auto pos = ship.position.value;
         TextElement t;
         t.color = Colors::white;
@@ -74,12 +52,12 @@ void render_export(RenderBuffer &render_buffer) {
         Services::ui().add_immediate_element(t);
     }
 
-    for(auto &ship : GameController::_motherships) {
+    for(auto &ship : BattleController::_motherships) {
         if(ship.faction.faction == PLAYER_FACTION) {
             int i = 0;
             for(auto weapon_id : ship.weapons.ids()) {
                 auto weapon = ship.weapons.get_weapon(weapon_id);
-                auto reload_timer = ship.weapons.get_reload_timer(weapon_id);
+                auto reload_timer = ship.weapons.get_timer(weapon_id);
                 TextElement t;
                 t.color = reload_timer < weapon.reload_time ? Colors::red : Colors::green;
                 t.align = UIAlign::Left;

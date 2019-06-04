@@ -194,7 +194,7 @@ struct MapNavigation {
         camera_set_speed(0.8f);
     }
 
-    void node_click(Node &n) {
+    void node_interact_handler(Node &n) {
         Point p;
         Input::mouse_current(p);
         if(Intersects::circle_contains_point(n.render_position.to_vector2(), (float)n.radius, p.to_vector2())) {
@@ -289,7 +289,7 @@ struct MapNavigation {
                 n.maze_pos.x = c;
                 n.maze_pos.y = r;
                 
-                node_click(n);
+                node_interact_handler(n);
 
                 auto cell = maze->cell(c, r);
                 
@@ -400,7 +400,6 @@ void MapScene::update() {
     map_navigator.update();
     node_event_manager.update();
 
-    // Particles::update(GameController::particles, Time::delta_time);
     Services::events().emit();
     Services::ui().update();
     
@@ -425,11 +424,10 @@ void MapScene::render() {
     node_event_manager.render();
 
     int population = Services::game_state()->population;
-    std::string population_text = "Population: " + std::to_string(population);
-    draw_text_centered_str((int)(gw / 2), 10, Colors::white, population_text);
+    int resources = Services::game_state()->resources;
+    std::string info_text = "Population: " + std::to_string(population) + " |  Resources: " + std::to_string(resources);
+    draw_text_centered_str((int)(gw / 2), 10, Colors::white, info_text);
 
-    draw_text_str(10, (int)(gh - 10), Colors::white, "Select a node to continue..");
-    //Particles::render_circles_filled(GameController::particles);
 	Services::ui().render();
     renderer_draw_render_target_camera();
 	renderer_flip();

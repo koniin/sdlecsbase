@@ -8,9 +8,9 @@ namespace GInput {
         Start = 0,
         Cancel = 1,
         Pause = 2,
-        Fire_1 = 3,
-        Fire_2 = 4,
-        Fire_3 = 5,
+        Use_1 = 3,
+        Use_2 = 4,
+        Use_3 = 5,
         ACTION_COUNT
     };
 
@@ -42,12 +42,12 @@ namespace GInput {
             || Input::key_pressed(input_map[action]);
     }
 
-    inline int pressed_weapon_id() {
-        if(pressed(GInput::Action::Fire_1)) {
+    inline int pressed_id() {
+        if(pressed(GInput::Action::Use_1)) {
             return 0;
-        } else if(pressed(GInput::Action::Fire_2)) {
+        } else if(pressed(GInput::Action::Use_2)) {
             return 1;
-        } else if(pressed(GInput::Action::Fire_3)) {
+        } else if(pressed(GInput::Action::Use_3)) {
             return 2;
         }
 
