@@ -28,7 +28,8 @@ void GameState::new_game() {
     mothership.sprite_base = "mother1";
     
     
-    WeaponConfig w;
+    AbilityConfig w;
+    w.type = AbilityConfig::IsWeapon;
     
     // Initialise with base
     w.weapon = GLOBAL_BASE_WEAPON;
@@ -52,7 +53,13 @@ void GameState::new_game() {
     // w.weapon.projectile_speed_increase = 1.031f;
     // w.weapon.projectile_count = 8;
     
-    mothership.weapons.push_back(w);
+    mothership.abilities.push_back(w);
+
+    AbilityConfig a;
+    a.type = AbilityConfig::IsAbility;
+    a.abilityTest = 666;
+
+    mothership.abilities.push_back(a);
 
     population = mothership.population_max / 4;
     resources = 30;

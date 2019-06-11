@@ -25,7 +25,8 @@ namespace BattleController {
     std::vector<FighterShip> _fighter_ships;
     std::vector<Projectile> _projectiles;
     std::vector<ProjectileMiss> _projectile_missed;
-    
+
+
     Particles::ParticleContainer particles;
     struct ParticleConfiguration {
         Particles::Emitter explosion_emitter;
@@ -35,6 +36,7 @@ namespace BattleController {
     } particle_config;
     
     std::vector<ProjectileSpawn> _projectile_spawns;
+    std::vector<std::unique_ptr<Effect>> _active_effects;
 
     CollisionPairs collision_pairs;
 
@@ -195,6 +197,32 @@ namespace BattleController {
         }
     }
 
+    std::vector<Effect> _effects;
+
+    template<typename First, typename Second>
+    void system_effects(First &first, Second &second) {
+        for(auto &effect : _effects) {
+            effect.tick_timer += Time::delta_time;
+            effect.ttl_timer += Time::delta_time;
+            if(effect.tick_timer >= effect.tick) {
+                for(auto &entity : first) {
+                    if(effect.target_faction == ALL_FACTIONS || effect.target_faction == entity.faction.faction) {
+                        Engine::logn("Apply effect!");
+                        // entity.defense.apply(effect);
+                        // entity.abilities.apply(effect);   
+                    }     
+                }
+                for(auto &entity : second) {
+                    if(effect.target_faction == ALL_FACTIONS || effect.target_faction == entity.faction.faction) {
+                        Engine::logn("Apply effect!");
+                        // entity.defense.apply(effect);
+                        // entity.abilities.apply(effect);   
+                    }     
+                }
+            }    
+        }
+    }
+
     void update() {
         Particles::update(particles, Time::delta_time);
 
@@ -225,6 +253,8 @@ namespace BattleController {
         system_animation(_fighter_ships);
         system_animation(_motherships);
         
+        system_effects(_fighter_ships, _motherships);
+
         system_destroy_explode_entities(_fighter_ships);
         system_destroy_explode_entities(_motherships);
         

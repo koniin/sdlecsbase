@@ -1,4 +1,4 @@
-#include "weapons.h"
+#include "abilities.h"
 
 Weapon GLOBAL_BASE_WEAPON = {
     "GLOBAL_BASE", // std::string name = "Basic weapon"; // (Blaster MK2 etc)

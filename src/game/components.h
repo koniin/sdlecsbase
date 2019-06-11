@@ -3,7 +3,7 @@
 
 #include "engine.h"
 #include "renderer.h"
-#include "weapons.h"
+#include "abilities.h"
 
 // Should be components for the engine/renderer really
 // Could be nice to have a base component library 
@@ -188,6 +188,7 @@ struct CollisionData {
 // Game specific components
 // ========
 
+const int ALL_FACTIONS = 999;
 const int PLAYER_FACTION = 100;
 const int ENEMY_FACTION = 200;
 struct FactionComponent {
@@ -238,6 +239,8 @@ struct MotherShip {
     LifeTime life_time;
     MotherShip(ECS::Entity e) : entity(e) {}
 
+    std::vector<Effect> effects;
+        
     CollisionData collision;
     FactionComponent faction;
     MultiAbilityComponent abilities;
@@ -250,6 +253,8 @@ struct FighterShip {
     SpriteComponent sprite;
     LifeTime life_time;
     FighterShip(ECS::Entity e) : entity(e) {}
+
+    std::vector<Effect> effects;
 
     CollisionData collision;
     FactionComponent faction;

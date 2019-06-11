@@ -2,7 +2,7 @@
 #define GAME_STATE_H
 
 #include "engine.h"
-#include "weapons.h"
+#include "abilities.h"
 #include "maze.h"
 
 struct DefenseConfig {
@@ -16,14 +16,18 @@ struct WeaponConfig {
 };
 
 struct AbilityConfig {
+    enum { IsAbility, IsWeapon } type;
 
+    Weapon weapon;
+    short targeting;
+
+    int abilityTest;
 };
 
 struct MothershipConfig {
     int population_max;
     std::string sprite_base;
     DefenseConfig defense;
-    std::vector<WeaponConfig> weapons;
     std::vector<AbilityConfig> abilities;
 };
 

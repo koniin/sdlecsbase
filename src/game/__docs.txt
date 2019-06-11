@@ -7,7 +7,11 @@
 		  -> the starting point should be small and simple 
 		 
 			- First mothership ability -> shield recharge boost (x seconds increases shield recharge for all ships)
-				
+				- create ability and it's effect (show in UI)
+				- use ability
+				- apply the effect when necessary
+				- remove the effect if ttl_timer > ttl
+
 			- make the first reward that you get (after battle)
 				- that reward can be spent directly to buy something in that UI (next point)
 			

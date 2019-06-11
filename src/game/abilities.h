@@ -1,5 +1,5 @@
-#ifndef WEAPONS_H
-#define WEAPONS_H
+#ifndef ABILITIES_H
+#define ABILITIES_H
 
 #include "engine.h"
 
@@ -357,17 +357,63 @@ struct WeaponComponent {
     }
 };
 
+struct Effect {
+    int target_faction = 0;
+    float tick;
+    float tick_timer;
+    float ttl_timer;
+    float ttl;
+
+    float shield_recharge_amount = 0.0f;
+};
+
+struct Ability {
+    float reload_time = 2.0f;
+    std::string name = "Test";
+};
+
+struct AbilityComponent {
+    Ability ability;
+
+    Ability &get_ability() {
+        return ability;
+    }
+
+    void use(int faction, Vector2 position) {
+        Engine::logn("Ability use! : %d", faction);
+    }
+};
+
 struct MultiAbilityComponent {
     private:
-    std::vector<WeaponComponent> _weapons;
+    struct TypeWrapper {
+        enum { AbilityType, WeaponType } type;
+        AbilityComponent a;
+        WeaponComponent w;
+    };
+
+    std::vector<TypeWrapper> _abilities;
     std::vector<bool> _manual_control;
     std::vector<float> _reload_timer;
     std::vector<int> _ids;
-    
+
     public:
     void add(WeaponComponent wc, bool manual = false) {
-        _ids.push_back(_weapons.size());
-        _weapons.push_back(wc);
+        _ids.push_back(_abilities.size());
+        TypeWrapper tw;
+        tw.w = wc;
+        tw.type = TypeWrapper::WeaponType;
+        _abilities.push_back(tw);
+        _reload_timer.push_back(0.f);
+        _manual_control.push_back(manual);
+    }
+
+    void add(AbilityComponent ac, bool manual = false) {
+        _ids.push_back(_abilities.size());
+        TypeWrapper tw;
+        tw.a = ac;
+        tw.type = TypeWrapper::AbilityType;
+        _abilities.push_back(tw);
         _reload_timer.push_back(0.f);
         _manual_control.push_back(manual);
     }
@@ -387,11 +433,21 @@ struct MultiAbilityComponent {
     }
 
     float get_cooldown(int id) {
-        return _weapons[id].get_weapon().reload_time;
+        auto &ability = _abilities[id];
+        if(ability.type == TypeWrapper::AbilityType) {
+            return _abilities[id].a.get_ability().reload_time;
+        } else {
+            return _abilities[id].w.get_weapon().reload_time;
+        }
     }
 
     std::string get_name(int id) {
-        return _weapons[id].get_weapon().name;
+        auto &ability = _abilities[id];
+        if(ability.type == TypeWrapper::AbilityType) {
+            return _abilities[id].a.get_ability().name;
+        } else {
+            return _abilities[id].w.get_weapon().name;
+        }
     }
 
     float get_timer(int id) {
@@ -400,16 +456,32 @@ struct MultiAbilityComponent {
 
     bool can_use(int id) {
         size_t index = id;
-        if(index < 0 || index >= _weapons.size()) {
+        if(index < 0 || index >= _abilities.size()) {
             return false;
         }
-        return _reload_timer[index] > _weapons[index].get_weapon().reload_time;
+
+        float reload_time = 0.0f;
+        auto &ability = _abilities[id];
+        if(ability.type == TypeWrapper::AbilityType) {
+            reload_time = _abilities[id].a.get_ability().reload_time;
+        } else {
+            reload_time = _abilities[id].w.get_weapon().reload_time;
+        }
+
+        return _reload_timer[index] > reload_time;
     }
 
     void use(int id, int faction, Vector2 position, std::vector<ProjectileSpawn> &projectile_spawns) {
         size_t index = id;
-         _weapons[index].make_spawns(faction, position, projectile_spawns);    
-         _reload_timer[index] = 0.0f;
+
+        auto &ability = _abilities[id];
+        if(ability.type == TypeWrapper::AbilityType) {
+            _abilities[id].a.use(faction, position);
+        } else {
+            _abilities[id].w.make_spawns(faction, position, projectile_spawns);
+        }
+
+        _reload_timer[index] = 0.0f;
     }
 };
 

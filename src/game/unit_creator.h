@@ -87,13 +87,20 @@ namespace UnitCreator {
         ship.position = position;
         ship.defense = DefenseComponent(mothership.defense.hp, mothership.defense.shield);
 
-        for(auto &w : mothership.weapons) {
-            WeaponComponent weaponComponent = WeaponComponent(w.weapon,
-                w.weapon.name, 
-                w.targeting == 1 ? _random_multi_targeter : _random_targeter, 
-                w.weapon.projectile_type);
-            
-            ship.abilities.add(weaponComponent, true);
+        for(auto &a : mothership.abilities) {
+            if(a.type == AbilityConfig::IsAbility) {
+                AbilityComponent ac;
+                ac.ability.name = "Ability " + std::to_string(a.abilityTest);
+
+                ship.abilities.add(ac, true);
+            } else {
+                WeaponComponent weaponComponent = WeaponComponent(a.weapon,
+                    a.weapon.name, 
+                    a.targeting == 1 ? _random_multi_targeter : _random_targeter, 
+                    a.weapon.projectile_type);
+                
+                ship.abilities.add(weaponComponent, true);
+            }
         }
 
         auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
