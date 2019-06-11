@@ -1,0 +1,56 @@
+
+	fighter - fire weapon -> en lista av projectile spawns
+		
+		- buffs 
+			- global buffs
+			- local buffs
+		
+		1. skapa projectilespawn och dess Payload ( DealDamage event )
+		2. burst & spread
+			- burst -> delayed
+			- spread -> simultaneous
+		
+		
+		
+	projectile - deal damage
+			en lista av properties?
+			Event: TakeDamage
+			"Amount"=12
+			"Type"="slashing,fire,ice"
+			
+	fighter - take damage
+			
+			projectile_speed
+			projectile_type
+			accuracy
+			damage
+			radius
+			
+			
+	1. Make the weapon (set modifiers in create_fighter/mothership method)
+	2. WeaponComponent make_spawns is where the ProjectileSpawn is created
+		- so heres the logic for queueing projectile spawns
+		- handles timing of firing and number of projectiles
+		- handles targeting of projectiles
+	3. spawn projectile system updates the timers and calls
+	4. GameController::spawn_projectile
+		- adds the actual projectile to the list of projectiles
+		- position, velocity, payload etc
+	5. system_collisions checks if any collision between objects (circle to aabb)
+	5. on collision there is collision_handle (GameController)
+		- deletes the projectile etc
+		- handles the hit on the target
+	6. projectile_deal_damage 
+		- handles the hit 
+		- uses the payload on the target
+	
+	7.  display_export renders the projectile
+	
+	if we spawn a projectile with no velocity and last position to user position
+	and current to where the target is with radius
+	it will be picked up in collision detection
+	
+	then we need to render line differently in export
+	
+	
+	

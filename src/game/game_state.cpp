@@ -65,27 +65,6 @@ void GameState::new_game() {
     resources = 30;
     fighters_max = 8;
 
-    
-// if(w_choice == 0) {
-//     weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Missiles", _random_targeter, ProjectileType::Missile);
-//     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.4f));
-//     weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Damage, 1));
-//     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -400.0f));
-//     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeedIncrease, 1.051f));
-//     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeedMax, 300.5f));
-//     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 2.0f));
-// } else if(w_choice == 1) {
-//     weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Lazer Beam", _random_targeter, ProjectileType::GreenLazerBeam);
-//     // Beams dont miss
-//     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.5f));
-//     weaponComponent.add(ValueModifier<int>::make("temp", WeaponProperty::Damage, 2));
-//     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ProjectileSpeed, -500.0f));
-//     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::ReloadTime, 4.0f));
-// } else {
-//     weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Lazer Gun", _random_targeter, ProjectileType::RedLazerBullet);
-//     weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.3f));        
-// }
-
     for(int i = 0; i < 2; i++) {
         FighterConfig f;
         f.defense = { 10, 5 };

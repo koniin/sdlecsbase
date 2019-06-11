@@ -91,7 +91,8 @@ namespace UnitCreator {
             if(a.type == AbilityConfig::IsAbility) {
                 AbilityComponent ac;
                 ac.ability.name = "Ability " + std::to_string(a.abilityTest);
-
+                ac.ability.faction = PLAYER_FACTION;
+                ac.ability.reload_time = 6.0f;
                 ship.abilities.add(ac, true);
             } else {
                 WeaponComponent weaponComponent = WeaponComponent(a.weapon,
@@ -218,13 +219,10 @@ namespace UnitCreator {
             s.flip = 1;
             ship.sprite = s;
 
-            WeaponComponent weaponComponent = WeaponComponent(GLOBAL_BASE_WEAPON, "Enemy Gun", _random_targeter, ProjectileType::RedLazerBullet);
-            weaponComponent.add(ValueModifier<float>::make("temp", WeaponProperty::Accuracy, 0.3f));
+            auto weap = GLOBAL_BASE_WEAPON;
+            weap.accuracy += 0.3f;
+            WeaponComponent weaponComponent = WeaponComponent(weap, "Enemy Gun", _random_targeter, ProjectileType::RedLazerBullet);
             
-            // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<ProjectileType>("temp", WeaponProperty::Projectile_Type, )));
-            // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<int>("temp", WeaponProperty::Projectile_Count, 0)));
-            // weaponComponent.add_modifier(std::make_unique<WeaponModifier>(ValueModifier<float>("temp", WeaponProperty::BurstDelay, 0.1f)));
-
             ship.abilities.add(weaponComponent);
             
             auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");

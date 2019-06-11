@@ -25,7 +25,7 @@ namespace BattleController {
     std::vector<FighterShip> _fighter_ships;
     std::vector<Projectile> _projectiles;
     std::vector<ProjectileMiss> _projectile_missed;
-
+    std::vector<Effect> _effects;
 
     Particles::ParticleContainer particles;
     struct ParticleConfiguration {
@@ -36,7 +36,6 @@ namespace BattleController {
     } particle_config;
     
     std::vector<ProjectileSpawn> _projectile_spawns;
-    std::vector<std::unique_ptr<Effect>> _active_effects;
 
     CollisionPairs collision_pairs;
 
@@ -128,11 +127,11 @@ namespace BattleController {
                 if(entity.abilities.is_manual(id)) {
                     int ability_id = GInput::pressed_id();
                     if(entity.abilities.can_use(ability_id)) {
-                        entity.abilities.use(ability_id, entity.faction.faction, entity.position.value, _projectile_spawns);
+                        entity.abilities.use(ability_id, entity.faction.faction, entity.position.value, _projectile_spawns, _effects);
                     }
                 } else {
                     if(entity.abilities.can_use(id)) {
-                        entity.abilities.use(id, entity.faction.faction, entity.position.value, _projectile_spawns);
+                        entity.abilities.use(id, entity.faction.faction, entity.position.value, _projectile_spawns, _effects);
                     }
                 }
             }
@@ -197,8 +196,6 @@ namespace BattleController {
         }
     }
 
-    std::vector<Effect> _effects;
-
     template<typename First, typename Second>
     void system_effects(First &first, Second &second) {
         for(auto &effect : _effects) {
@@ -207,18 +204,18 @@ namespace BattleController {
             if(effect.tick_timer >= effect.tick) {
                 for(auto &entity : first) {
                     if(effect.target_faction == ALL_FACTIONS || effect.target_faction == entity.faction.faction) {
-                        Engine::logn("Apply effect!");
-                        // entity.defense.apply(effect);
-                        // entity.abilities.apply(effect);   
+                        entity.defense.apply(effect);
+                        entity.abilities.apply(effect);
                     }     
                 }
                 for(auto &entity : second) {
                     if(effect.target_faction == ALL_FACTIONS || effect.target_faction == entity.faction.faction) {
-                        Engine::logn("Apply effect!");
-                        // entity.defense.apply(effect);
-                        // entity.abilities.apply(effect);   
+                        entity.defense.apply(effect);
+                        entity.abilities.apply(effect);
                     }     
                 }
+
+                effect.tick_timer = 0.0f;
             }    
         }
     }
@@ -284,6 +281,9 @@ namespace BattleController {
         _projectile_spawns.erase(std::remove_if(_projectile_spawns.begin(), _projectile_spawns.end(), 
             [=](const ProjectileSpawn &projectile_spawn) -> bool { return projectile_spawn.timer >= projectile_spawn.delay; }), _projectile_spawns.end());
         
+        // Remove expired effects
+        _effects.erase(std::remove_if(_effects.begin(), _effects.end(), 
+            [=](const Effect &effect) -> bool { return effect.ttl_timer >= effect.ttl; }), _effects.end());
 
         // Handle game over and battle win !
         auto player_count = 0;

@@ -7,17 +7,16 @@
 		  -> the starting point should be small and simple 
 		 
 			- First mothership ability -> shield recharge boost (x seconds increases shield recharge for all ships)
-				- create ability and it's effect (show in UI)
-				- use ability
-				- apply the effect when necessary
-				- remove the effect if ttl_timer > ttl
+				[X] create ability and it's effect (show in UI) 
+				[ ] use ability -> add effect to effect list
+				[ ] apply the effect to targets
+				[ ] remove the effect if ttl_timer > ttl
 
 			- make the first reward that you get (after battle)
 				- that reward can be spent directly to buy something in that UI (next point)
 			
-			- MORE (UI for upgrades/crafting etc)
-
-			- Focus on Fighters first (building them)
+			- MORE (UI for upgrades/ship creation etc)
+				- Focus on Fighters first (building them)
 
 		Core loop
 		- fight the battle -> get a reward

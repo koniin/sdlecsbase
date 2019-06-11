@@ -61,6 +61,22 @@ struct Targeting {
     virtual bool get_targets(const int &exclude_faction, const size_t &max_count, Targets &targets) = 0;
 };
 
+struct Effect {
+    int target_faction = 0;
+    float tick;
+    float tick_timer;
+    float ttl;
+    float ttl_timer;
+
+    Effect(int faction_to_apply, float frequency_seconds, float time_to_live) 
+        : target_faction(faction_to_apply), tick(frequency_seconds), ttl(time_to_live) {
+        tick_timer = 0.0f;
+        ttl_timer = 0.0f;
+    }
+
+    int shield_recharge_amount = 0;
+};
+
 struct Weapon {
     std::string name;
     float reload_time;
@@ -131,68 +147,6 @@ struct WeaponMultiModifier : WeaponModifier {
         weapon.projectile_speed_max *= _w.projectile_speed_max;
     }
 };  
-
-template<typename T>
-struct ValueModifier : WeaponModifier {
-    std::string _name;
-    T _value;
-    WeaponProperty _property;
-    int type = 0;
-    ValueModifier(std::string name, WeaponProperty property, T value) {
-        _name = name;
-        _property = property;
-        _value = value;
-    }
-
-    static std::shared_ptr<WeaponModifier> make(std::string name, WeaponProperty property, T value) {
-        return std::make_shared<ValueModifier<T>>(ValueModifier<T>(name, property, value));
-    }
-
-    void modify(Weapon &weapon) override {
-        switch(_property) {
-            case WeaponProperty::Accuracy: {
-                weapon.accuracy += _value;
-                return;
-            }
-            case WeaponProperty::ReloadTime: {
-                weapon.reload_time += _value;
-                return;
-            }
-            case WeaponProperty::Damage: {
-                weapon.damage += (int)_value;
-                return;
-            }
-            case WeaponProperty::Projectile_Type: {
-                weapon.projectile_type = (ProjectileType)((int)(_value));
-                return;
-            }
-            case WeaponProperty::Projectile_Count: {
-                weapon.projectile_count += (int)_value;
-                return;
-            }
-            case WeaponProperty::BurstDelay: {
-                weapon.burst_delay += _value;
-                return;
-            }
-            case WeaponProperty::Radius: {
-                weapon.radius += (int)_value;
-                return;
-            }
-            case WeaponProperty::ProjectileSpeed: {
-                weapon.projectile_speed += _value;
-                return;
-            }
-            case WeaponProperty::ProjectileSpeedIncrease: {
-                weapon.projectile_speed_increase += _value;
-                return;
-            }
-            case WeaponProperty::ProjectileSpeedMax: {
-                weapon.projectile_speed_max += _value;
-                return;
-            }
-        }
-    }
-};
 
 inline std::string weapon_projectile_sprite(ProjectileType type) {
     switch(type) {
@@ -313,7 +267,7 @@ struct WeaponComponent {
         return w;
     }
 
-    void make_spawns(const int &faction, const Vector2 &position, std::vector<ProjectileSpawn> &spawns) {
+    void make_spawns(const int &faction, const Vector2 &position, std::vector<ProjectileSpawn> &projectile_spawns, std::vector<Effect> &effects) {
         Weapon weapon = get_weapon();
 
         ProjectileSpawn spawn;
@@ -343,7 +297,7 @@ struct WeaponComponent {
             spawn.target = next_target.entity;
             spawn.target_position = next_target.position;
             spawn.delay = i * weapon.burst_delay;
-            spawns.push_back(spawn);
+            projectile_spawns.push_back(spawn);
         }
 
         // if(_targeting->get_one_target(faction, target)) {
@@ -357,18 +311,9 @@ struct WeaponComponent {
     }
 };
 
-struct Effect {
-    int target_faction = 0;
-    float tick;
-    float tick_timer;
-    float ttl_timer;
-    float ttl;
-
-    float shield_recharge_amount = 0.0f;
-};
-
 struct Ability {
-    float reload_time = 2.0f;
+    int faction;
+    float reload_time = 0.0f;
     std::string name = "Test";
 };
 
@@ -379,8 +324,14 @@ struct AbilityComponent {
         return ability;
     }
 
-    void use(int faction, Vector2 position) {
-        Engine::logn("Ability use! : %d", faction);
+    void use(int faction, Vector2 position, std::vector<ProjectileSpawn> &projectile_spawns, std::vector<Effect> &effects) {
+        Engine::logn("Ability use: %s - %d", ability.name.c_str(), faction);
+
+        Effect e = Effect(ability.faction, 2.0f, 4.0f);
+        
+        e.shield_recharge_amount = 2;
+
+        effects.push_back(e);
     }
 };
 
@@ -471,17 +422,21 @@ struct MultiAbilityComponent {
         return _reload_timer[index] > reload_time;
     }
 
-    void use(int id, int faction, Vector2 position, std::vector<ProjectileSpawn> &projectile_spawns) {
+    void use(int id, int faction, Vector2 position, std::vector<ProjectileSpawn> &projectile_spawns, std::vector<Effect> &effects) {
         size_t index = id;
 
         auto &ability = _abilities[id];
         if(ability.type == TypeWrapper::AbilityType) {
-            _abilities[id].a.use(faction, position);
+            _abilities[id].a.use(faction, position, projectile_spawns, effects);
         } else {
-            _abilities[id].w.make_spawns(faction, position, projectile_spawns);
+            _abilities[id].w.make_spawns(faction, position, projectile_spawns, effects);
         }
 
         _reload_timer[index] = 0.0f;
+    }
+
+    void apply(const Effect &e) {
+        // Engine::logn("Multicomp = Apply effect! = %d", e.shield_recharge_amount);
     }
 };
 
@@ -526,6 +481,11 @@ struct DefenseComponent {
         }
     }
     
+    void apply(const Effect &e) {
+        Engine::logn("Apply effect! = %d", e.shield_recharge_amount);
+        shield = Math::clamp_i(shield + e.shield_recharge_amount, 0, shield_max);
+    }
+
     void shield_recharge(float dt) {
         shield_timer += dt;
         if(shield_timer >= shield_recharge_rate) {
