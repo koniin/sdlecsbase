@@ -136,7 +136,7 @@ struct NodeEventManager {
         }
     }
 
-    void test(const Node &n) {
+    void start_event(const Node &n) {
         if(n.type == 1) {
             {
                 EventScreen e;
@@ -195,6 +195,9 @@ struct MapNavigation {
     }
 
     void node_interact_handler(Node &n) {
+        if(node_event_manager.screens.size() > 0)
+            return;
+
         Point p;
         Input::mouse_current(p);
         if(Intersects::circle_contains_point(n.render_position.to_vector2(), (float)n.radius, p.to_vector2())) {
@@ -210,7 +213,7 @@ struct MapNavigation {
                     if(!Services::game_state()->is_visited(next_node)) {
                         Services::game_state()->set_current_node(next_node);
                         
-                        node_event_manager.test(n);
+                        node_event_manager.start_event(n);
                     }
                 }
             } else {
