@@ -1,4 +1,5 @@
 #include "node_event_manager.h"
+#include "services.h"
 
 void NodeEventManager::clear() {
     screens.clear();
@@ -55,8 +56,12 @@ void NodeEventManager::start_event(const Node &n) {
             e.options.push_back( { "Continue", [&]() { Scenes::set_scene("level"); next_screen(); } } );
             screens.push_back(e);
             EventScreen e_after_battle;
-            e_after_battle.description = "Yay battle is done!";
-            e_after_battle.options.push_back( { "Continue", [&]() { next_screen(); } } );
+            e_after_battle.description = "Yay battle is done! You got 50 resources, cool eh?";
+            e_after_battle.options.push_back( { "Continue", [&]() { 
+                    Services::game_state()->resources += 50;
+                    next_screen();
+                } 
+            });
             screens.push_back(e_after_battle);
         }
     } else if(n.type == 2) {
