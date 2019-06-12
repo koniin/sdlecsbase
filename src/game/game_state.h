@@ -56,6 +56,7 @@ struct GameState {
 
     MothershipConfig mothership;
     std::vector<FighterConfig> fighters;
+    std::vector<FighterConfig> fighter_blueprints;
 
     int population;
     int resources;

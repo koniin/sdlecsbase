@@ -3,14 +3,56 @@
  next:
     = Goal:  CORE LOOP
 		
-		 Start with simple 
-		  -> the starting point should be small and simple 
+		 Start with simple (AVOID FEATURE CREEP)
+			- Fighters UI
+				- when to get?
+					- build (adds a new one to the list)
+						- cost => resources & population
+					- what you can build:
+						- blueprint from rewards and events
+					- can only build if slot is open
 
-			- make the first reward that you get (after battle)
-				- that reward can be spent directly to buy something in that UI (next point)
-			
-			- MORE (UI for upgrades/ship creation etc)
-				- Focus on Fighters first (building them)
+				- remove (click to remove)
+
+			TO IMPLEMENT:
+				=> Button for showing Fleet UI
+				=> start with can show anywhere
+					- then we can restrict to when the fleet is docked or whatever
+				=> list of current fighters
+					-> remove "button" on each
+					-> show what it has
+				=> list of buildable fighters
+					-> infinity size?
+					-> show what it has
+
+			- Upgrades are fleet wide
+				- when to get?
+					- research -> costs resources and gives three random choices to select from
+						- cost => resources
+					- only once per node
+
+			TO IMPLEMENT:
+				=> Research UI
+					=> Big button "Research"
+						=> show three outcomes (buttons)
+						=> add to game_state when selected
+
+			Mothership upgrades/new weapons/abilities
+			=> Investigate/Think about it
+
+			Battle improvements
+				- target selection (click one then click the target)
+				- some kind of movement or positioning
+					- like darkest dungeon (order etc)
+					- lanes?
+					- different modifiers by lane?
+					- range for weapons?
+				- weapons that other things than damage
+					- healing (hull/shield regeneration)
+					- disabling effect
+					- limited but powerful?
+					- aoe damage?
+
 
 		Core loop
 		- select node

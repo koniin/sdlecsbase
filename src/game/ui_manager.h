@@ -49,24 +49,28 @@ class UIManager {
 
         struct UIState {
             std::vector<std::shared_ptr<Element>> elements;
+            std::vector<std::shared_ptr<Element>> elements_to_add;
         };
 
         std::string _current_state = "___default_ui_state___";
 
-        std::unordered_map<std::string, std::unique_ptr<UIState>> _states;
+        std::unordered_map<std::string, std::shared_ptr<UIState>> _states;
         std::vector<std::shared_ptr<Element>> _immediate_elements;
 
     public:
         UIManager() {
-            _states[_current_state] = std::make_unique<UIState>();
+            _states[_current_state] = std::make_shared<UIState>();
         }
 
         void frame();
         void update();
         void render();
         void show_text_toast(Vector2 position, std::string text, float ttl);
-        void add_element(TextElement t);
-        void add_element(Button b);
+        
+        template<typename TElement>
+        void add_element(TElement e) {
+            _states[_current_state]->elements_to_add.push_back(std::make_shared<TElement>(e));
+        }
 
         void add_immediate_element(TextElement t);
         void add_immediate_element(Button b);

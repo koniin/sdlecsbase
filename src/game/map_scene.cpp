@@ -5,6 +5,7 @@
 #include "engine.h"
 #include "renderer.h"
 #include "map_node.h"
+#include "fleet_ui.h"
 
 #include <chrono>
 
@@ -288,6 +289,19 @@ void MapScene::initialize() {
     map_navigator.init();
 }
 
+void list_configs() {
+    int x = 200;
+    int spacing = 40;
+    int y_start = (gh / 2) - ((Services::game_state()->fighters.size() * spacing) / 2);
+    int y = 0;
+    for(auto &f : Services::game_state()->fighters) {
+        FighterUIElement fe = FighterUIElement(x, y_start + y * spacing, "combat_sprites", f.sprite_base, f.weapons[0].weapon.name);
+
+        Services::ui()->add_element(fe);
+        y++;
+    }
+}
+
 void MapScene::begin() {
 	Engine::logn("[MAP] Begin");
     Engine::logn("seed: %d",  Services::game_state()->seed);
@@ -295,6 +309,18 @@ void MapScene::begin() {
     //not_random_generator = std::mt19937(Services::game_state()->seed);
 
     map_navigator.begin();
+
+	Button fleet_button = Button(200, gh - 20, "Fleet");
+    fleet_button.on_click = [&]() { 
+        // => list of current fighters
+            list_configs();
+					// -> remove "button" on each
+					// -> show what it has
+		// => list of buildable fighters
+					// -> infinity size?
+					// -> show what it has
+    };
+	Services::ui()->add_element(fleet_button);
 }
 
 void MapScene::end() {

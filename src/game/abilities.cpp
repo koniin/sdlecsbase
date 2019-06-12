@@ -2,10 +2,10 @@
 
 Weapon GLOBAL_BASE_WEAPON = {
     "GLOBAL_BASE", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
-    1.0f, //float reload_time = 1.0f; // in seconds (0.2f)
+    0.5f, //float reload_time = 1.0f; // in seconds (0.2f)
     1, // int damage = 1;
-    0.5f, // float accuracy = 0.5f;
-    ProjectileType::Bullet, // ProjectileType projectile_type; // name of sprite for projectile
+    0.8f, // float accuracy = 0.5f;
+    ProjectileType::RedLazerBullet, // ProjectileType projectile_type; // name of sprite for projectile
     1, // int projectile_count = 1;
     0.0f, // float burst_delay = 0.0f;
     6, // int radius = 8;

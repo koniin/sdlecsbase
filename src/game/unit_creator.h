@@ -220,8 +220,7 @@ namespace UnitCreator {
             ship.sprite = s;
 
             auto weap = GLOBAL_BASE_WEAPON;
-            weap.accuracy += 0.3f;
-            WeaponComponent weaponComponent = WeaponComponent(weap, "Enemy Gun", _random_targeter, ProjectileType::RedLazerBullet);
+            WeaponComponent weaponComponent = WeaponComponent(weap, weap.name, _random_targeter, weap.projectile_type);
             
             ship.abilities.add(weaponComponent);
             

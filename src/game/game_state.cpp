@@ -74,10 +74,7 @@ void GameState::new_game() {
         wc.targeting = 2;
 
         wc.weapon = GLOBAL_BASE_WEAPON;
-        wc.weapon.name = "Lazer Gun";
-        wc.weapon.projectile_type = ProjectileType::RedLazerBullet;
-        wc.weapon.accuracy = 0.8f;
-
+        
         f.weapons.push_back(wc);
 
         fighters.push_back(f);
