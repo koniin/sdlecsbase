@@ -47,10 +47,20 @@ class UIManager {
         bool is_game_over = false;
         bool is_battle_over = false;
 
-        std::vector<std::shared_ptr<Element>> _elements;
+        struct UIState {
+            std::vector<std::shared_ptr<Element>> elements;
+        };
+
+        std::string _current_state = "___default_ui_state___";
+
+        std::unordered_map<std::string, std::unique_ptr<UIState>> _states;
         std::vector<std::shared_ptr<Element>> _immediate_elements;
 
     public:
+        UIManager() {
+            _states[_current_state] = std::make_unique<UIState>();
+        }
+
         void frame();
         void update();
         void render();

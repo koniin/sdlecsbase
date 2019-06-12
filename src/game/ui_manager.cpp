@@ -16,7 +16,7 @@ void UIManager::update() {
         return t.timer >= t.ttl;
     }), _toasts.end());
 
-    for(auto t : _elements) {
+    for(auto t : _states[_current_state]->elements) {
         t->update();
     }
     for(auto t : _immediate_elements) {
@@ -28,7 +28,7 @@ void UIManager::render() {
     for(auto t : _toasts) {
         draw_text_centered_str((int)t.pos.x, (int)t.pos.y, Colors::white, t.text);
     }
-    for(auto t : _elements) {
+    for(auto t : _states[_current_state]->elements) {
         t->render();
     }
     for(auto t : _immediate_elements) {
@@ -46,11 +46,11 @@ void UIManager::show_text_toast(Vector2 position, std::string text, float ttl) {
 }
 
 void UIManager::add_element(TextElement t) {
-    _elements.push_back(std::make_shared<TextElement>(t));
+    _states[_current_state]->elements.push_back(std::make_shared<TextElement>(t));
 }
 
 void UIManager::add_element(Button b) {
-    _elements.push_back(std::make_shared<Button>(b));
+    _states[_current_state]->elements.push_back(std::make_shared<Button>(b));
 }
 
 void UIManager::add_immediate_element(TextElement t) {
@@ -62,6 +62,6 @@ void UIManager::add_immediate_element(Button b) {
 }
 
 void UIManager::clear() {
-    _elements.clear();
+    _states[_current_state]->elements.clear();
     _immediate_elements.clear();
 }
