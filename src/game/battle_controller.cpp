@@ -156,7 +156,7 @@ namespace BattleController {
         // Evasion etc?
         float chance = RNG::zero_to_one();
         if(!weapon_is_beam(projectile.payload.projectile_type) && projectile.payload.accuracy <= chance) {
-            Services::ui().show_text_toast(projectile.position.value, "MISS!", 1.0f);
+            Services::ui()->show_text_toast(projectile.position.value, "MISS!", 1.0f);
             _projectile_missed.push_back(ProjectileMiss(entity_manager.create(), projectile));
             return;
         }
@@ -298,9 +298,9 @@ namespace BattleController {
         }
         
         if(_player_count_last > 0 && player_count == 0) {
-            Services::events().push(BattleOverEvent { ENEMY_FACTION });
+            Services::events()->push(BattleOverEvent { ENEMY_FACTION });
         } else if(_enemy_count_last > 0 && enemy_count == 0) {
-            Services::events().push(BattleOverEvent { PLAYER_FACTION });
+            Services::events()->push(BattleOverEvent { PLAYER_FACTION });
         }
 
         _player_count_last = player_count;

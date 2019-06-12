@@ -11,10 +11,10 @@
 namespace Services {
     void init();
     
-    UIManager &ui();
-    EventHub &events();
+    std::shared_ptr<UIManager> ui();
+    std::shared_ptr<EventHub> events();
     std::shared_ptr<GameState> game_state();
-    NodeEventManager &node_event_manager();
+    std::shared_ptr<NodeEventManager> node_event_manager();
 }
 
 #endif

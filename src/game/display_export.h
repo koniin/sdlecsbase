@@ -32,7 +32,7 @@ void render_export(RenderBuffer &render_buffer) {
     // Update UI State
     // =================================
 
-    Services::ui().frame();
+    Services::ui()->frame();
     
     for(auto &ship : BattleController::_fighter_ships) {
         auto pos = ship.position.value;
@@ -40,7 +40,7 @@ void render_export(RenderBuffer &render_buffer) {
         t.color = Colors::white;
         t.position = Point((int)pos.x, (int)pos.y - 12);
         t.text = std::to_string(ship.defense.hp) + "/" + std::to_string(ship.defense.shield);
-        Services::ui().add_immediate_element(t);
+        Services::ui()->add_immediate_element(t);
     }
 
     for(auto &ship : BattleController::_motherships) {
@@ -49,7 +49,7 @@ void render_export(RenderBuffer &render_buffer) {
         t.color = Colors::white;
         t.position = Point((int)pos.x, (int)pos.y - 12);
         t.text = std::to_string(ship.defense.hp) + "/" + std::to_string(ship.defense.shield);
-        Services::ui().add_immediate_element(t);
+        Services::ui()->add_immediate_element(t);
     }
 
     for(auto &ship : BattleController::_motherships) {
@@ -65,7 +65,7 @@ void render_export(RenderBuffer &render_buffer) {
                 t.position = Point(10, gh - 60 + i * 15);
                 float reload_time = cooldown - reload_timer;
                 t.text = Text::format("%d. %s (%.2f)", i + 1, name.c_str(), reload_time > 0.f ? reload_time : 0);
-                Services::ui().add_immediate_element(t);
+                Services::ui()->add_immediate_element(t);
                 i++;
             }
         }

@@ -5,8 +5,6 @@
 		
 		 Start with simple 
 		  -> the starting point should be small and simple 
-		 
-			- make map unclickable if active event
 
 			- make the first reward that you get (after battle)
 				- that reward can be spent directly to buy something in that UI (next point)
@@ -15,6 +13,11 @@
 				- Focus on Fighters first (building them)
 
 		Core loop
+		- select node
+		- play event
+		- repeat
+
+
 		- fight the battle -> get a reward
 		- station - buy things with resources (different values for different resources at different places?)
 		- resource node - get resources 

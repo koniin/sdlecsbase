@@ -102,7 +102,7 @@ struct MapNavigation {
     }
 
     void node_interact_handler(Node &n) {
-        if(Services::node_event_manager().screens.size() > 0)
+        if(Services::node_event_manager()->screens.size() > 0)
             return;
 
         Point p;
@@ -120,7 +120,7 @@ struct MapNavigation {
                     if(!Services::game_state()->is_visited(next_node)) {
                         Services::game_state()->set_current_node(next_node);
                         
-                        Services::node_event_manager().start_event(n);
+                        Services::node_event_manager()->start_event(n);
                     }
                 }
             } else {
@@ -308,10 +308,10 @@ void MapScene::update() {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 	
     map_navigator.update();
-    Services::node_event_manager().update();
+    Services::node_event_manager()->update();
 
-    Services::events().emit();
-    Services::ui().update();
+    Services::events()->emit();
+    Services::ui()->update();
     
     // render_export(render_buffer);
 
@@ -331,14 +331,14 @@ void MapScene::render() {
     draw_sprite(Resources::sprite_get("background"), 0, 0);
     
     map_navigator.render();
-    Services::node_event_manager().render();
+    Services::node_event_manager()->render();
 
     int population = Services::game_state()->population;
     int resources = Services::game_state()->resources;
     std::string info_text = "Population: " + std::to_string(population) + " |  Resources: " + std::to_string(resources);
     draw_text_centered_str((int)(gw / 2), 10, Colors::white, info_text);
 
-	Services::ui().render();
+	Services::ui()->render();
     renderer_draw_render_target_camera();
 	renderer_flip();
 }

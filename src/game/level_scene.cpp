@@ -23,7 +23,7 @@ void LevelScene::begin() {
 	Engine::logn("[LEVEL] Begin");
     BattleController::create(Services::game_state());
 
-    Services::events().listen<BattleOverEvent>([](BattleOverEvent e) { 
+    Services::events()->listen<BattleOverEvent>([](BattleOverEvent e) { 
         battle_over = true;
 
         TextElement t, t2;
@@ -40,8 +40,8 @@ void LevelScene::begin() {
         
         t2.text = "Press start to continue...";
 
-        Services::ui().add_element(t);
-        Services::ui().add_element(t2);
+        Services::ui()->add_element(t);
+        Services::ui()->add_element(t2);
     });
 }
 
@@ -49,8 +49,8 @@ void LevelScene::end() {
     Engine::logn("[LEVEL] End");
     BattleController::end(Services::game_state());
 	render_buffer.clear();
-    Services::ui().clear();
-
+    Services::ui()->clear();
+    
     battle_over = false;
 }
 
@@ -59,8 +59,8 @@ void LevelScene::update() {
 	
     BattleController::update();
     Particles::update(BattleController::particles, Time::delta_time);
-    Services::events().emit();
-    Services::ui().update();
+    Services::events()->emit();
+    Services::ui()->update();
     
 	if(battle_over && GInput::pressed(GInput::Action::Start)) {
 		Scenes::set_scene("map");
@@ -94,7 +94,7 @@ void LevelScene::render() {
     
     draw_buffer(render_buffer);
     Particles::render_circles_filled(BattleController::particles);
-	Services::ui().render();
+	Services::ui()->render();
 
     int population = Services::game_state()->population;
     std::string population_text = "Population: " + std::to_string(population);

@@ -1,20 +1,23 @@
 #include "services.h"
 
 namespace Services {
-    UIManager _ui_manager;
-    EventHub _event_hub;
+    std::shared_ptr<UIManager> _ui_manager;
+    std::shared_ptr<EventHub> _event_hub;
     std::shared_ptr<GameState> _game_state;
-    NodeEventManager _node_event_manager;
+    std::shared_ptr<NodeEventManager> _node_event_manager;
 
     void init() {
+        _ui_manager = std::make_shared<UIManager>();
+        _event_hub = std::make_shared<EventHub>();
         _game_state = std::make_shared<GameState>();
+        _node_event_manager = std::make_shared<NodeEventManager>();
     }
 
-    UIManager &ui() {
+    std::shared_ptr<UIManager> ui() {
         return _ui_manager;
     }
 
-    EventHub &events() {
+    std::shared_ptr<EventHub> events() {
         return _event_hub;
     }
 
@@ -22,7 +25,7 @@ namespace Services {
         return _game_state;
     }
     
-    NodeEventManager &node_event_manager() {
+    std::shared_ptr<NodeEventManager> node_event_manager() {
         return _node_event_manager;
     }
 }
