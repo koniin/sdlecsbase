@@ -4,10 +4,9 @@
 #include "components.h"
 #include "engine.h"
 #include "renderer.h"
+#include "map_node.h"
 
 #include <chrono>
-
-std::mt19937 not_random_generator;
 
 float pseudo_rand_zero_to_one(uint32_t x, uint32_t y) {
 	/* mix around the bits in x: */
@@ -76,102 +75,6 @@ Point get_node_displacement(int node_x, int node_y, int seed) {
     return p;
 }
 
-struct EventScreenOption {
-    std::string text;
-    std::function<void(void)> on_action;
-};
-
-struct EventScreen {
-    std::string description;
-    std::vector<EventScreenOption> options;
-};
-
-struct NodeEventManager {
-    std::vector<EventScreen> screens;
-    
-    SDL_Color text_color = Colors::white;
-
-    void next_screen() {
-        // remove first item
-        screens.erase(screens.begin());
-    }
-
-    void update() {
-        if(screens.size() == 0) {
-            return;
-        }
-        auto &scr = screens[0];
-        int i = 0;
-        for(auto &option : scr.options) {
-            if(i == 0 && Input::key_pressed(SDLK_1)) {
-                option.on_action();
-            }
-            if(i == 1 && Input::key_pressed(SDLK_2)) {
-                option.on_action();
-            }
-            if(i == 2 && Input::key_pressed(SDLK_3)) {
-                option.on_action();
-            }
-            if(i == 3 && Input::key_pressed(SDLK_4)) {
-                option.on_action();
-            }
-            i++;
-        }
-    }
-
-    void render() {
-        if(screens.size() == 0) {
-            return;
-        }
-
-        SDL_Color bkg_color = Colors::blue;
-        draw_g_rectangle_filled(150, 100, 340, 160, bkg_color);
-
-        auto &scr = screens[0];
-        draw_text_str(gw / 2 - 100, 120, text_color, scr.description);
-        int i = 1;
-        for(auto &option : scr.options) {
-            draw_text_str(gw / 2 - 100, 120 + i * 20, text_color, option.text);
-            i++;
-        }
-    }
-
-    void start_event(const Node &n) {
-        if(n.type == 1) {
-            {
-                EventScreen e;
-                e.description = "You jumped straight into an ambush!";
-                e.options.push_back( { "Continue", [&]() { Scenes::set_scene("level"); next_screen(); } } );
-                screens.push_back(e);
-                EventScreen e_after_battle;
-                e_after_battle.description = "Yay battle is done!";
-                e_after_battle.options.push_back( { "Continue", [&]() { next_screen(); } } );
-                screens.push_back(e_after_battle);
-            }
-        } else if(n.type == 2) {
-            {
-                EventScreen e;
-                e.description = "Your sensors pick up small fleet in the outskirts of this system...";
-                e.options.push_back( { "Continue", [&]() { next_screen(); } } );
-                screens.push_back(e);
-            }
-            {
-                EventScreen e;
-                e.description = "Do you want to investigate?";
-                e.options.push_back( { "yes", [&]() { Engine::logn("yes"); next_screen(); } } );
-                e.options.push_back( { "no", [&]() { Engine::logn("no"); next_screen(); } } );
-                screens.push_back(e);
-            }
-        } else if(n.type == 3) {
-            Engine::logn("Node type 3 clicked, what to do?");
-        } else {
-            ASSERT_WITH_MSG(false, "get_node: returned non specified node");
-        }
-    }
-};
-
-NodeEventManager node_event_manager;
-
 struct MapNavigation {
     Vector2 camera_pos;
     const int distance_to_next_node = 128;
@@ -199,7 +102,7 @@ struct MapNavigation {
     }
 
     void node_interact_handler(Node &n) {
-        if(node_event_manager.screens.size() > 0)
+        if(Services::node_event_manager().screens.size() > 0)
             return;
 
         Point p;
@@ -217,7 +120,7 @@ struct MapNavigation {
                     if(!Services::game_state()->is_visited(next_node)) {
                         Services::game_state()->set_current_node(next_node);
                         
-                        node_event_manager.start_event(n);
+                        Services::node_event_manager().start_event(n);
                     }
                 }
             } else {
@@ -389,7 +292,7 @@ void MapScene::begin() {
 	Engine::logn("[MAP] Begin");
     Engine::logn("seed: %d",  Services::game_state()->seed);
     Noise::set_seed(Services::game_state()->seed);
-    not_random_generator = std::mt19937(Services::game_state()->seed);
+    //not_random_generator = std::mt19937(Services::game_state()->seed);
 
     map_navigator.begin();
 }
@@ -405,7 +308,7 @@ void MapScene::update() {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 	
     map_navigator.update();
-    node_event_manager.update();
+    Services::node_event_manager().update();
 
     Services::events().emit();
     Services::ui().update();
@@ -428,7 +331,7 @@ void MapScene::render() {
     draw_sprite(Resources::sprite_get("background"), 0, 0);
     
     map_navigator.render();
-    node_event_manager.render();
+    Services::node_event_manager().render();
 
     int population = Services::game_state()->population;
     int resources = Services::game_state()->resources;
