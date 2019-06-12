@@ -143,6 +143,10 @@ struct NodeEventManager {
                 e.description = "You jumped straight into an ambush!";
                 e.options.push_back( { "Continue", [&]() { Scenes::set_scene("level"); next_screen(); } } );
                 screens.push_back(e);
+                EventScreen e_after_battle;
+                e_after_battle.description = "Yay battle is done!";
+                e_after_battle.options.push_back( { "Continue", [&]() { next_screen(); } } );
+                screens.push_back(e_after_battle);
             }
         } else if(n.type == 2) {
             {
