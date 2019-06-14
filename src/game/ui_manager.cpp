@@ -3,6 +3,24 @@
 #include "renderer.h"
 #include "game_input_wrapper.h"
 
+
+void UIManager::enable_state(std::string state) {
+    _states[state]->enabled = true;
+}
+
+void UIManager::hide_state(std::string state) {
+    _states[state]->enabled = false;
+}
+
+void UIManager::add_state(std::string state) {
+    _states[state] = std::make_shared<UIState>();
+    _states[state]->name = state;
+}
+
+void UIManager::remove_state(std::string state) {
+    _states_to_remove.push_back(state);
+}
+
 void UIManager::frame() {
     _immediate_elements.clear();
 }
@@ -16,25 +34,40 @@ void UIManager::update() {
         return t.timer >= t.ttl;
     }), _toasts.end());
 
-    for(auto t : _states[_current_state]->elements) {
-        t->update();
+    for(auto &s : _states) {
+        if(s.second->enabled) {
+            for(auto &t : s.second->elements) {
+                t->update();
+            }
+        }
     }
     for(auto &t : _immediate_elements) {
         t->update();
     }
 
-    for(auto t : _states[_current_state]->elements_to_add) {
-        _states[_current_state]->elements.push_back(t);
+    for(auto &s : _states) {
+        for(auto t : s.second->elements_to_add) {
+            s.second->elements.push_back(t);
+        }
+        s.second->elements_to_add.clear();
     }
-    _states[_current_state]->elements_to_add.clear();
+
+    for(auto &s : _states_to_remove) {
+        _states.erase(s);
+    }
+    _states_to_remove.clear();
 }
 
 void UIManager::render() {
     for(auto t : _toasts) {
         draw_text_centered_str((int)t.pos.x, (int)t.pos.y, Colors::white, t.text);
     }
-    for(auto &t : _states[_current_state]->elements) {
-        t->render();
+    for(auto &s : _states) {
+        if(s.second->enabled) {
+            for(auto &t : s.second->elements) {
+                t->render();
+            }
+        }
     }
     for(auto &t : _immediate_elements) {
         t->render();
@@ -59,7 +92,9 @@ void UIManager::add_immediate_element(Button b) {
 }
 
 void UIManager::clear() {
-    _states[_current_state]->elements.clear();
-    _states[_current_state]->elements_to_add.clear();
+    for(auto &s : _states) {
+        s.second->elements.clear();
+        s.second->elements_to_add.clear();
+    }
     _immediate_elements.clear();
 }

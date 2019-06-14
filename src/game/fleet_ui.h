@@ -65,4 +65,47 @@ struct FighterUIElement : public Element {
     }
 };
 
+void list_fighters() {
+    int x = 200;
+    int spacing = 40;
+    int y_start = (gh / 2) - ((Services::game_state()->fighters.size() * spacing) / 2);
+    int y = 0;
+    for(auto &f : Services::game_state()->fighters) {
+        FighterUIElement fe = FighterUIElement(x, y_start + y * spacing, "combat_sprites", f.sprite_base, f.weapons[0].weapon.name);
+
+		// -> remove "button" on each
+		// -> show what it has
+        
+        Services::ui()->add_element(fe, "fleet_ui");
+        y++;
+    }
+}
+
+void list_blueprints() {
+    int x = 430;
+    int spacing = 40;
+    int y_start = (gh / 2) - ((Services::game_state()->fighters.size() * spacing) / 2);
+    int y = 0;
+    for(auto &f : Services::game_state()->fighters) {
+        FighterUIElement fe = FighterUIElement(x, y_start + y * spacing, "combat_sprites", f.sprite_base, f.weapons[0].weapon.name);
+        Services::ui()->add_element(fe, "fleet_ui");
+        y++;
+    }
+}
+
+void fleet_ui_show(std::function<void(void)> on_close) {
+    Services::ui()->add_state("fleet_ui");
+
+    list_fighters();
+    list_blueprints();
+
+    Button close_button = Button(gw / 2, gh - 20, "CLOSE");
+    close_button.on_click = on_close;
+	Services::ui()->add_element(close_button, "fleet_ui");
+}
+
+void fleet_ui_hide() {
+    Services::ui()->remove_state("fleet_ui");
+}
+
 #endif

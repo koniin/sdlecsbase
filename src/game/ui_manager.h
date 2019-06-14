@@ -48,19 +48,28 @@ class UIManager {
         bool is_battle_over = false;
 
         struct UIState {
+            std::string name;
+            bool enabled = true;
             std::vector<std::shared_ptr<Element>> elements;
             std::vector<std::shared_ptr<Element>> elements_to_add;
         };
 
-        std::string _current_state = "___default_ui_state___";
+        const std::string __default_state_name = "___default_ui_state___";
 
         std::unordered_map<std::string, std::shared_ptr<UIState>> _states;
         std::vector<std::shared_ptr<Element>> _immediate_elements;
+        std::vector<std::string> _states_to_remove;
 
     public:
         UIManager() {
-            _states[_current_state] = std::make_shared<UIState>();
+            _states[__default_state_name] = std::make_shared<UIState>();
+            _states[__default_state_name]->name = __default_state_name;
         }
+
+        void enable_state(std::string state);
+        void hide_state(std::string state);
+        void add_state(std::string state);
+        void remove_state(std::string state);
 
         void frame();
         void update();
@@ -68,13 +77,13 @@ class UIManager {
         void show_text_toast(Vector2 position, std::string text, float ttl);
         
         template<typename TElement>
-        void add_element(TElement e) {
-            _states[_current_state]->elements_to_add.push_back(std::make_shared<TElement>(e));
+        void add_element(TElement e, std::string state = "___default_ui_state___") {
+            _states[state]->elements_to_add.push_back(std::make_shared<TElement>(e));
         }
 
         void add_immediate_element(TextElement t);
         void add_immediate_element(Button b);
-
+        
         void clear();
 };
 

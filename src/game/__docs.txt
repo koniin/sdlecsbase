@@ -4,6 +4,7 @@
     = Goal:  CORE LOOP
 		
 		 Start with simple (AVOID FEATURE CREEP)
+		 	=> Vlaamber method of making games: https://www.youtube.com/watch?v=cBPYCmjDNkM
 			- Fighters UI
 				- when to get?
 					- build (adds a new one to the list)
@@ -24,6 +25,7 @@
 				=> list of buildable fighters
 					-> infinity size?
 					-> show what it has
+					-> show cost to add
 
 			- Upgrades are fleet wide
 				- when to get?
@@ -40,7 +42,15 @@
 			Mothership upgrades/new weapons/abilities
 			=> Investigate/Think about it
 
-			Battle improvements
+			Game improvements
+				UI
+				- could try making the research and fleet UI default
+					and then have "star map" as a button instead
+
+				Research
+				- different categories to research? weapons/defense/mods or something?
+
+				Battle
 				- target selection (click one then click the target)
 				- some kind of movement or positioning
 					- like darkest dungeon (order etc)

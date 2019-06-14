@@ -84,6 +84,8 @@ struct MapNavigation {
     float camera_x_speed = 0;
     std::vector<Node> _nodes;
 
+    bool _navigation_enabled = true;
+
     void init() {
         _nodes.reserve(200);
     }
@@ -100,6 +102,14 @@ struct MapNavigation {
         camera_pos = Vector2::from_i(Services::game_state()->current_node.x * distance_to_next_node, Services::game_state()->current_node.y * distance_to_next_node);
         camera_lookat(camera_pos);
         camera_set_speed(0.8f);
+    }
+
+    void disable_navigation() {
+        _navigation_enabled = false;
+    }
+
+    void enable_navigation() {
+        _navigation_enabled = true;
     }
 
     void node_interact_handler(Node &n) {
@@ -134,6 +144,10 @@ struct MapNavigation {
     }
 
     void update() {
+        if(!_navigation_enabled) {
+            return;
+        }
+
         if(Input::key_down(SDL_SCANCODE_UP)) {
             camera_y_speed -= 15;
         } 
@@ -279,6 +293,25 @@ struct MapNavigation {
 
 MapNavigation map_navigator;
 
+void show_research(std::function<void(void)> on_close) {
+    Services::ui()->add_state("research_ui");
+
+	Button research_btn = Button(gw / 2, gh / 2, "RESEARCH");
+    research_btn.on_click = [&]() { 
+        Engine::logn("RESEARCH CLICKED");
+    };
+	Services::ui()->add_element(research_btn, "research_ui");
+    
+    Button fleet_button = Button(gw / 2, gh - 20, "CLOSE");
+    fleet_button.on_click = on_close;
+	Services::ui()->add_element(fleet_button, "research_ui");
+}
+
+void on_close_research() {
+    map_navigator.enable_navigation();
+    Services::ui()->remove_state("research_ui");
+}
+
 void MapScene::initialize() {
     Engine::logn("[MAP] Init");
  	render_buffer.init(2048);
@@ -289,17 +322,9 @@ void MapScene::initialize() {
     map_navigator.init();
 }
 
-void list_configs() {
-    int x = 200;
-    int spacing = 40;
-    int y_start = (gh / 2) - ((Services::game_state()->fighters.size() * spacing) / 2);
-    int y = 0;
-    for(auto &f : Services::game_state()->fighters) {
-        FighterUIElement fe = FighterUIElement(x, y_start + y * spacing, "combat_sprites", f.sprite_base, f.weapons[0].weapon.name);
-
-        Services::ui()->add_element(fe);
-        y++;
-    }
+void on_close_fleet_ui() {
+    fleet_ui_hide();
+    map_navigator.enable_navigation();
 }
 
 void MapScene::begin() {
@@ -312,15 +337,19 @@ void MapScene::begin() {
 
 	Button fleet_button = Button(200, gh - 20, "Fleet");
     fleet_button.on_click = [&]() { 
-        // => list of current fighters
-            list_configs();
-					// -> remove "button" on each
-					// -> show what it has
-		// => list of buildable fighters
-					// -> infinity size?
-					// -> show what it has
+        on_close_research();
+        map_navigator.disable_navigation();
+        fleet_ui_show(on_close_fleet_ui);
     };
 	Services::ui()->add_element(fleet_button);
+
+    Button research_button = Button(420, gh - 20, "Research");
+    research_button.on_click = [&]() {
+        on_close_fleet_ui();
+        map_navigator.disable_navigation();
+        show_research(on_close_research);
+    };
+	Services::ui()->add_element(research_button);
 }
 
 void MapScene::end() {
