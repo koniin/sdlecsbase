@@ -11,9 +11,13 @@ void NodeEventManager::next_screen() {
 }
 
 void NodeEventManager::update() {
-    if(screens.size() == 0) {
+    if(screens.size() == 0) {   
+        Services::ui()->enable_state("map_nav");
         return;
     }
+
+    Services::ui()->hide_state("map_nav");
+
     auto &scr = screens[0];
     int i = 0;
     for(auto &option : scr.options) {

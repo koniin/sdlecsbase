@@ -335,13 +335,15 @@ void MapScene::begin() {
 
     map_navigator.begin();
 
+    Services::ui()->add_state("map_nav");
+
 	Button fleet_button = Button(200, gh - 20, "Fleet");
     fleet_button.on_click = [&]() { 
         on_close_research();
         map_navigator.disable_navigation();
         fleet_ui_show(on_close_fleet_ui);
     };
-	Services::ui()->add_element(fleet_button);
+	Services::ui()->add_element(fleet_button, "map_nav");
 
     Button research_button = Button(420, gh - 20, "Research");
     research_button.on_click = [&]() {
@@ -349,10 +351,11 @@ void MapScene::begin() {
         map_navigator.disable_navigation();
         show_research(on_close_research);
     };
-	Services::ui()->add_element(research_button);
+	Services::ui()->add_element(research_button, "map_nav");
 }
 
 void MapScene::end() {
+    Services::ui()->clear();
     camera_reset_clamp_area();
     Engine::logn("[MAP] End");
 	render_buffer.clear();
