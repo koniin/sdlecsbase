@@ -5,25 +5,18 @@
 		
 		 Start with simple (AVOID FEATURE CREEP)
 		 	=> Vlaamber method of making games: https://www.youtube.com/watch?v=cBPYCmjDNkM
-			- Fighters UI
-				- when to get?
-					- build (adds a new one to the list)
-						- cost => resources & population
-					- what you can build:
-						- blueprint from rewards and events
-					- can only build if slot is open
+			- Fighters
+				- list of fixed fighters (like weapons in nuclear throne and FTL)
+					- fighters have one or more weapons
+				- fighters are the guns
 
-				- remove (click to remove)
+
 
 			TO IMPLEMENT:
-				=> Button for showing Fleet UI
 				=> start with can show anywhere
 					- then we can restrict to when the fleet is docked or whatever
-				=> list of current fighters
-					-> remove "button" on each
-					-> show what it has
-				=> list of buildable fighters
-					-> infinity size?
+				=> list of fighter blueprints
+					-> show how many u got
 					-> show what it has
 					-> show cost to add
 
@@ -147,7 +140,7 @@ Upgrade ship/fleet (upgrade here means find new things and replace old)
 	Fighters
 		- craftable/buildable from menu
 		- crafts requires materials
-		- crafts can be found/bought (blueprints)
+		- crafts can be found/bought (blueprints) => fixed list of blueprints
 		- click to craft in UI if spot is open in fleet
 		- direct craft or time?
 		- craft example:

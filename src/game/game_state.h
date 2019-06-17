@@ -4,16 +4,7 @@
 #include "engine.h"
 #include "abilities.h"
 #include "maze.h"
-
-struct DefenseConfig {
-    int hp;
-    int shield;
-};
-
-struct WeaponConfig {
-    Weapon weapon;
-    short targeting;
-};
+#include "data_repository.h"
 
 struct AbilityConfig {
     enum { IsAbility, IsWeapon } type;
@@ -29,12 +20,6 @@ struct MothershipConfig {
     std::string sprite_base;
     DefenseConfig defense;
     std::vector<AbilityConfig> abilities;
-};
-
-struct FighterConfig {
-    std::string sprite_base;
-    DefenseConfig defense;
-    std::vector<WeaponConfig> weapons;
 };
 
 struct GameState {
@@ -55,8 +40,7 @@ struct GameState {
     std::vector<Point> _visited_nodes;
 
     MothershipConfig mothership;
-    std::vector<FighterConfig> fighters;
-    std::vector<FighterConfig> fighter_blueprints;
+    std::vector<int> fighters;
 
     int population;
     int resources;

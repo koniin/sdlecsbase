@@ -66,18 +66,7 @@ void GameState::new_game() {
     fighters_max = 8;
 
     for(int i = 0; i < 2; i++) {
-        FighterConfig f;
-        f.defense = { 10, 5 };
-        f.sprite_base = "cs1";
-
-        WeaponConfig wc;
-        wc.targeting = 2;
-
-        wc.weapon = GLOBAL_BASE_WEAPON;
-        
-        f.weapons.push_back(wc);
-
-        fighters.push_back(f);
+        fighters.push_back(0);
     }
 }
 

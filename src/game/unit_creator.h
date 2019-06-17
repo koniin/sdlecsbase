@@ -146,11 +146,13 @@ namespace UnitCreator {
         motherships.push_back(ship);
     }
 
-    void create_player_fighters(const std::vector<FighterConfig> &fighter_configs, ECS::EntityManager &entity_manager, std::vector<FighterShip> &fighters) {
+    void create_player_fighters(const std::vector<int> &fighter_ids, ECS::EntityManager &entity_manager, std::vector<FighterShip> &fighters) {
         Vector2 position = Vector2(170, 50);
 
         float i = 0.0f;
-        for(auto &f_cfg : fighter_configs) {
+        for(auto &f_id : fighter_ids) {
+            auto &f_cfg = Services::db()->get_fighter_config(f_id);
+
             FighterShip ship(entity_manager.create());
             ship.faction = FactionComponent { PLAYER_FACTION };
             float y = position.y + i * 30.f;

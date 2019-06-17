@@ -7,6 +7,7 @@
 #include "events.h"
 #include "game_state.h"
 #include "node_event_manager.h"
+#include "data_repository.h"
 
 namespace Services {
     void init();
@@ -15,6 +16,7 @@ namespace Services {
     std::shared_ptr<EventHub> events();
     std::shared_ptr<GameState> game_state();
     std::shared_ptr<NodeEventManager> node_event_manager();
+    std::shared_ptr<DB> db();
 }
 
 #endif

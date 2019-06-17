@@ -19,6 +19,8 @@ inline void game_load() {
 	
 	Services::init();
 
+	Services::db()->load();
+
 	MenuScene *menu_scene = new MenuScene;
 	LevelScene *level = new LevelScene;
 	MapScene *map = new MapScene;
