@@ -332,6 +332,7 @@ namespace Input {
     extern int mousex;
 	extern int mousey;
 	extern bool mouse_left_down;
+    extern bool mouse_left_up;
 
     void init();
     void update_states();

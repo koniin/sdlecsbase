@@ -23,6 +23,12 @@ void LevelScene::begin() {
 	Engine::logn("[LEVEL] Begin");
     BattleController::create(Services::game_state());
 
+    SelectBox s_box;
+    s_box.release_func = [](Rectangle r) {
+        Engine::logn("There was a release triggered");
+    };
+    Services::ui()->add_element(s_box);
+
     Services::events()->listen<BattleOverEvent>([](BattleOverEvent e) { 
         battle_over = true;
 
@@ -94,7 +100,8 @@ void LevelScene::render() {
     
     draw_buffer(render_buffer);
     Particles::render_circles_filled(BattleController::particles);
-	Services::ui()->render();
+    
+    Services::ui()->render();
 
     int population = Services::game_state()->population;
     std::string population_text = "Population: " + std::to_string(population);
