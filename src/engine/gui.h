@@ -67,6 +67,7 @@ struct Button : public Element {
 struct SelectBox : public Element {
     int _select_active = 0;
     Point start;
+    Point end;
     std::function<void(Rectangle r)> release_func;
 
     void update();

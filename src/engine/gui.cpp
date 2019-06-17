@@ -44,11 +44,19 @@ void SelectBox::update() {
 
     if(_select_active == 0 && Input::mouse_left_down) {
         _select_active = 1;
+
+        start.x = Input::mousex;
+        start.y = Input::mousey;
+    }
+
+    if(_select_active == 1) {
+        end.x = Input::mousex;
+        end.y = Input::mousey;
     }
 }
 
 void SelectBox::render() {
     if(_select_active == 1) {
-        draw_g_rectangle_RGBA(100, 100, 100, 100, 255, 0, 0, 255);
+        draw_g_rectangle_RGBA(start.x, start.y, end.x - start.x, end.y - start.y, 0, 255, 0, 255);
     }
 }
