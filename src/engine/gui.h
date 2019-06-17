@@ -70,8 +70,15 @@ struct SelectBox : public Element {
     Point end;
     std::function<void(Rectangle r)> release_func;
 
-    void update();
-    void render();
+    void update() override;
+    void render() override;
+};
+
+struct ClickAction : public Element {
+    std::function<void(Point p)> on_click;
+
+    void update() override;
+    void render() override;
 };
 
 #endif

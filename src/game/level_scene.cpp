@@ -28,6 +28,12 @@ void LevelScene::begin() {
         BattleController::select_units(r);
     };
     Services::ui()->add_element(s_box);
+    
+    ClickAction click_action;
+    click_action.on_click = [](Point p) {
+        BattleController::set_targets(p);
+    };
+    Services::ui()->add_element(click_action);
 
     Services::events()->listen<BattleOverEvent>([](BattleOverEvent e) { 
         battle_over = true;

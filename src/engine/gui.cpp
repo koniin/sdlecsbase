@@ -64,3 +64,13 @@ void SelectBox::render() {
         draw_g_rectangle_RGBA(start.x, start.y, end.x - start.x, end.y - start.y, 0, 255, 0, 255);
     }
 }
+
+void ClickAction::update() {
+    if(Input::mouse_right_down) {
+        Point p;
+        Input::mouse_current(p);
+        on_click(p);
+    }
+}
+
+void ClickAction::render() {}

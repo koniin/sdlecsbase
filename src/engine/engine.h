@@ -333,6 +333,8 @@ namespace Input {
 	extern int mousey;
 	extern bool mouse_left_down;
     extern bool mouse_left_up;
+    extern bool mouse_right_down;
+    extern bool mouse_right_up;
 
     void init();
     void update_states();

@@ -12,12 +12,13 @@ namespace UnitCreator {
     const int PROJECTILE_LAYER = 30;
 
     struct OneRandomTargeter : Targeting {
-        std::function<bool(const int &exclude_faction, Targeting::Target &target)> get_one_target;
-        OneRandomTargeter(std::function<bool(const int &exclude_faction, Targeting::Target &target)> targeter) : get_one_target(targeter) {}
+        std::function<bool(const int &exclude_faction, const std::vector<ECS::EntityId> &target_overrides, Targeting::Target &target)> get_one_target;
 
-        bool get_targets(const int &exclude_faction, const size_t &max_count, Targeting::Targets &targets) override {
+        OneRandomTargeter(std::function<bool(const int &exclude_faction, const std::vector<ECS::EntityId> &target_overrides, Targeting::Target &target)> targeter) : get_one_target(targeter) {}
+
+        bool get_targets(const int &exclude_faction, const size_t &max_count, const std::vector<ECS::EntityId> &target_overrides, Targeting::Targets &targets) override {
             Targeting::Target target;
-            if(get_one_target(exclude_faction, target)) {
+            if(get_one_target(exclude_faction, target_overrides, target)) {
                 for(size_t i = 0; i < max_count; i++) {
                     targets.targets.push_back(target);
                 }
@@ -28,14 +29,15 @@ namespace UnitCreator {
     };
 
     struct MultiRandomTargeter : Targeting {
-        std::function<bool(const int &exclude_faction, Targeting::Target &target)> get_one_target;
-        MultiRandomTargeter(std::function<bool(const int &exclude_faction, Targeting::Target &target)> targeter) : get_one_target(targeter) {}
+        std::function<bool(const int &exclude_faction, const std::vector<ECS::EntityId> &target_overrides, Targeting::Target &target)> get_one_target;
 
-        bool get_targets(const int &exclude_faction, const size_t &max_count, Targeting::Targets &targets) override {
+        MultiRandomTargeter(std::function<bool(const int &exclude_faction, const std::vector<ECS::EntityId> &target_overrides, Targeting::Target &target)> targeter) : get_one_target(targeter) {}
+
+        bool get_targets(const int &exclude_faction, const size_t &max_count, const std::vector<ECS::EntityId> &target_overrides, Targeting::Targets &targets) override {
             Targeting::Target target;
             bool has_any_target = false;
             for(size_t i = 0; i < max_count; i++) {
-                if(get_one_target(exclude_faction, target)) {
+                if(get_one_target(exclude_faction, target_overrides, target)) {
                     targets.targets.push_back(target);
                     has_any_target = true;
                 }
@@ -47,7 +49,7 @@ namespace UnitCreator {
     std::shared_ptr<Targeting> _random_targeter;
     std::shared_ptr<Targeting> _random_multi_targeter;
 
-    void init_targeters(std::function<bool(const int &exclude_faction, Targeting::Target &target)> target_function) {
+    void init_targeters(std::function<bool(const int &exclude_faction, const std::vector<ECS::EntityId> &target_overrides, Targeting::Target &target)> target_function) {
         _random_targeter = std::make_shared<OneRandomTargeter>(OneRandomTargeter(target_function));
         _random_multi_targeter = std::make_shared<MultiRandomTargeter>(MultiRandomTargeter(target_function));
     }

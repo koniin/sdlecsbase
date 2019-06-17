@@ -39,34 +39,62 @@ namespace BattleController {
 
     CollisionPairs collision_pairs;
 
-    bool get_one_target(const int &exclude_faction, Targeting::Target &target) {
+    bool get_one_target(const int &exclude_faction, const std::vector<ECS::EntityId> &target_overrides, Targeting::Target &target) {
         int target_faction = exclude_faction == PLAYER_FACTION ? ENEMY_FACTION : PLAYER_FACTION;
-
-        std::vector<FighterShip*> matches;
-        for(auto &f : _fighter_ships) {
-            if(f.faction.faction == target_faction) {
-                matches.push_back(&f);
+        
+        /// Find override matches
+        std::vector<Targeting::Target> matches;
+        if(target_overrides.size() > 0) {
+            for(auto &f : _fighter_ships) {
+                for(auto &t : target_overrides) {
+                    if(f.entity.id == t) {
+                        matches.push_back({ f.entity, f.position.value });
+                        break;
+                    }
+                }
+            }
+            for(auto &f : _motherships) {
+                for(auto &t : target_overrides) {
+                    if(f.entity.id == t) {
+                        matches.push_back({ f.entity, f.position.value });
+                        break;
+                    }
+                }
             }
         }
+
         if(matches.size() > 0) {
             int target_index = RNG::range_i(0, matches.size() - 1);
             auto target_ship = matches[target_index];
-            target.entity = target_ship->entity;
-            target.position = target_ship->position.value;
+            return true;
+        }
+        /// End override matches
+
+        /// find fighter matches
+        for(auto &f : _fighter_ships) {
+            if(f.faction.faction == target_faction) {
+                matches.push_back({ f.entity, f.position.value });
+            }
+        }
+
+        if(matches.size() > 0) {
+            int target_index = RNG::range_i(0, matches.size() - 1);
+            target = matches[target_index];
             return true;
         }
         
-        std::vector<MotherShip*> m_matches;
+        /// End fighter matches
+
+        // find mothership matches
         for(auto &f : _motherships) {
             if(f.faction.faction == target_faction) {
-                m_matches.push_back(&f);
+                matches.push_back({ f.entity, f.position.value });
             }
         }
-        if(m_matches.size() > 0) {
-            int target_index = RNG::range_i(0, m_matches.size() - 1);
-            auto target_ship = m_matches[target_index];
-            target.entity = target_ship->entity;
-            target.position = target_ship->position.value;
+
+        if(matches.size() > 0) {
+            int target_index = RNG::range_i(0, matches.size() - 1);
+            target = matches[target_index];
             return true;
         }
 
@@ -307,25 +335,73 @@ namespace BattleController {
         _enemy_count_last = enemy_count;
     }
 
+    template<typename Entity>
+    void fill_rect(const Entity &entity, Rectangle &unit_rect) {
+        unit_rect.x = (int)(entity.position.value.x - (entity.collision.aabb.w / 2));
+        unit_rect.y = (int)(entity.position.value.y - (entity.collision.aabb.h / 2));
+        unit_rect.w = entity.collision.aabb.w;
+        unit_rect.h = entity.collision.aabb.h;
+    }
+
+    std::vector<ECS::EntityId> _selected_entities;
     void select_units(Rectangle &r) {
         Rectangle unit_rect;
+        _selected_entities.clear();
 
         for(auto &ship : _fighter_ships) {
-            unit_rect.x = (int)ship.position.value.x;
-            unit_rect.y = (int)ship.position.value.y;
-            unit_rect.w = ship.collision.aabb.w;
-            unit_rect.h = ship.collision.aabb.h;
+            fill_rect(ship, unit_rect);
             if(ship.faction.faction == PLAYER_FACTION && r.intersects(unit_rect)) {
-                Engine::logn("HIT SHIP %s", ship.sprite.get_current_frame().sprite_name.c_str());
+                _selected_entities.push_back(ship.entity.id);
             }
         }
         for(auto &ship : _motherships) {
-            unit_rect.x = (int)ship.position.value.x;
-            unit_rect.y = (int)ship.position.value.y;
-            unit_rect.w = ship.collision.aabb.w;
-            unit_rect.h = ship.collision.aabb.h;
+            fill_rect(ship, unit_rect);
             if(ship.faction.faction == PLAYER_FACTION && r.intersects(unit_rect)) {
-                Engine::logn("HIT SHIP %s", ship.sprite.get_current_frame().sprite_name.c_str());
+                _selected_entities.push_back(ship.entity.id);
+            }
+        }
+    }
+    
+    bool get_target(Point &p, ECS::EntityId &target) {
+        Rectangle unit_rect;
+        for(auto &ship : _fighter_ships) {
+            fill_rect(ship, unit_rect);
+            if(unit_rect.contains(p)) {
+                target = ship.entity.id;
+                return true;
+            }
+        }
+        
+        for(auto &ship : _motherships) {
+            fill_rect(ship, unit_rect);
+            if(unit_rect.contains(p)) {
+                target = ship.entity.id;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void set_targets(Point &p) {
+        ECS::EntityId target;
+        if(!get_target(p, target)) {
+            return;
+        }
+
+        for(auto &ship : _fighter_ships) {
+            for(auto selected : _selected_entities) {
+                if(ship.entity.id == selected) {
+                    ship.abilities.set_target_override(target);
+                    return;
+                }
+            }
+        }
+        for(auto &ship : _motherships) {
+            for(auto selected : _selected_entities) {
+                if(ship.entity.id == selected) {
+                    ship.abilities.set_target_override(target);
+                    return;
+                }
             }
         }
     }

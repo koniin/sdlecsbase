@@ -58,7 +58,7 @@ struct Targeting {
         }
     };  
 
-    virtual bool get_targets(const int &exclude_faction, const size_t &max_count, Targets &targets) = 0;
+    virtual bool get_targets(const int &exclude_faction, const size_t &max_count, const std::vector<ECS::EntityId> &target_overrides, Targets &targets) = 0;
 };
 
 struct Effect {
@@ -267,7 +267,7 @@ struct WeaponComponent {
         return w;
     }
 
-    void make_spawns(const int &faction, const Vector2 &position, std::vector<ProjectileSpawn> &projectile_spawns, std::vector<Effect> &effects) {
+    void make_spawns(const int &faction, const Vector2 &position, std::vector<ProjectileSpawn> &projectile_spawns, std::vector<Effect> &effects, std::vector<ECS::EntityId> &target_override) {
         Weapon weapon = get_weapon();
 
         ProjectileSpawn spawn;
@@ -288,7 +288,7 @@ struct WeaponComponent {
         spawn.payload = payload;
 
         Targeting::Targets targets;
-        auto targets_found = _targeting->get_targets(faction, weapon.projectile_count, targets);
+        auto targets_found = _targeting->get_targets(faction, weapon.projectile_count, target_override, targets);
         if(!targets_found) {
             return;
         }
@@ -324,7 +324,7 @@ struct AbilityComponent {
         return ability;
     }
 
-    void use(int faction, Vector2 position, std::vector<ProjectileSpawn> &projectile_spawns, std::vector<Effect> &effects) {
+    void use(int faction, Vector2 position, std::vector<ProjectileSpawn> &projectile_spawns, std::vector<Effect> &effects, std::vector<ECS::EntityId> &target_override) {
         Engine::logn("Ability use: %s - %d", ability.name.c_str(), faction);
 
         Effect e = Effect(ability.faction, 2.0f, 4.0f);
@@ -347,6 +347,8 @@ struct MultiAbilityComponent {
     std::vector<bool> _manual_control;
     std::vector<float> _reload_timer;
     std::vector<int> _ids;
+
+    std::vector<ECS::EntityId> _target_overrides;
 
     public:
     void add(WeaponComponent wc, bool manual = false) {
@@ -427,9 +429,9 @@ struct MultiAbilityComponent {
 
         auto &ability = _abilities[id];
         if(ability.type == TypeWrapper::AbilityType) {
-            _abilities[id].a.use(faction, position, projectile_spawns, effects);
+            _abilities[id].a.use(faction, position, projectile_spawns, effects, _target_overrides);
         } else {
-            _abilities[id].w.make_spawns(faction, position, projectile_spawns, effects);
+            _abilities[id].w.make_spawns(faction, position, projectile_spawns, effects, _target_overrides);
         }
 
         _reload_timer[index] = 0.0f;
@@ -437,6 +439,11 @@ struct MultiAbilityComponent {
 
     void apply(const Effect &e) {
         // Engine::logn("Multicomp = Apply effect! = %d", e.shield_recharge_amount);
+    }
+
+    void set_target_override(ECS::EntityId id) {
+        _target_overrides.clear();
+        _target_overrides.push_back(id);
     }
 };
 
