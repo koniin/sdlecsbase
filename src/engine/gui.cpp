@@ -39,6 +39,10 @@ void SelectBox::update() {
         _select_active = 0;
         
         Rectangle select_area;
+        select_area.x = start.x > end.x ? end.x : start.x;
+        select_area.y = start.y > end.y ? end.y : start.y;
+        select_area.w = start.x > end.x ? start.x - end.x : end.x - start.x;
+        select_area.h = start.y > end.y ? start.y - end.y : end.y - start.y;
         release_func(select_area);
     }
 

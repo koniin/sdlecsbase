@@ -306,4 +306,27 @@ namespace BattleController {
         _player_count_last = player_count;
         _enemy_count_last = enemy_count;
     }
+
+    void select_units(Rectangle &r) {
+        Rectangle unit_rect;
+
+        for(auto &ship : _fighter_ships) {
+            unit_rect.x = (int)ship.position.value.x;
+            unit_rect.y = (int)ship.position.value.y;
+            unit_rect.w = ship.collision.aabb.w;
+            unit_rect.h = ship.collision.aabb.h;
+            if(ship.faction.faction == PLAYER_FACTION && r.intersects(unit_rect)) {
+                Engine::logn("HIT SHIP %s", ship.sprite.get_current_frame().sprite_name.c_str());
+            }
+        }
+        for(auto &ship : _motherships) {
+            unit_rect.x = (int)ship.position.value.x;
+            unit_rect.y = (int)ship.position.value.y;
+            unit_rect.w = ship.collision.aabb.w;
+            unit_rect.h = ship.collision.aabb.h;
+            if(ship.faction.faction == PLAYER_FACTION && r.intersects(unit_rect)) {
+                Engine::logn("HIT SHIP %s", ship.sprite.get_current_frame().sprite_name.c_str());
+            }
+        }
+    }
 }

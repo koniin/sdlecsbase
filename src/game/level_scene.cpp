@@ -25,7 +25,7 @@ void LevelScene::begin() {
 
     SelectBox s_box;
     s_box.release_func = [](Rectangle r) {
-        Engine::logn("There was a release triggered");
+        BattleController::select_units(r);
     };
     Services::ui()->add_element(s_box);
 

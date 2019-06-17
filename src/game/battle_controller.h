@@ -17,6 +17,7 @@ namespace BattleController {
     void create(std::shared_ptr<GameState> game_state);
     void end(std::shared_ptr<GameState> game_state);
     void update();
+    void select_units(Rectangle &r);
 }
 
 #endif
