@@ -148,53 +148,55 @@ namespace UnitCreator {
         motherships.push_back(ship);
     }
 
-    void create_player_fighters(const std::vector<int> &fighter_ids, ECS::EntityManager &entity_manager, std::vector<FighterShip> &fighters) {
+    void create_player_fighters(const std::vector<FighterData> &fighter_ids, ECS::EntityManager &entity_manager, std::vector<FighterShip> &fighters) {
         Vector2 position = Vector2(170, 50);
 
         float i = 0.0f;
-        for(auto &f_id : fighter_ids) {
-            auto &f_cfg = Services::db()->get_fighter_config(f_id);
+        for(auto &f : fighter_ids) {
+            for(int j = 0; j < f.count; j++) {
+                auto &f_cfg = Services::db()->get_fighter_config(f.id);
 
-            FighterShip ship(entity_manager.create());
-            ship.faction = FactionComponent { PLAYER_FACTION };
-            float y = position.y + i * 30.f;
-            ship.position = RNG::vector2(position.x - 10, position.x + 10, y - 8, y + 8);
-            ship.defense = DefenseComponent(f_cfg.defense.hp, f_cfg.defense.shield);
+                FighterShip ship(entity_manager.create());
+                ship.faction = FactionComponent { PLAYER_FACTION };
+                float y = position.y + i * 30.f;
+                ship.position = RNG::vector2(position.x - 10, position.x + 10, y - 8, y + 8);
+                ship.defense = DefenseComponent(f_cfg.defense.hp, f_cfg.defense.shield);
 
-            std::string fighter_white_sprite = f_cfg.sprite_base + "_w";
+                std::string fighter_white_sprite = f_cfg.sprite_base + "_w";
 
-            SpriteComponent s = SpriteComponent({ 
-                Animation("idle", { { "combat_sprites", f_cfg.sprite_base } }, 0, false),
-                Animation("hit", { 
-                    { "combat_sprites", fighter_white_sprite },
-                    { "combat_sprites", f_cfg.sprite_base },
-                    { "combat_sprites", fighter_white_sprite },
-                    { "combat_sprites", f_cfg.sprite_base },
-                    { "combat_sprites", fighter_white_sprite },
-                    { "combat_sprites", f_cfg.sprite_base },
-                    { "combat_sprites", fighter_white_sprite }
-                },  6, false)
-            });
-            s.layer = FIGHTER_LAYER;
-            s.flip = 0;
-            ship.sprite = s;
+                SpriteComponent s = SpriteComponent({ 
+                    Animation("idle", { { "combat_sprites", f_cfg.sprite_base } }, 0, false),
+                    Animation("hit", { 
+                        { "combat_sprites", fighter_white_sprite },
+                        { "combat_sprites", f_cfg.sprite_base },
+                        { "combat_sprites", fighter_white_sprite },
+                        { "combat_sprites", f_cfg.sprite_base },
+                        { "combat_sprites", fighter_white_sprite },
+                        { "combat_sprites", f_cfg.sprite_base },
+                        { "combat_sprites", fighter_white_sprite }
+                    },  6, false)
+                });
+                s.layer = FIGHTER_LAYER;
+                s.flip = 0;
+                ship.sprite = s;
 
-            for(auto &w : f_cfg.weapons) {
-                WeaponComponent weaponComponent = WeaponComponent(w.weapon,
-                    w.weapon.name, 
-                    w.targeting == 1 ? _random_multi_targeter : _random_targeter, 
-                    w.weapon.projectile_type);
+                for(auto &w : f_cfg.weapons) {
+                    WeaponComponent weaponComponent = WeaponComponent(w.weapon,
+                        w.weapon.name, 
+                        w.targeting == 1 ? _random_multi_targeter : _random_targeter, 
+                        w.weapon.projectile_type);
+                    
+                    ship.abilities.add(weaponComponent);
+                }
                 
-                ship.abilities.add(weaponComponent);
+                auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
+                auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, f_cfg.sprite_base);
+                ship.collision = CollisionData(rect.w, rect.h);
+
+                fighters.push_back(ship);
+                
+                i++;
             }
-            
-            auto sprite_sheet_index = Resources::sprite_sheet_index("combat_sprites");
-            auto rect = Resources::sprite_get_from_sheet(sprite_sheet_index, f_cfg.sprite_base);
-            ship.collision = CollisionData(rect.w, rect.h);
-
-            fighters.push_back(ship);
-
-            i++;
         }
     }
 

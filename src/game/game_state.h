@@ -22,6 +22,11 @@ struct MothershipConfig {
     std::vector<AbilityConfig> abilities;
 };
 
+struct FighterData {
+    int id;
+    int count = 0;
+};
+
 struct GameState {
     void new_game();
     void set_current_node(const Point &next_node);
@@ -40,7 +45,7 @@ struct GameState {
     std::vector<Point> _visited_nodes;
 
     MothershipConfig mothership;
-    std::vector<int> fighters;
+    std::vector<FighterData> fighters;
 
     int population;
     int resources;

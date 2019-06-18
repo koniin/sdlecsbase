@@ -65,9 +65,7 @@ void GameState::new_game() {
     resources = 30;
     fighters_max = 8;
 
-    for(int i = 0; i < 2; i++) {
-        fighters.push_back(0);
-    }
+    fighters.push_back({ 0, 2 });
 }
 
 void GameState::set_current_node(const Point &next_node) {

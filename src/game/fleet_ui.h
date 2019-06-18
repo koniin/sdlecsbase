@@ -70,16 +70,11 @@ void list_blueprints() {
     int spacing = 40;
     int y_start = (gh / 2) - ((Services::game_state()->fighters.size() * spacing) / 2);
     int y = 0;
-    for(auto &f : Services::db()->get_fighters()) {
+    for(auto &f_data : Services::game_state()->fighters) {
+        auto &f = Services::db()->get_fighter_config(f_data.id);
         
-        int count = 0;
-        for(auto &fid : Services::game_state()->fighters) {
-            if(f.id == fid) {
-               count++; 
-            }
-        }
-
-        FighterUIElement fe = FighterUIElement(x, y_start + y * spacing, "combat_sprites", f.sprite_base, f.weapons[0].weapon.name);
+        std::string text = std::to_string(f_data.count) + " : " + f.weapons[0].weapon.name;
+        FighterUIElement fe = FighterUIElement(x, y_start + y * spacing, "combat_sprites", f.sprite_base, text);
         Services::ui()->add_element(fe, "fleet_ui");
         y++;
     }
