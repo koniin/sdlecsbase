@@ -61,7 +61,7 @@ struct FighterUIElement : public Element {
     void render() override {
         draw_spritesheet_name_centered(Resources::sprite_sheet_get(sheet_name), sprite, rect.x, rect.y);
         // draw_g_rectangle_filled(rect.x, rect.y, rect.w, rect.h, color);
-        draw_text_centered_str(position.x, position.y, text_color, _text);
+        draw_text_centered_str(rect.x, rect.y + rect.h, text_color, _text);
     }
 };
 
