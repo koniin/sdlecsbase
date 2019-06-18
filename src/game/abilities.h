@@ -58,7 +58,7 @@ struct Targeting {
         }
     };  
 
-    virtual bool get_targets(const int &exclude_faction, const size_t &max_count, const std::vector<ECS::EntityId> &target_overrides, Targets &targets) = 0;
+    virtual bool get_targets(const int &exclude_faction, const size_t &max_count, std::vector<ECS::EntityId> &target_overrides, Targets &targets) = 0;
 };
 
 struct Effect {

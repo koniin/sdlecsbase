@@ -39,7 +39,7 @@ namespace BattleController {
 
     CollisionPairs collision_pairs;
 
-    bool get_one_target(const int &exclude_faction, const std::vector<ECS::EntityId> &target_overrides, Targeting::Target &target) {
+    bool get_one_target(const int &exclude_faction, std::vector<ECS::EntityId> &target_overrides, Targeting::Target &target) {
         int target_faction = exclude_faction == PLAYER_FACTION ? ENEMY_FACTION : PLAYER_FACTION;
         
         /// Find override matches
@@ -65,9 +65,12 @@ namespace BattleController {
 
         if(matches.size() > 0) {
             int target_index = RNG::range_i(0, matches.size() - 1);
-            auto target_ship = matches[target_index];
+            target = matches[target_index];
             return true;
         }
+
+        // No targets found that are in overrides so dont use those anymore
+        target_overrides.clear();
         /// End override matches
 
         /// find fighter matches
@@ -392,7 +395,7 @@ namespace BattleController {
             for(auto selected : _selected_entities) {
                 if(ship.entity.id == selected) {
                     ship.abilities.set_target_override(target);
-                    return;
+                    break;
                 }
             }
         }
@@ -400,7 +403,7 @@ namespace BattleController {
             for(auto selected : _selected_entities) {
                 if(ship.entity.id == selected) {
                     ship.abilities.set_target_override(target);
-                    return;
+                    break;
                 }
             }
         }
