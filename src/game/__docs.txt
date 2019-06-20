@@ -11,6 +11,22 @@
 				- fighters are the guns
 
 
+We should really focus on making the game playable forward
+Not add more features
+Start doing weapons/fighters and difficulty balancing
+
+Building fighters and getting new fighters
+And resources and population costs
+
+Take from ftl if you want to get the feel of numbers
+
+Slower ramping difficulty
+
+Also an end to the game
+
+And choice events
+
+
 
 			TO IMPLEMENT:
 				=> start with can show anywhere
