@@ -23,15 +23,19 @@ void NodeEventManager::update() {
     for(auto &option : scr.options) {
         if(i == 0 && Input::key_pressed(SDLK_1)) {
             option.on_action();
+            next_screen();
         }
         if(i == 1 && Input::key_pressed(SDLK_2)) {
             option.on_action();
+            next_screen();
         }
         if(i == 2 && Input::key_pressed(SDLK_3)) {
             option.on_action();
+            next_screen();
         }
         if(i == 3 && Input::key_pressed(SDLK_4)) {
             option.on_action();
+            next_screen();
         }
         i++;
     }
@@ -53,17 +57,18 @@ void NodeEventManager::render() {
 }
 
 void NodeEventManager::start_event(const Node &n) {
+    screens.clear();
+
     if(n.type == 1) {
         {
             EventScreen e;
             e.description = "You jumped straight into an ambush!";
-            e.options.push_back( { "Continue", [&]() { Scenes::set_scene("level"); next_screen(); } } );
+            e.options.push_back( { "Continue", [&]() { Scenes::set_scene("level"); } } );
             screens.push_back(e);
             EventScreen e_after_battle;
             e_after_battle.description = "Yay battle is done! You got 50 resources, cool eh?";
             e_after_battle.options.push_back( { "Continue", [&]() { 
                     Services::game_state()->resources += 50;
-                    next_screen();
                 } 
             });
             screens.push_back(e_after_battle);
@@ -72,14 +77,14 @@ void NodeEventManager::start_event(const Node &n) {
         {
             EventScreen e;
             e.description = "Your sensors pick up small fleet in the outskirts of this system...";
-            e.options.push_back( { "Continue", [&]() { next_screen(); } } );
+            e.options.push_back( { "Continue", [&]() { } } );
             screens.push_back(e);
         }
         {
             EventScreen e;
             e.description = "Do you want to investigate?";
-            e.options.push_back( { "yes", [&]() { Engine::logn("yes"); next_screen(); } } );
-            e.options.push_back( { "no", [&]() { Engine::logn("no"); next_screen(); } } );
+            e.options.push_back( { "yes", [&]() { Engine::logn("yes"); } } );
+            e.options.push_back( { "no", [&]() { Engine::logn("no"); } } );
             screens.push_back(e);
         }
     } else if(n.type == 3) {

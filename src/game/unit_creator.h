@@ -248,7 +248,7 @@ namespace UnitCreator {
 
         Projectile p(entity_manager.create());
 
-        if(spawn.projectile_type == ProjectileType::GreenLazerBeam) {
+        if(spawn.projectile_type == ProjectileType::LazerBeamGreen) {
             sc.line = true;
             auto direction = Math::direction_from_angle(angle);    
             // if(payload.accuracy < chance) {
