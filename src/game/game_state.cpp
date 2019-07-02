@@ -36,7 +36,7 @@ void GameState::new_game() {
     w.targeting = 1;
 
     w.weapon.name = "Dual Lazer";
-    w.weapon.projectile_type = ProjectileType::RedLazerBullet;
+    w.weapon.projectile_type = ProjectileType::LazerBulletRed;
     w.weapon.accuracy = 0.8f;
     w.weapon.projectile_count = 2;
     w.weapon.burst_delay = 0.1f;

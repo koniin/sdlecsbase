@@ -6,9 +6,10 @@
 enum ProjectileType {
     Bullet,
     SmallBullet,
-    GreenLazerBeam,
+    LazerBeamGreen,
     Missile,
-    RedLazerBullet
+    LazerBulletRed,
+    COUNT
 };
 
 struct ProjectilePayLoad {
@@ -148,84 +149,29 @@ struct WeaponMultiModifier : WeaponModifier {
     }
 };  
 
+struct ProjectileTypeData {
+    std::string sprite;
+    ProjectilePayLoad::DamageType damage_type;
+    bool is_beam;
+    int collision_radius;
+};
+
+extern ProjectileTypeData projectile_type_data[ProjectileType::COUNT];
+
 inline std::string weapon_projectile_sprite(ProjectileType type) {
-    switch(type) {
-        case ProjectileType::Bullet: {
-            return "bullet_3";
-        }
-        case ProjectileType::SmallBullet: {
-            return "bullet_4";
-        }
-        case ProjectileType::GreenLazerBeam: {
-            return "lazer";
-        }
-        case ProjectileType::Missile: {
-            return "bullet_4";
-        }
-        case ProjectileType::RedLazerBullet: {
-            return "RedLazerBullet";
-        }
-    }
-    ASSERT_WITH_MSG(false, "weapon_projectile_sprite: ProjectileType not implemented!");
-    return "";
+    return projectile_type_data[type].sprite;
 }
 
 inline ProjectilePayLoad::DamageType weapon_payload_type(ProjectileType type) {
-    switch(type) {
-        case ProjectileType::Bullet: {
-            return ProjectilePayLoad::DamageType::Kinetic;
-        }
-        case ProjectileType::SmallBullet: {
-            return ProjectilePayLoad::DamageType::Kinetic;
-        }
-        case ProjectileType::GreenLazerBeam: {
-            return ProjectilePayLoad::DamageType::Energy;
-        }
-        case ProjectileType::Missile: {
-            return ProjectilePayLoad::DamageType::Explosive;
-        }
-        case ProjectileType::RedLazerBullet: {
-            return ProjectilePayLoad::DamageType::Energy;
-        }
-    }
-    ASSERT_WITH_MSG(false, "weapon_payload_type: ProjectileType not implemented!");
-    return ProjectilePayLoad::DamageType::Kinetic;
+    return projectile_type_data[type].damage_type;
 }
 
 inline bool weapon_is_beam(ProjectileType type) {
-    switch(type) {
-        case ProjectileType::Bullet:
-        case ProjectileType::SmallBullet:
-        case ProjectileType::RedLazerBullet:
-        case ProjectileType::Missile:
-            return false;
-        case ProjectileType::GreenLazerBeam:
-            return true;
-    }
-    ASSERT_WITH_MSG(false, "weapon_is_beam: ProjectileType not implemented!");
-    return false;
+    return projectile_type_data[type].is_beam;
 }
 
 inline int weapon_get_radius(ProjectileType type) {
-    switch(type) {
-        case ProjectileType::Bullet: {
-            return 6;
-        }
-        case ProjectileType::SmallBullet: {
-            return 5;
-        }
-        case ProjectileType::GreenLazerBeam: {
-            return 4;
-        }
-        case ProjectileType::Missile: {
-            return 5;
-        }
-        case ProjectileType::RedLazerBullet: {
-            return 5;
-        }
-    }
-    ASSERT_WITH_MSG(false, "weapon_get_radius: ProjectileType not implemented!");
-    return 0;
+    return projectile_type_data[type].collision_radius;
 }
 
 struct WeaponComponent {
