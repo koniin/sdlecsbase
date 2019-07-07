@@ -92,8 +92,6 @@ struct Weapon {
     float projectile_speed_max;
 };
 
-extern Weapon GLOBAL_BASE_WEAPON;
-
 enum WeaponProperty {
     Accuracy,
     ReloadTime,

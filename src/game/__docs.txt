@@ -10,6 +10,34 @@
 					- fighters have one or more weapons
 				- fighters are the guns
 
+Furious space battles => Many ships
+
+So simplest is if your fighters do little damage but are many
+
+Fighters are really cheap to replace (but still cost population)
+
+You get new pop at every unvisited node (after event)
+
+Ui is just a list of fighters with a button to buy more of that one
+So merge the blueprints and fighters ui
+You can't destroy built fighters
+
+Big question is how to introduce more strategy into the combat but we can probably look at others
+Positioning, how can we solve this easy?
+
+Also we need to make weapons (aka fighters)
+
+
+Lanes
+Three
+
+Reinforce/spawn/summon
+Select lane where to reinforce during battle
+
+Fighters/Weapons have range like darkest dungeon
+
+Also different effectivenes in different lanes?
+
 
 We should really focus on making the game playable forward
 Not add more features
@@ -26,6 +54,13 @@ Also an end to the game
 
 And choice events
 
+Scout/tank/artillery
+
+Artillery can also be missiles
+
+Deploy zones? Front,middle,back? Depending on range ?
+
+Some weapons only work in certain positions like darkest dungeon
 
 
 			TO IMPLEMENT:
@@ -117,7 +152,39 @@ And choice events
 
 - SHIELD PIERCE (as a upgrade/ability/skill)
 
-	
+Void bastards notes:
+only forward travel
+
+Repair after battles (only?)
+So that's what food are for
+
+So for your game it's to assign or "build" new ships using resources + population
+
+Then you can have population/resource events
+Rescue people etc
+Or fights against other things etc
+
+Select load out before mission
+Also see info about what types of enemies and loot
+
+Some resource that can be gambled for an outcome (like events with sacrifice X to perhaps gain y) with known outcome or not
+
+One time use buys, köp saker, typ bullets (I ditt fall hard hitting shit for mothership) för resources
+
+Samma resources som används för annat
+
+One currency
+Rest is crafting mats
+
+Junk squid (förstör noder)
+Pure gain nodes (fuel, food, health etc)
+Mines (lose health)
+Shops (buy things)
+Ship nodes (combat)
+Roaming extra events (pirates)
+Food pack event
+
+Forward is the way to go, downwards is harder
 
 Overall 
 ===================
@@ -204,6 +271,22 @@ macro level is (like stellaris)
 		- neutral zones (rewards and loot)
 
 You could make it so you can only move forward and also make it like Drakborgen
+
+Backwards travel prohibited (same as ftl)
+Fuel (same as ftl?)
+Food also 
+
+Characters have random negative traits
+
+All missions are combat I think, no pure events, yet
+
+Maybe it should be clusters of nodes that are connected 
+5 nodes that are connected and one of them is connected to the next X nodes etc
+
+So perhaps each node in the maze you have now is X event nodes instead?
+
+Simple goal is to leave the galaxy
+Or go to one of the four ends where you have intel about a habitable planet
 
 Fleet 
 =====================

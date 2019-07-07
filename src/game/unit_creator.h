@@ -225,7 +225,7 @@ namespace UnitCreator {
             s.flip = 1;
             ship.sprite = s;
 
-            auto weap = GLOBAL_BASE_WEAPON;
+            auto weap = Services::db()->get_weapon(0);
             WeaponComponent weaponComponent = WeaponComponent(weap, weap.name, _random_targeter, weap.projectile_type);
             
             ship.abilities.add(weaponComponent);

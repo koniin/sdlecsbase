@@ -1,5 +1,6 @@
 #include "game_state.h"
 #include "engine.h"
+#include "services.h"
 
 void GameState::new_game() {
     Engine::logn("Making new game state");
@@ -32,7 +33,7 @@ void GameState::new_game() {
     w.type = AbilityConfig::IsWeapon;
     
     // Initialise with base
-    w.weapon = GLOBAL_BASE_WEAPON;
+    w.weapon = Services::db()->get_weapon(0);
     w.targeting = 1;
 
     w.weapon.name = "Dual Lazer";
