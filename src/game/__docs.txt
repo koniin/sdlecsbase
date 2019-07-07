@@ -18,10 +18,6 @@ Fighters are really cheap to replace (but still cost population)
 
 You get new pop at every unvisited node (after event)
 
-Ui is just a list of fighters with a button to buy more of that one
-So merge the blueprints and fighters ui
-You can't destroy built fighters
-
 Big question is how to introduce more strategy into the combat but we can probably look at others
 Positioning, how can we solve this easy?
 

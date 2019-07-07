@@ -9,6 +9,7 @@ enum ProjectileType {
     LazerBeamGreen,
     Missile,
     LazerBulletRed,
+    LazerBulletRedLarge,
     COUNT
 };
 
