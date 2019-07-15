@@ -8,25 +8,38 @@
 		 - destroyers - spawns in back lane - hp 60, shield 10, rocket battery, large radius
 
 		spawning fighters
-		- button (1,2,3 or something) for each spawn type
-		- spawn the corresponding type at right position
-		- count down spawns left
-		- max spawns
+		- when a fighter is destroyed - count down spawns
 		- enemy spawns 
+		- show spawns (like 4/8 - under the lane)
 		
 		inbetween
 		- buy fighters of each type (resource and pop)
+
+		JUICE TIME - actually making it look somewhat ok-ish
+		- see if juice doc from shooter is still there
+		- buy cheap things like ui and sprites
+			- https://zintoki.itch.io/space-breaker
+			- https://free-game-assets.itch.io/sci-fi-character-avatar-pixel-art
+			- https://1mpuls3101.itch.io/shmup
+			- https://venogear.itch.io/2d-pixel-spaceships-kit
+			- https://ansimuz.itch.io/explosion-animations-pack
+			- https://untiedgames.itch.io/five-free-pixel-explosions
+			- https://untiedgames.itch.io/wills-pixel-explosions
+			- https://untiedgames.itch.io/wills-magic-pixel-particle-effects
+		- explosions
+		- particles
+		- shake (screen, ships)
+		- lerp
+		- event ui - just do something simple like FTL ui
+		- buying UI - some better looking buttons
+		- map selection ui (just a tiny bit - sprites instead of lines and circles)
+		- hide research and make the buttons nicer
+		- start screen - a tiny bit nicer at least
 		
 		more inbetween things
 		- research things (upgrades) - Interceptor max increased by one 
 		- find pop, find resources
 		- find fighter types (after battles etc)
-
-
-		JUICE TIME - actually making it look somewhat ok-ish
-		- https://1mpuls3101.itch.io/shmup
-		- https://venogear.itch.io/2d-pixel-spaceships-kit
-		
 
 		 Start with simple (AVOID FEATURE CREEP)
 		 	=> Vlaamber method of making games: https://www.youtube.com/watch?v=cBPYCmjDNkM
