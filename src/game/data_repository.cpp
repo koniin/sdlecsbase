@@ -82,6 +82,19 @@ const std::vector<Weapon> _weapons {
         400.0f, // float projectile_speed = 500.0f;
         0.0f, // float projectile_speed_increase = 0.0f;
         0.0f // float projectile_speed_max = 0.0f;
+    },
+    {
+        "Rocket Battery", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
+        1.65f, //float reload_time = 1.0f; // in seconds (0.2f)
+        1, // int damage = 1;
+        0.8f, // float accuracy = 0.5f;
+        ProjectileType::Missile, // ProjectileType projectile_type; // name of sprite for projectile
+        5, // int projectile_count = 1;
+        0.15f, // float burst_delay = 0.0f;
+        3, // int radius = 8;
+        200.0f, // float projectile_speed = 500.0f;
+        4.0f, // float projectile_speed_increase = 0.0f;
+        500.0f // float projectile_speed_max = 0.0f;
     }
 };
 
@@ -154,20 +167,30 @@ void test_load() {
 void DB::load() {
     test_load();
 
-    FighterConfig f;
-    f.defense = { 10, 5 };
-    f.sprite_base = "cs1";
+    // Interceptor
 
+    FighterConfig f;
+    f.defense = { 5, 1 };
+    f.sprite_base = "cs1";
     WeaponConfig wc;
     wc.targeting = 2;
-
     wc.weapon = get_weapon(0);
-    
     f.weapons.push_back(wc);
-
     f.id = _fighters.size();
-    f.name = "Lazer frigate";
+    f.name = "Lazer interceptor";
+    _fighters.push_back(f);
+    
+    // Interceptor
 
+    FighterConfig f;
+    f.defense = { 25, 5 };
+    f.sprite_base = "cs1";
+    WeaponConfig wc;
+    wc.targeting = 2;
+    wc.weapon = get_weapon(0);
+    f.weapons.push_back(wc);
+    f.id = _fighters.size();
+    f.name = "Lazer interceptor";
     _fighters.push_back(f);
 }
 
