@@ -27,7 +27,7 @@ const std::vector<Weapon> _weapons {
         1, // int projectile_count = 1;
         0.0f, // float burst_delay = 0.0f;
         6, // int radius = 8;
-        500.0f, // float projectile_speed = 500.0f;
+        300.0f, // float projectile_speed = 500.0f;
         0.0f, // float projectile_speed_increase = 0.0f;
         0.0f // float projectile_speed_max = 0.0f;
     },
@@ -40,7 +40,7 @@ const std::vector<Weapon> _weapons {
         2, // int projectile_count = 1;
         0.15f, // float burst_delay = 0.0f;
         6, // int radius = 8;
-        500.0f, // float projectile_speed = 500.0f;
+        300.0f, // float projectile_speed = 500.0f;
         0.0f, // float projectile_speed_increase = 0.0f;
         0.0f // float projectile_speed_max = 0.0f;
     },
@@ -53,7 +53,7 @@ const std::vector<Weapon> _weapons {
         5, // int projectile_count = 1;
         0.1f, // float burst_delay = 0.0f;
         6, // int radius = 8;
-        500.0f, // float projectile_speed = 500.0f;
+        300.0f, // float projectile_speed = 500.0f;
         0.0f, // float projectile_speed_increase = 0.0f;
         0.0f // float projectile_speed_max = 0.0f;
     },
@@ -66,7 +66,7 @@ const std::vector<Weapon> _weapons {
         1, // int projectile_count = 1;
         0.0f, // float burst_delay = 0.0f;
         6, // int radius = 8;
-        400.0f, // float projectile_speed = 500.0f;
+        200.0f, // float projectile_speed = 500.0f;
         0.0f, // float projectile_speed_increase = 0.0f;
         0.0f // float projectile_speed_max = 0.0f;
     },
@@ -79,7 +79,7 @@ const std::vector<Weapon> _weapons {
         2, // int projectile_count = 1;
         0.15f, // float burst_delay = 0.0f;
         6, // int radius = 8;
-        400.0f, // float projectile_speed = 500.0f;
+        200.0f, // float projectile_speed = 500.0f;
         0.0f, // float projectile_speed_increase = 0.0f;
         0.0f // float projectile_speed_max = 0.0f;
     },
@@ -92,9 +92,9 @@ const std::vector<Weapon> _weapons {
         5, // int projectile_count = 1;
         0.15f, // float burst_delay = 0.0f;
         3, // int radius = 8;
-        200.0f, // float projectile_speed = 500.0f;
+        100.0f, // float projectile_speed = 500.0f;
         4.0f, // float projectile_speed_increase = 0.0f;
-        500.0f // float projectile_speed_max = 0.0f;
+        300.0f // float projectile_speed_max = 0.0f;
     }
 };
 

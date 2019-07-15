@@ -18,7 +18,7 @@
 		- buy fighters of each type (resource and pop)
 		
 		more inbetween things
-		- research things (upgrades)
+		- research things (upgrades) - Interceptor max increased by one 
 		- find pop, find resources
 		- find fighter types (after battles etc)
 

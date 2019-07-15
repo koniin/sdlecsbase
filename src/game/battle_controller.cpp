@@ -149,14 +149,14 @@ namespace BattleController {
             }
         }
 
-        for(int j = (*i); j < f.count; j++) {
+        for(int j = 0; j < f.count; j++) {
             (*i)++;
             if(*i >= max_count) {
                 Engine::logn("max reached: %d", *i);
                 return;
             }
 
-            position.y = y_start + (float)(j) * 30;
+            position.y = y_start + (float)(*i) * 30;
             auto fighter = UnitCreator::create_fighter(f, PLAYER_FACTION, position, entity_manager);
             _fighter_ships.push_back(fighter);
         }
@@ -165,6 +165,9 @@ namespace BattleController {
     void spawn(int type, int max_spawns) {
         if(type == 0) { // interceptor 
             spawn_fighter({ 0, 1, FighterData::Type::Interceptor }, max_spawns);
+        } else if(type == 1) { // Cruiser 
+            Engine::logn("spawning cruiser");
+            spawn_fighter({ 1, 1, FighterData::Type::Cruiser }, max_spawns);
         }
     }
 
