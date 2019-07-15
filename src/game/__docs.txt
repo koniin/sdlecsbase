@@ -3,7 +3,7 @@
  next:
     = Goal:  CORE LOOP
 		make fighters
-		 - interceptor - spawns in front lane - hp 5, shield 1, basic lazer, small collision radius
+		 - interceptor - spawns in front lane - hp 5, shield 0, basic lazer, small collision radius
 		 - cruisers - spawns in middle lane - hp 25, shield 5, heavy lazer, medium collision radius
 		 - destroyers - spawns in back lane - hp 60, shield 10, rocket battery, large radius
 
@@ -19,9 +19,14 @@
 		
 		more inbetween things
 		- research things (upgrades)
+		- find pop, find resources
+		- find fighter types (after battles etc)
+
 
 		JUICE TIME - actually making it look somewhat ok-ish
-
+		- https://1mpuls3101.itch.io/shmup
+		- https://venogear.itch.io/2d-pixel-spaceships-kit
+		
 
 		 Start with simple (AVOID FEATURE CREEP)
 		 	=> Vlaamber method of making games: https://www.youtube.com/watch?v=cBPYCmjDNkM

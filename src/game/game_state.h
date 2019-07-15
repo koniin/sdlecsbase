@@ -25,6 +25,17 @@ struct MothershipConfig {
 struct FighterData {
     int id;
     int count = 0;
+    enum Type {
+        Interceptor,
+        Cruiser,
+        Destroyer
+    } fighter_type;
+
+    FighterData(int f_id, int c, Type t) {
+        id = f_id;
+        count = c;
+        fighter_type = t;
+    }
 };
 
 struct GameState {

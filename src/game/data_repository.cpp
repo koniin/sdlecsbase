@@ -31,7 +31,7 @@ const std::vector<Weapon> _weapons {
         0.0f, // float projectile_speed_increase = 0.0f;
         0.0f // float projectile_speed_max = 0.0f;
     },
-    {
+    { // 1
         "Dual Lazer", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
         0.6f, //float reload_time = 1.0f; // in seconds (0.2f)
         1, // int damage = 1;
@@ -44,7 +44,7 @@ const std::vector<Weapon> _weapons {
         0.0f, // float projectile_speed_increase = 0.0f;
         0.0f // float projectile_speed_max = 0.0f;
     },
-    {
+    { // 2
         "Burst Lazer", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
         1.2f, //float reload_time = 1.0f; // in seconds (0.2f)
         1, // int damage = 1;
@@ -57,7 +57,7 @@ const std::vector<Weapon> _weapons {
         0.0f, // float projectile_speed_increase = 0.0f;
         0.0f // float projectile_speed_max = 0.0f;
     },
-    {
+    { // 3
         "Heavy Lazer", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
         0.5f, //float reload_time = 1.0f; // in seconds (0.2f)
         2, // int damage = 1;
@@ -70,7 +70,7 @@ const std::vector<Weapon> _weapons {
         0.0f, // float projectile_speed_increase = 0.0f;
         0.0f // float projectile_speed_max = 0.0f;
     },
-    {
+    { // 4
         "Dual Heavy Lazer", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
         0.65f, //float reload_time = 1.0f; // in seconds (0.2f)
         2, // int damage = 1;
@@ -83,7 +83,7 @@ const std::vector<Weapon> _weapons {
         0.0f, // float projectile_speed_increase = 0.0f;
         0.0f // float projectile_speed_max = 0.0f;
     },
-    {
+    { // 5
         "Rocket Battery", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
         1.65f, //float reload_time = 1.0f; // in seconds (0.2f)
         1, // int damage = 1;
@@ -168,30 +168,44 @@ void DB::load() {
     test_load();
 
     // Interceptor
-
+{
     FighterConfig f;
-    f.defense = { 5, 1 };
-    f.sprite_base = "cs1";
+    f.defense = { 5, 0 };
+    f.sprite_base = "interceptor_1";
     WeaponConfig wc;
     wc.targeting = 2;
     wc.weapon = get_weapon(0);
     f.weapons.push_back(wc);
     f.id = _fighters.size();
-    f.name = "Lazer interceptor";
+    f.name = "Lazer Interceptor";
     _fighters.push_back(f);
-    
-    // Interceptor
-
+}
+    // Cruiser
+ {
     FighterConfig f;
     f.defense = { 25, 5 };
-    f.sprite_base = "cs1";
+    f.sprite_base = "cruiser_1";
     WeaponConfig wc;
     wc.targeting = 2;
-    wc.weapon = get_weapon(0);
+    wc.weapon = get_weapon(3);
     f.weapons.push_back(wc);
     f.id = _fighters.size();
-    f.name = "Lazer interceptor";
+    f.name = "Lazer Cruiser";
     _fighters.push_back(f);
+ }
+      // Destroyer
+ {
+    FighterConfig f;
+    f.defense = { 60, 10 };
+    f.sprite_base = "destroyer_1";
+    WeaponConfig wc;
+    wc.targeting = 2;
+    wc.weapon = get_weapon(5);
+    f.weapons.push_back(wc);
+    f.id = _fighters.size();
+    f.name = "Lazer Cruiser";
+    _fighters.push_back(f);
+ }
 }
 
 std::vector<FighterConfig> &DB::get_fighters() {
@@ -208,5 +222,6 @@ const FighterConfig &DB::get_fighter_config(int id) {
 }
 
 const Weapon &DB::get_weapon(int id) {
-    return GLOBAL_BASE_WEAPON;
+    return _weapons[id];
+    // return GLOBAL_BASE_WEAPON;
 }

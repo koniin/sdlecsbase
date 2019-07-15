@@ -104,6 +104,15 @@ namespace BattleController {
         return false;
     }
     
+    struct LaneData {
+        int forward_count = 0; // closest to enemy
+        int middle_count = 0;
+        int back_count = 0;
+    };
+
+    LaneData player_lanes;
+    LaneData enemy_lanes;
+
     void initialize() {
         world_bounds = Rectangle(0, 0, (int)gw, (int)gh);
         _motherships.reserve(2);
@@ -118,10 +127,54 @@ namespace BattleController {
         // Services::events().listen<EntityDestroyedEvent>(&entity_destroyed);
     }
 
+    void spawn_fighter(const FighterData &f, int max_count) {
+        Vector2 position = Vector2(170, 0);
+        float y_start = 50;
+        int *i;
+        switch(f.fighter_type) {
+            case FighterData::Type::Interceptor: {
+                position.x = 280;
+                i = &player_lanes.forward_count;
+                break;
+            }
+            case FighterData::Type::Cruiser: {
+                position.x = 200;
+                i = &player_lanes.middle_count;
+                break;
+            }
+            case FighterData::Type::Destroyer: {
+                position.x = 140;
+                i = &player_lanes.back_count;
+                break;
+            }
+        }
+
+        for(int j = (*i); j < f.count; j++) {
+            (*i)++;
+            if(*i >= max_count) {
+                Engine::logn("max reached: %d", *i);
+                return;
+            }
+
+            position.y = y_start + (float)(j) * 30;
+            auto fighter = UnitCreator::create_fighter(f, PLAYER_FACTION, position, entity_manager);
+            _fighter_ships.push_back(fighter);
+        }
+    }
+
+    void spawn(int type, int max_spawns) {
+        if(type == 0) { // interceptor 
+            spawn_fighter({ 0, 1, FighterData::Type::Interceptor }, max_spawns);
+        }
+    }
+
     void create(std::shared_ptr<GameState> game_state) {
         UnitCreator::create_player_mothership(game_state->mothership, entity_manager, _motherships);
-        UnitCreator::create_player_fighters(game_state->fighters, entity_manager, _fighter_ships);
-
+        
+        for(auto &f : game_state->fighters) {
+            spawn_fighter(f, game_state->fighters_max);
+        }
+        
         UnitCreator::create_enemy_mothership(game_state->seed, game_state->difficulty, game_state->node_distance, entity_manager, _motherships);
         UnitCreator::create_enemy_fighters(game_state->seed, game_state->difficulty, game_state->node_distance, entity_manager, _fighter_ships);
     }
@@ -338,74 +391,77 @@ namespace BattleController {
         _enemy_count_last = enemy_count;
     }
 
-    template<typename Entity>
-    void fill_rect(const Entity &entity, Rectangle &unit_rect) {
-        unit_rect.x = (int)(entity.position.value.x - (entity.collision.aabb.w / 2));
-        unit_rect.y = (int)(entity.position.value.y - (entity.collision.aabb.h / 2));
-        unit_rect.w = entity.collision.aabb.w;
-        unit_rect.h = entity.collision.aabb.h;
-    }
+    /////
+    // UNIT SELECTION CODE
 
-    std::vector<ECS::EntityId> _selected_entities;
-    void select_units(Rectangle &r) {
-        Rectangle unit_rect;
-        _selected_entities.clear();
+    // template<typename Entity>
+    // void fill_rect(const Entity &entity, Rectangle &unit_rect) {
+    //     unit_rect.x = (int)(entity.position.value.x - (entity.collision.aabb.w / 2));
+    //     unit_rect.y = (int)(entity.position.value.y - (entity.collision.aabb.h / 2));
+    //     unit_rect.w = entity.collision.aabb.w;
+    //     unit_rect.h = entity.collision.aabb.h;
+    // }
 
-        for(auto &ship : _fighter_ships) {
-            fill_rect(ship, unit_rect);
-            if(ship.faction.faction == PLAYER_FACTION && r.intersects(unit_rect)) {
-                _selected_entities.push_back(ship.entity.id);
-            }
-        }
-        for(auto &ship : _motherships) {
-            fill_rect(ship, unit_rect);
-            if(ship.faction.faction == PLAYER_FACTION && r.intersects(unit_rect)) {
-                _selected_entities.push_back(ship.entity.id);
-            }
-        }
-    }
+    // std::vector<ECS::EntityId> _selected_entities;
+    // void select_units(Rectangle &r) {
+    //     Rectangle unit_rect;
+    //     _selected_entities.clear();
+
+    //     for(auto &ship : _fighter_ships) {
+    //         fill_rect(ship, unit_rect);
+    //         if(ship.faction.faction == PLAYER_FACTION && r.intersects(unit_rect)) {
+    //             _selected_entities.push_back(ship.entity.id);
+    //         }
+    //     }
+    //     for(auto &ship : _motherships) {
+    //         fill_rect(ship, unit_rect);
+    //         if(ship.faction.faction == PLAYER_FACTION && r.intersects(unit_rect)) {
+    //             _selected_entities.push_back(ship.entity.id);
+    //         }
+    //     }
+    // }
     
-    bool get_target(Point &p, ECS::EntityId &target) {
-        Rectangle unit_rect;
-        for(auto &ship : _fighter_ships) {
-            fill_rect(ship, unit_rect);
-            if(unit_rect.contains(p)) {
-                target = ship.entity.id;
-                return true;
-            }
-        }
+    // bool get_target(Point &p, ECS::EntityId &target) {
+    //     Rectangle unit_rect;
+    //     for(auto &ship : _fighter_ships) {
+    //         fill_rect(ship, unit_rect);
+    //         if(unit_rect.contains(p)) {
+    //             target = ship.entity.id;
+    //             return true;
+    //         }
+    //     }
         
-        for(auto &ship : _motherships) {
-            fill_rect(ship, unit_rect);
-            if(unit_rect.contains(p)) {
-                target = ship.entity.id;
-                return true;
-            }
-        }
-        return false;
-    }
+    //     for(auto &ship : _motherships) {
+    //         fill_rect(ship, unit_rect);
+    //         if(unit_rect.contains(p)) {
+    //             target = ship.entity.id;
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
 
-    void set_targets(Point &p) {
-        ECS::EntityId target;
-        if(!get_target(p, target)) {
-            return;
-        }
+    // void set_targets(Point &p) {
+    //     ECS::EntityId target;
+    //     if(!get_target(p, target)) {
+    //         return;
+    //     }
 
-        for(auto &ship : _fighter_ships) {
-            for(auto selected : _selected_entities) {
-                if(ship.entity.id == selected) {
-                    ship.abilities.set_target_override(target);
-                    break;
-                }
-            }
-        }
-        for(auto &ship : _motherships) {
-            for(auto selected : _selected_entities) {
-                if(ship.entity.id == selected) {
-                    ship.abilities.set_target_override(target);
-                    break;
-                }
-            }
-        }
-    }
+    //     for(auto &ship : _fighter_ships) {
+    //         for(auto selected : _selected_entities) {
+    //             if(ship.entity.id == selected) {
+    //                 ship.abilities.set_target_override(target);
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //     for(auto &ship : _motherships) {
+    //         for(auto selected : _selected_entities) {
+    //             if(ship.entity.id == selected) {
+    //                 ship.abilities.set_target_override(target);
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
 }

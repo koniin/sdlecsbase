@@ -64,9 +64,14 @@ void GameState::new_game() {
 
     population = mothership.population_max / 4;
     resources = 30;
-    fighters_max = 8;
+    fighters_max = 8; // per lane
 
-    fighters.push_back({ 0, 2 });
+    fighters.push_back(
+        { 0, 28, FighterData::Type::Interceptor }
+    );
+    fighters.push_back(
+        { 1, 1, FighterData::Type::Cruiser }
+    );
 }
 
 void GameState::set_current_node(const Point &next_node) {
