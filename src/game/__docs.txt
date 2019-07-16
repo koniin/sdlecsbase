@@ -2,18 +2,14 @@
 
  next:
     = Goal:  CORE LOOP
-		make fighters
-		 - interceptor - spawns in front lane - hp 5, shield 0, basic lazer, small collision radius
-		 - cruisers - spawns in middle lane - hp 25, shield 5, heavy lazer, medium collision radius
-		 - destroyers - spawns in back lane - hp 60, shield 10, rocket battery, large radius
-
+	
 		spawning fighters
-		- when a fighter is destroyed - count down spawns
 		- enemy spawns 
 		- show spawns (like 4/8 - under the lane)
 		
 		inbetween
 		- buy fighters of each type (resource and pop)
+		- only spawn fighters that you actually have
 
 		JUICE TIME - actually making it look somewhat ok-ish
 		- see if juice doc from shooter is still there

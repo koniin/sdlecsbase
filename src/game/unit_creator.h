@@ -63,10 +63,16 @@ namespace UnitCreator {
         lazer_rect.h = height;
     }
     
+    FighterShip::FighterShipType convert_fighter_type(FighterData::Type type) {
+        return type == FighterData::Interceptor ? FighterShip::Interceptor :
+            type == FighterData::Cruiser ? FighterShip::Cruiser : 
+            FighterShip::Destroyer;
+    }
+
     FighterShip create_fighter(const FighterData &f, const int &faction, const Vector2 &position, ECS::EntityManager &entity_manager) {
         auto &f_cfg = Services::db()->get_fighter_config(f.id);
 
-        FighterShip ship(entity_manager.create());
+        FighterShip ship(entity_manager.create(), convert_fighter_type(f.fighter_type));
         ship.faction = FactionComponent { faction };
         ship.position = position;
         //ship.position = RNG::vector2(position.x - 10, position.x + 10, position.y - 8, position.y + 8);

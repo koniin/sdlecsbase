@@ -104,15 +104,6 @@ namespace BattleController {
         return false;
     }
     
-    struct LaneData {
-        int forward_count = 0; // closest to enemy
-        int middle_count = 0;
-        int back_count = 0;
-    };
-
-    LaneData player_lanes;
-    LaneData enemy_lanes;
-
     void initialize() {
         world_bounds = Rectangle(0, 0, (int)gw, (int)gh);
         _motherships.reserve(2);
@@ -130,33 +121,39 @@ namespace BattleController {
     void spawn_fighter(const FighterData &f, int max_count) {
         Vector2 position = Vector2(170, 0);
         float y_start = 50;
-        int *i;
+        int i = 9000;
         switch(f.fighter_type) {
             case FighterData::Type::Interceptor: {
                 position.x = 280;
-                i = &player_lanes.forward_count;
+                i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [](FighterShip &ship) {
+                    return ship.faction.faction == PLAYER_FACTION && ship.type == FighterShip::Interceptor;
+                });
                 break;
             }
             case FighterData::Type::Cruiser: {
                 position.x = 200;
-                i = &player_lanes.middle_count;
+                i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [](FighterShip &ship) {
+                    return ship.faction.faction == PLAYER_FACTION && ship.type == FighterShip::Cruiser;
+                });
                 break;
             }
             case FighterData::Type::Destroyer: {
                 position.x = 140;
-                i = &player_lanes.back_count;
+                i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [](FighterShip &ship) {
+                    return ship.faction.faction == PLAYER_FACTION && ship.type == FighterShip::Destroyer;
+                });
                 break;
             }
         }
 
         for(int j = 0; j < f.count; j++) {
-            (*i)++;
-            if(*i >= max_count) {
-                Engine::logn("max reached: %d", *i);
+            i++;
+            if(i > max_count) {
+                Engine::logn("max reached: %d", i);
                 return;
             }
 
-            position.y = y_start + (float)(*i) * 30;
+            position.y = y_start + (float)i * 30;
             auto fighter = UnitCreator::create_fighter(f, PLAYER_FACTION, position, entity_manager);
             _fighter_ships.push_back(fighter);
         }
@@ -232,6 +229,15 @@ namespace BattleController {
                 particle_config.explosion_emitter.position = entity.position.value;
                 Particles::emit(particles, particle_config.explosion_emitter);
                 entity.life_time.marked_for_deletion = true;
+            }
+        }
+    }
+
+    template<typename EntityVector>
+    bool system_update_lane_count(EntityVector& entities) {
+        for(auto &e : entities) {
+            if(e.life_time.marked_for_deletion) { 
+                entity_manager.destroy(e.entity);
             }
         }
     }

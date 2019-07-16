@@ -249,11 +249,16 @@ struct MotherShip {
 
 struct FighterShip {
     ECS::Entity entity;
+    enum FighterShipType {
+        Interceptor,
+        Cruiser,
+        Destroyer
+    } type;
     Position position;
     SpriteComponent sprite;
     LifeTime life_time;
-    FighterShip(ECS::Entity e) : entity(e) {}
-
+    FighterShip(ECS::Entity e, FighterShipType t) : entity(e), type(t) {}
+    
     std::vector<Effect> effects;
 
     CollisionData collision;
