@@ -67,7 +67,7 @@ void GameState::new_game() {
     fighters_max = 8; // per lane
 
     fighters.push_back(
-        { 0, 28, FighterData::Type::Interceptor }
+        { 0, 8, FighterData::Type::Interceptor }
     );
     fighters.push_back(
         { 1, 1, FighterData::Type::Cruiser }

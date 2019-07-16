@@ -4,8 +4,12 @@
     = Goal:  CORE LOOP
 	
 		spawning fighters
-		- enemy spawns 
-		- show spawns (like 4/8 - under the lane)
+		- spawn in free position in lane 
+			- (have a list of positions and pick any free)
+			- or calculate the next free position somehow by checking which are taken
+		- count down spawns so we dont spawn when all are done
+		- show how many spawns left (Interceptor, Cruiser and Destroyer)
+		- update gamestate with how many spawns left
 		
 		inbetween
 		- buy fighters of each type (resource and pop)

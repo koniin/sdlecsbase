@@ -118,29 +118,29 @@ namespace BattleController {
         // Services::events().listen<EntityDestroyedEvent>(&entity_destroyed);
     }
 
-    void spawn_fighter(const FighterData &f, int max_count) {
+    void spawn_fighter(const FighterData &f, int max_count, int faction) {
         Vector2 position = Vector2(170, 0);
         float y_start = 50;
         int i = 9000;
         switch(f.fighter_type) {
             case FighterData::Type::Interceptor: {
-                position.x = 280;
-                i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [](FighterShip &ship) {
-                    return ship.faction.faction == PLAYER_FACTION && ship.type == FighterShip::Interceptor;
+                position.x = faction == PLAYER_FACTION ? 280 : 360;
+                i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [=](FighterShip &ship) {
+                    return ship.faction.faction == faction && ship.type == FighterShip::Interceptor;
                 });
                 break;
             }
             case FighterData::Type::Cruiser: {
-                position.x = 200;
-                i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [](FighterShip &ship) {
-                    return ship.faction.faction == PLAYER_FACTION && ship.type == FighterShip::Cruiser;
+                position.x = faction == PLAYER_FACTION ? 200 : 440;
+                i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [=](FighterShip &ship) {
+                    return ship.faction.faction == faction && ship.type == FighterShip::Cruiser;
                 });
                 break;
             }
             case FighterData::Type::Destroyer: {
-                position.x = 140;
-                i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [](FighterShip &ship) {
-                    return ship.faction.faction == PLAYER_FACTION && ship.type == FighterShip::Destroyer;
+                position.x = faction == PLAYER_FACTION ? 140 : 500;
+                i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [=](FighterShip &ship) {
+                    return ship.faction.faction == faction && ship.type == FighterShip::Destroyer;
                 });
                 break;
             }
@@ -154,17 +154,17 @@ namespace BattleController {
             }
 
             position.y = y_start + (float)i * 30;
-            auto fighter = UnitCreator::create_fighter(f, PLAYER_FACTION, position, entity_manager);
+            auto fighter = UnitCreator::create_fighter(f, faction, position, entity_manager);
             _fighter_ships.push_back(fighter);
         }
     }
 
     void spawn(int type, int max_spawns) {
         if(type == 0) { // interceptor 
-            spawn_fighter({ 0, 1, FighterData::Type::Interceptor }, max_spawns);
+            spawn_fighter({ 0, 1, FighterData::Type::Interceptor }, max_spawns, PLAYER_FACTION);
         } else if(type == 1) { // Cruiser 
             Engine::logn("spawning cruiser");
-            spawn_fighter({ 1, 1, FighterData::Type::Cruiser }, max_spawns);
+            spawn_fighter({ 1, 1, FighterData::Type::Cruiser }, max_spawns, PLAYER_FACTION);
         }
     }
 
@@ -172,11 +172,11 @@ namespace BattleController {
         UnitCreator::create_player_mothership(game_state->mothership, entity_manager, _motherships);
         
         for(auto &f : game_state->fighters) {
-            spawn_fighter(f, game_state->fighters_max);
+            spawn_fighter(f, game_state->fighters_max, PLAYER_FACTION);
         }
         
         UnitCreator::create_enemy_mothership(game_state->seed, game_state->difficulty, game_state->node_distance, entity_manager, _motherships);
-        UnitCreator::create_enemy_fighters(game_state->seed, game_state->difficulty, game_state->node_distance, entity_manager, _fighter_ships);
+        // UnitCreator::create_enemy_fighters(game_state->seed, game_state->difficulty, game_state->node_distance, entity_manager, _fighter_ships);
     }
 
     void end(std::shared_ptr<GameState> game_state) {
@@ -313,6 +313,58 @@ namespace BattleController {
         }
     }
 
+    struct Fleet {
+        int max_count = 8;
+        std::vector<FighterData> fighters;
+    };
+
+    Fleet enemy_fleet = {
+        8, {
+            { 0, 8, FighterData::Type::Interceptor },
+            { 1, 1, FighterData::Type::Cruiser }
+        }
+    };
+
+    void system_spawn_enemies() {
+        spawn_fighter(enemy_fleet.fighters[0], enemy_fleet.max_count, ENEMY_FACTION);
+
+        // for(auto &f : enemy_fleet.fighters) {
+        //     spawn_fighter(f, enemy_fleet.max_count, ENEMY_FACTION);
+        // }
+
+
+        // // spawn if there are slots left
+        // int i, c, d;
+        // for(auto &f : _fighter_ships) {
+        //     if(f.faction.faction == PLAYER_FACTION) {
+        //         continue;
+        //     }
+
+        //     if(f.type == FighterShip::Interceptor) {
+        //         i++;
+        //     }
+        //     if(f.type == FighterShip::Cruiser) {
+        //         c++;
+        //     }
+        //     if(f.type == FighterShip::Destroyer) {
+        //         d++;
+        //     }
+        // }
+
+        // if(i < enemy_fleet.max_count) {
+        //     for(int i = enemy_fleet.max_count - i; i <= enemy_fleet.max_count; i++) {
+        //         spawn_fighter(enemy_fleet.fighters[0], enemy_fleet.max_count, ENEMY_FACTION);
+        //     }
+        // }
+        // if(c < enemy_fleet.max_count) {
+            
+        // }
+        // if(d < enemy_fleet.max_count) {
+            
+        // }
+    }
+
+
     void update() {
         Particles::update(particles, Time::delta_time);
 
@@ -359,6 +411,8 @@ namespace BattleController {
         _motherships.erase(std::remove_if(_motherships.begin(), _motherships.end(), entity_remove<MotherShip>), _motherships.end());
         _projectiles.erase(std::remove_if(_projectiles.begin(), _projectiles.end(), entity_remove<Projectile>), _projectiles.end());
         _projectile_missed.erase(std::remove_if(_projectile_missed.begin(), _projectile_missed.end(), entity_remove<ProjectileMiss>), _projectile_missed.end());
+
+        system_spawn_enemies();
 
         // Spawn projectiles
         for(auto &pspawn : _projectile_spawns) {
