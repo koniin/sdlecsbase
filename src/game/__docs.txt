@@ -2,17 +2,41 @@
 
  next:
     = Goal:  CORE LOOP
-		new constraint - you can only have type of each fighter type (Interceptor, Cruiser & Destroyer)
+		new constraint - you can only have one type of each fighter type (Interceptor, Cruiser & Destroyer)
 			- no mixed weapons etc
-
-		spawning fighters
-		- show how many spawns left (Interceptor, Cruiser and Destroyer)
-		- update gamestate with how many spawns left
 		
+		energy
+		- recharge
+		- display
+		- usage (dont think a component is the best way, or is it? pros + cons plz)
+
+		hinder spamming new fighters
+		- energy cost for spawning fighters (like charging weapons in ftl)
+		 - different costs for different types (interceptors cost less than cruisers etc)
+		- energy recharges at a rate
+		- launch bays - launch one or more fighters at a time (different bays for different types?)
+		 - then you could have that as an upgrade (both more bays and faster charge)
+		- chose what bay to charge (like ftl power selection)
+
+		- active abilities (mothership)
+		 - shield activate (burns energy when on) (full immunity or just super recharge?)
+		 	- for all ships
+			- for just the mothership
+		 - weapons (one time energy cost)
+		 - disabling stuff (disable enemy mothership so it cant gain energy etc)
+
+		MORE health for all ships 
+
+		don't display shield if it's zero (as max)
+
 		inbetween
 		- buy fighters of each type (resource and pop)
-		- only spawn fighters that you actually have
+		- only spawn fighters that you actually have (no made up numbers)
 
+		combat 
+		- slower spawning - not just spam that shit (both player and enemy)
+		- more distance between ships (player - enemy)
+		
 		JUICE TIME - actually making it look somewhat ok-ish
 		- see if juice doc from shooter is still there
 		- buy cheap things like ui and sprites
@@ -28,6 +52,7 @@
 		- particles
 		- shake (screen, ships)
 		- lerp
+		- ships should move a little
 		- event ui - just do something simple like FTL ui
 		- buying UI - some better looking buttons
 		- map selection ui (just a tiny bit - sprites instead of lines and circles)
