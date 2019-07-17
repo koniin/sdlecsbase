@@ -130,7 +130,27 @@ namespace BattleController {
         return -1;
     }
 
-    void spawn_fighter(const FighterData &f, int max_count, int faction) {
+    int get_lane(FighterShip::FighterShipType type, int faction) {
+        if(type == FighterShip::Interceptor) {
+            return faction == PLAYER_FACTION ? 0 : 3;
+        } else if(type == FighterShip::Cruiser) {
+            return faction == PLAYER_FACTION ? 1 : 4;
+        } else if(type == FighterShip::Destroyer) {
+            return faction == PLAYER_FACTION ? 2 : 5;
+        }
+        return 9999;
+    }
+
+    void toggle_lane_position(FighterShip::FighterShipType type, int faction, int lane_position) {
+        int lane = get_lane(type, faction);
+        lanes[lane][lane_position] = !lanes[lane][lane_position];
+    }
+
+    void spawn_fighter(FighterData &f, int max_count, int faction) {
+        if(f.count <= 0) {
+            return;
+        }
+
         Vector2 position = Vector2(170, 0);
         float y_start = 50;
         int i = 9000;
@@ -162,28 +182,25 @@ namespace BattleController {
             }
         }
 
-        for(int j = 0; j < f.count; j++) {
-            i++;
-            if(i > max_count) {
-                Engine::logn("max reached: %d", i);
-                return;
-            }
-
-            int lane_pos = next_free_in_lane(lane);
-
-            position.y = y_start + (float)lane_pos * 30;
-            auto fighter = UnitCreator::create_fighter(f, faction, position, entity_manager);
-            fighter.lane_position = lane_pos;
-            _fighter_ships.push_back(fighter);
+        if(i+1 > max_count) {
+            Engine::logn("max reached: %d", i);
+            return;
         }
+
+        f.count--;
+
+        int lane_pos = next_free_in_lane(lane);
+        position.y = y_start + (float)lane_pos * 30;
+        auto fighter = UnitCreator::create_fighter(f, faction, position, entity_manager);
+        fighter.lane_position = lane_pos;
+        _fighter_ships.push_back(fighter);
     }
 
-    void spawn_TEST(int type, int max_spawns) {
-        if(type == 0) { // interceptor 
-            spawn_fighter({ 0, 1, FighterData::Type::Interceptor }, max_spawns, PLAYER_FACTION);
-        } else if(type == 1) { // Cruiser 
-            Engine::logn("spawning cruiser");
-            spawn_fighter({ 1, 1, FighterData::Type::Cruiser }, max_spawns, PLAYER_FACTION);
+    void spawn_one_of_type(FighterData::Type fighter_type, std::vector<FighterData> &fighters, int fighters_max, int faction) {
+        for(auto &f : fighters) {
+            if(f.fighter_type == fighter_type) {
+                spawn_fighter(f, fighters_max, faction);
+            }
         }
     }
 
@@ -265,13 +282,7 @@ namespace BattleController {
     void system_update_lanes(EntityVector& entities) {
         for(auto &e : entities) {
             if(e.life_time.marked_for_deletion) { 
-                if(e.type == FighterShip::Interceptor) {
-                    lanes[e.faction.faction == PLAYER_FACTION ? 0 : 3][e.lane_position] = false;
-                } else if(e.type == FighterShip::Cruiser) {
-                    lanes[e.faction.faction == PLAYER_FACTION ? 1 : 4][e.lane_position] = false;
-                } else if(e.type == FighterShip::Destroyer) {
-                    lanes[e.faction.faction == PLAYER_FACTION ? 2 : 5][e.lane_position] = false;
-                }
+                toggle_lane_position(e.type, e.faction.faction, e.lane_position);
             }
         }
     }
@@ -360,7 +371,8 @@ namespace BattleController {
     };
 
     void system_spawn_enemies() {
-        spawn_fighter(enemy_fleet.fighters[0], enemy_fleet.max_count, ENEMY_FACTION);
+        spawn_one_of_type(enemy_fleet.fighters[0].fighter_type, enemy_fleet.fighters, enemy_fleet.max_count, ENEMY_FACTION);
+        // spawn_fighter(enemy_fleet.fighters[0], enemy_fleet.max_count, ENEMY_FACTION);
 
         // for(auto &f : enemy_fleet.fighters) {
         //     spawn_fighter(f, enemy_fleet.max_count, ENEMY_FACTION);
