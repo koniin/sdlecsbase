@@ -254,6 +254,7 @@ struct FighterShip {
         Cruiser,
         Destroyer
     } type;
+    int lane_position = 0;
     Position position;
     SpriteComponent sprite;
     LifeTime life_time;

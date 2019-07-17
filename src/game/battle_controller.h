@@ -19,7 +19,7 @@ namespace BattleController {
     void update();
     void select_units(Rectangle &r);
     void set_targets(Point &p);
-    void spawn(int type, int max_spawns);
+    void spawn_TEST(int type, int max_spawns);
 }
 
 #endif

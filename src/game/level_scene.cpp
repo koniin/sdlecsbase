@@ -87,13 +87,13 @@ void LevelScene::update() {
 	}
 
     if(Input::key_pressed(SDLK_q)) {
-        BattleController::spawn(2, Services::game_state()->fighters_max);
+        BattleController::spawn_TEST(2, Services::game_state()->fighters_max);
 	}
     if(Input::key_pressed(SDLK_w)) {
-        BattleController::spawn(1, Services::game_state()->fighters_max);
+        BattleController::spawn_TEST(1, Services::game_state()->fighters_max);
 	}
     if(Input::key_pressed(SDLK_e)) {
-        BattleController::spawn(0, Services::game_state()->fighters_max);
+        BattleController::spawn_TEST(0, Services::game_state()->fighters_max);
 	}
     
     render_export(render_buffer);
