@@ -6,7 +6,8 @@
 
 enum UIAlign {
     Left,
-    Center
+    Center,
+    Right
 };
 
 struct Element {
@@ -38,6 +39,8 @@ struct TextElement : public Element {
             draw_text_centered_str((int)position.x, (int)position.y, color, text);
         } else if(align == UIAlign::Left) {
             draw_text_str((int)position.x, (int)position.y, color, text);
+        } else if(align == UIAlign::Right) {
+            draw_text_right_str((int)position.x, (int)position.y, color, text);
         }
     }
 };

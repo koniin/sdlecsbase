@@ -6,7 +6,6 @@
 			- no mixed weapons etc
 
 		spawning fighters
-		- count down spawns so we dont spawn when all are done
 		- show how many spawns left (Interceptor, Cruiser and Destroyer)
 		- update gamestate with how many spawns left
 		

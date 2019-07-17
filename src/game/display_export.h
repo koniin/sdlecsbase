@@ -70,6 +70,25 @@ void render_export(RenderBuffer &render_buffer) {
             }
         }
     }
+
+    for(auto &f : Services::game_state()->fighters) {
+        std::string fighter_type = "";
+        TextElement t;
+        if(f.fighter_type == FighterData::Interceptor) {
+            fighter_type = "Interceptors";
+            t.position = Point(gw - 10, 10);
+        } else if(f.fighter_type == FighterData::Cruiser) {
+            fighter_type = "Cruisers";
+            t.position = Point(gw - 10, 25);
+        } else if(f.fighter_type == FighterData::Destroyer) {
+            fighter_type = "Destroyers";
+            t.position = Point(gw - 10, 40);
+        }
+        t.color = Colors::white;
+        t.align = UIAlign::Right;
+        t.text = Text::format("%s %d", fighter_type.c_str(), f.count);
+        Services::ui()->add_immediate_element(t);
+    }
 }
 
 void export_sprite_data(const Position &position, const SpriteComponent &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets) {
