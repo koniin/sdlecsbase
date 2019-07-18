@@ -62,7 +62,7 @@ void render_export(RenderBuffer &render_buffer) {
                 TextElement t;
                 t.color = reload_timer < cooldown ? Colors::red : Colors::green;
                 t.align = UIAlign::Left;
-                t.position = Point(10, gh - 60 + i * 15);
+                t.position = Point(50, gh - 60 + i * 15);
                 float reload_time = cooldown - reload_timer;
                 t.text = Text::format("%d. %s (%.2f)", i + 1, name.c_str(), reload_time > 0.f ? reload_time : 0);
                 Services::ui()->add_immediate_element(t);
@@ -76,22 +76,22 @@ void render_export(RenderBuffer &render_buffer) {
         TextElement t;
         if(f.fighter_type == FighterData::Interceptor) {
             fighter_type = "Interceptors";
-            t.position = Point(gw - 10, 10);
+            t.position = Point(10, gh - 105);
         } else if(f.fighter_type == FighterData::Cruiser) {
             fighter_type = "Cruisers";
-            t.position = Point(gw - 10, 25);
+            t.position = Point(10, gh - 90);
         } else if(f.fighter_type == FighterData::Destroyer) {
             fighter_type = "Destroyers";
-            t.position = Point(gw - 10, 40);
+            t.position = Point(10, gh - 75);
         }
-        t.color = Colors::white;
-        t.align = UIAlign::Right;
+        t.color = Colors::cyan;
+        t.align = UIAlign::Left;
         t.text = Text::format("%s %d", fighter_type.c_str(), f.count);
         Services::ui()->add_immediate_element(t);
     }
 
     TextElement t;
-    t.position = Point(10, gh - 100);
+    t.position = Point(10, gh - 120);
     t.color = Colors::cyan;
     t.align = UIAlign::Left;
     t.text = Text::format("Energy: %d / %d", BattleController::player_energy_system.current, BattleController::player_energy_system.max);
