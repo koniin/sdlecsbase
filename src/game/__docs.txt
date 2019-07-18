@@ -6,23 +6,16 @@
  next:
     = Goal:  CORE LOOP
 		
-		- active abilities (mothership)
-		 - shield activate (burns energy when on) (full immunity or just super recharge?)
-		 	- for all ships
-			- for just the mothership
-		 - weapons (one time energy cost)
+		- weapons (one time energy cost)
 
-		MORE health for all ships (or more shields / faster recharge)
+		MORE health for all ships and/or more shields / faster recharge
 			-> more shield/faster recharge makes it so more ships are needed to actually kill stuff
-
-		don't display shield if it's zero (as max)
 
 		inbetween
 		- buy fighters of each type (resource and pop)
 		- only spawn fighters that you actually have (no made up numbers)
 
 		combat 
-		- slower spawning - not just spam that shit (both player and enemy)
 		- more distance between ships (player - enemy)
 		
 		JUICE TIME - actually making it look somewhat ok-ish
@@ -53,7 +46,22 @@
 		- find pop, find resources
 		- find fighter types (after battles etc)
 
-		- chose what bay to charge (like ftl power selection)
+		
+		- is energy fully charged on entering level scene or does it carry over from last?
+			if it carries over it will be harder to play when you fled last time
+
+		- chose what to charge (like ftl power selection)
+		 => like star trek reroute power to X (and FTL ;D)
+			- energy recharge gets allocated to something
+			- so you might allocate energy charge to launch bay for interceptors or cruisers 
+				or to an ability or special weapon etc 
+			- if you change allocation that charge gets depleted or stays the same 
+			- something is always allocated but never goes over max for that 
+			- launh bays could have steps like you can charge 4 interceptor spawns 
+				and then one ability spawn and then do it all at once
+				-> same thing with current system but not something you chose...
+			=> can be implemented as what you have now but with a map of charge system => energy bar
+
 		- disabling stuff (disable enemy mothership so it cant gain energy etc)
 		- environmental effects (FTL)
 		- stalemate => button to withdraw like FTL
