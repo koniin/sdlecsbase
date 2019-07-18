@@ -434,17 +434,24 @@ namespace BattleController {
             effect.tick_timer += Time::delta_time;
             effect.ttl_timer += Time::delta_time;
             if(effect.tick_timer >= effect.tick) {
-                for(auto &entity : first) {
-                    if(effect.target_faction == ALL_FACTIONS || effect.target_faction == entity.faction.faction) {
-                        entity.defense.apply(effect);
-                        entity.abilities.apply(effect);
-                    }     
-                }
-                for(auto &entity : second) {
-                    if(effect.target_faction == ALL_FACTIONS || effect.target_faction == entity.faction.faction) {
-                        entity.defense.apply(effect);
-                        entity.abilities.apply(effect);
-                    }     
+                int &energy = effect.user_faction == PLAYER_FACTION ? player_energy_system.current : fleet_ai.energy_system.current;
+                if(energy > effect.tick_energy_cost) {
+                    for(auto &entity : first) {
+                        if(effect.target_faction == ALL_FACTIONS || effect.target_faction == entity.faction.faction) {
+                            entity.defense.apply(effect);
+                            entity.abilities.apply(effect);
+                        }     
+                    }
+                    for(auto &entity : second) {
+                        if(effect.target_faction == ALL_FACTIONS || effect.target_faction == entity.faction.faction) {
+                            entity.defense.apply(effect);
+                            entity.abilities.apply(effect);
+                        }     
+                    }
+
+                    int energy_before = energy;
+                    energy -= effect.tick_energy_cost;
+                    Engine::logn("before: %d, after: %d", energy_before, energy);
                 }
 
                 effect.tick_timer = 0.0f;

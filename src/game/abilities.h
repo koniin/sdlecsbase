@@ -65,13 +65,15 @@ struct Targeting {
 
 struct Effect {
     int target_faction = 0;
+    int user_faction = 0;
+    int tick_energy_cost;
     float tick;
     float tick_timer;
     float ttl;
     float ttl_timer;
 
-    Effect(int faction_to_apply, float frequency_seconds, float time_to_live) 
-        : target_faction(faction_to_apply), tick(frequency_seconds), ttl(time_to_live) {
+    Effect(int using_faction, int faction_to_apply, float frequency_seconds, float time_to_live, int energy_tick_cost) 
+        : user_faction(using_faction), target_faction(faction_to_apply), tick(frequency_seconds), ttl(time_to_live), tick_energy_cost(energy_tick_cost) {
         tick_timer = 0.0f;
         ttl_timer = 0.0f;
     }
@@ -272,7 +274,7 @@ struct AbilityComponent {
     void use(int faction, Vector2 position, std::vector<ProjectileSpawn> &projectile_spawns, std::vector<Effect> &effects, std::vector<ECS::EntityId> &target_override) {
         Engine::logn("Ability use: %s - %d", ability.name.c_str(), faction);
 
-        Effect e = Effect(ability.faction, 2.0f, 4.0f);
+        Effect e = Effect(ability.faction, ability.faction, 0.5f, 6.0f, 6);
         
         e.shield_recharge_amount = 2;
 
