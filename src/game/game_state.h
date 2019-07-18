@@ -61,6 +61,7 @@ struct GameState {
     int population;
     int resources;
     int fighters_max;
+    int spawn_count;
 };
 
 #endif

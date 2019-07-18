@@ -28,7 +28,7 @@ namespace BattleController {
     void update();
     void select_units(Rectangle &r);
     void set_targets(Point &p);
-    void spawn_one_of_type(FighterData::Type fighter_type, std::vector<FighterData> &fighters, int fighters_max, int faction);
+    void spawn_of_type(int count, FighterData::Type fighter_type, std::vector<FighterData> &fighters, int fighters_max, int faction);
 }
 
 #endif

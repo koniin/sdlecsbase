@@ -65,6 +65,7 @@ void GameState::new_game() {
     population = mothership.population_max / 4;
     resources = 30;
     fighters_max = 8; // per lane
+    spawn_count = 1; // per spawn (launch bays?)
 
     fighters.push_back(
         { 0, 8, FighterData::Type::Interceptor }

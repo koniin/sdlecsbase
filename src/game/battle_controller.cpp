@@ -46,6 +46,8 @@ namespace BattleController {
         Fleet fleet;
 
         EnergySystem energy_system;
+
+        int spawn_count = 1;
     };
 
     FleetAI fleet_ai;
@@ -221,25 +223,27 @@ namespace BattleController {
         }
     }
 
-    void spawn_one_of_type(FighterData::Type fighter_type, std::vector<FighterData> &fighters, int fighters_max, int faction) {
-        int &energy = faction == PLAYER_FACTION ? player_energy_system.current : fleet_ai.energy_system.current;
-        int energy_cost = get_energy_cost(fighter_type);
-        if(energy < energy_cost) {
-            return;
-        }
+    void spawn_of_type(int count, FighterData::Type fighter_type, std::vector<FighterData> &fighters, int fighters_max, int faction) {
+        for(int i = 0; i < count; i++) {
+            int &energy = faction == PLAYER_FACTION ? player_energy_system.current : fleet_ai.energy_system.current;
+            int energy_cost = get_energy_cost(fighter_type);
+            if(energy < energy_cost) {
+                return;
+            }
 
-        energy -= energy_cost;
+            energy -= energy_cost;
 
-        for(auto &f : fighters) {
-            if(f.fighter_type == fighter_type) {
-                spawn_fighter(f, fighters_max, faction);
+            for(auto &f : fighters) {
+                if(f.fighter_type == fighter_type) {
+                    spawn_fighter(f, fighters_max, faction);
 
+                }
             }
         }
     }
 
     void spawn_enemies() {
-        spawn_one_of_type(fleet_ai.fleet.fighters[0].fighter_type, fleet_ai.fleet.fighters, fleet_ai.fleet.max_count, ENEMY_FACTION);
+        spawn_of_type(fleet_ai.spawn_count, fleet_ai.fleet.fighters[0].fighter_type, fleet_ai.fleet.fighters, fleet_ai.fleet.max_count, ENEMY_FACTION);
         
         // spawn_fighter(enemy_fleet.fighters[0], enemy_fleet.max_count, ENEMY_FACTION);
 
