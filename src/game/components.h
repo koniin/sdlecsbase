@@ -201,13 +201,6 @@ struct HomingComponent {
     bool enabled = false;
 };
 
-struct EnergyComponent {
-    int current;
-    int max;
-    float recharge_rate;
-    int recharge_amount;
-};
-
 struct Projectile {
     ECS::Entity entity;
     Position position;
@@ -248,7 +241,6 @@ struct MotherShip {
 
     std::vector<Effect> effects;
     
-    EnergyComponent energy;
     CollisionData collision;
     FactionComponent faction;
     MultiAbilityComponent abilities;

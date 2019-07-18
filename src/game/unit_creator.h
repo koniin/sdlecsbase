@@ -163,10 +163,6 @@ namespace UnitCreator {
     }
 
     void create_enemy_mothership(const int &seed, const int &difficulty, const int &node_distance, ECS::EntityManager &entity_manager, std::vector<MotherShip> &motherships) {
-        if(node_distance < 3) {
-            return;
-        }
-
         Vector2 position = Vector2((float)gw - 70, (float)gh / 2);
 
         MotherShip ship(entity_manager.create());

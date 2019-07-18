@@ -89,6 +89,13 @@ void render_export(RenderBuffer &render_buffer) {
         t.text = Text::format("%s %d", fighter_type.c_str(), f.count);
         Services::ui()->add_immediate_element(t);
     }
+
+    TextElement t;
+    t.position = Point(10, gh - 100);
+    t.color = Colors::cyan;
+    t.align = UIAlign::Left;
+    t.text = Text::format("Energy: %d / %d", BattleController::player_energy_system.current, BattleController::player_energy_system.max);
+    Services::ui()->add_immediate_element(t);
 }
 
 void export_sprite_data(const Position &position, const SpriteComponent &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets) {

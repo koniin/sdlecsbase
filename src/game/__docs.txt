@@ -6,9 +6,9 @@
 			- no mixed weapons etc
 		
 		energy
-		- recharge
 		- display
 		- usage (dont think a component is the best way, or is it? pros + cons plz)
+			- lets start outside
 
 		hinder spamming new fighters
 		- energy cost for spawning fighters (like charging weapons in ftl)
@@ -58,7 +58,7 @@
 		- map selection ui (just a tiny bit - sprites instead of lines and circles)
 		- hide research and make the buttons nicer
 		- start screen - a tiny bit nicer at least
-		
+
 		more inbetween things
 		- research things (upgrades) - Interceptor max increased by one 
 		- find pop, find resources

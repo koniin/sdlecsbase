@@ -15,9 +15,6 @@ namespace BattleController {
     const int c_projectile_count = 300;
     const int c_projectile_spawn_count = 300;
     
-    int _player_count_last = 0;
-    int _enemy_count_last = 0;
-
     Rectangle world_bounds;
 
     ECS::EntityManager entity_manager;
@@ -26,6 +23,8 @@ namespace BattleController {
     std::vector<Projectile> _projectiles;
     std::vector<ProjectileMiss> _projectile_missed;
     std::vector<Effect> _effects;
+
+    EnergySystem player_energy_system;
 
     Particles::ParticleContainer particles;
     struct ParticleConfiguration {
@@ -38,6 +37,18 @@ namespace BattleController {
     std::vector<ProjectileSpawn> _projectile_spawns;
 
     CollisionPairs collision_pairs;
+
+    struct FleetAI {
+        struct Fleet {
+            int max_count = 8;
+            std::vector<FighterData> fighters;
+        };
+        Fleet fleet;
+
+        EnergySystem energy_system;
+    };
+
+    FleetAI fleet_ai;
 
     bool get_one_target(const int &exclude_faction, std::vector<ECS::EntityId> &target_overrides, Targeting::Target &target) {
         int target_faction = exclude_faction == PLAYER_FACTION ? ENEMY_FACTION : PLAYER_FACTION;
@@ -196,15 +207,84 @@ namespace BattleController {
         _fighter_ships.push_back(fighter);
     }
 
-    void spawn_one_of_type(FighterData::Type fighter_type, std::vector<FighterData> &fighters, int fighters_max, int faction) {
-        for(auto &f : fighters) {
-            if(f.fighter_type == fighter_type) {
-                spawn_fighter(f, fighters_max, faction);
+    int get_energy_cost(FighterData::Type fighter_type) {
+        switch(fighter_type) {
+            case FighterData::Type::Interceptor: {
+                return 20;
+            }
+            case FighterData::Type::Cruiser: {
+                return 40;
+            }
+            case FighterData::Type::Destroyer: {
+                return 60;
             }
         }
     }
 
+    void spawn_one_of_type(FighterData::Type fighter_type, std::vector<FighterData> &fighters, int fighters_max, int faction) {
+        int &energy = faction == PLAYER_FACTION ? player_energy_system.current : fleet_ai.energy_system.current;
+        int energy_cost = get_energy_cost(fighter_type);
+        if(energy < energy_cost) {
+            return;
+        }
+
+        energy -= energy_cost;
+
+        for(auto &f : fighters) {
+            if(f.fighter_type == fighter_type) {
+                spawn_fighter(f, fighters_max, faction);
+
+            }
+        }
+    }
+
+    void spawn_enemies() {
+        spawn_one_of_type(fleet_ai.fleet.fighters[0].fighter_type, fleet_ai.fleet.fighters, fleet_ai.fleet.max_count, ENEMY_FACTION);
+        
+        // spawn_fighter(enemy_fleet.fighters[0], enemy_fleet.max_count, ENEMY_FACTION);
+
+        // for(auto &f : enemy_fleet.fighters) {
+        //     spawn_fighter(f, enemy_fleet.max_count, ENEMY_FACTION);
+        // }
+
+
+        // // spawn if there are slots left
+        // int i, c, d;
+        // for(auto &f : _fighter_ships) {
+        //     if(f.faction.faction == PLAYER_FACTION) {
+        //         continue;
+        //     }
+
+        //     if(f.type == FighterShip::Interceptor) {
+        //         i++;
+        //     }
+        //     if(f.type == FighterShip::Cruiser) {
+        //         c++;
+        //     }
+        //     if(f.type == FighterShip::Destroyer) {
+        //         d++;
+        //     }
+        // }
+
+        // if(i < enemy_fleet.max_count) {
+        //     for(int i = enemy_fleet.max_count - i; i <= enemy_fleet.max_count; i++) {
+        //         spawn_fighter(enemy_fleet.fighters[0], enemy_fleet.max_count, ENEMY_FACTION);
+        //     }
+        // }
+        // if(c < enemy_fleet.max_count) {
+            
+        // }
+        // if(d < enemy_fleet.max_count) {
+            
+        // }
+    }
+
     void create(std::shared_ptr<GameState> game_state) {
+        player_energy_system.current = 0;
+        player_energy_system.max = 100;
+        player_energy_system.recharge_amount = 2;
+        player_energy_system.recharge_rate = 0.2f;
+
         UnitCreator::create_player_mothership(game_state->mothership, entity_manager, _motherships);
         
         lanes.clear();
@@ -212,16 +292,29 @@ namespace BattleController {
             lanes.push_back(std::vector<bool>(game_state->fighters_max));
         }
 
-        for(auto &f : game_state->fighters) {
-            spawn_fighter(f, game_state->fighters_max, PLAYER_FACTION);
-        }
+        // for(auto &f : game_state->fighters) {
+        //     spawn_fighter(f, game_state->fighters_max, PLAYER_FACTION);
+        // }
         
         int ENEMY_MAX_LANE_SIZE = 8;
         for(int i = 3; i < 6; i++) {
             lanes.push_back(std::vector<bool>(ENEMY_MAX_LANE_SIZE));
         }
+
+        fleet_ai.fleet = {
+            8, {
+                { 0, 8, FighterData::Type::Interceptor },
+                { 1, 1, FighterData::Type::Cruiser }
+            }
+        };
+        
+        fleet_ai.energy_system.current = 0;
+        fleet_ai.energy_system.max = 100;
+        fleet_ai.energy_system.recharge_amount = 2;
+        fleet_ai.energy_system.recharge_rate = 0.3f;
+
         UnitCreator::create_enemy_mothership(game_state->seed, game_state->difficulty, game_state->node_distance, entity_manager, _motherships);
-        // UnitCreator::create_enemy_fighters(game_state->seed, game_state->difficulty, game_state->node_distance, entity_manager, _fighter_ships);
+        //UnitCreator::create_enemy_fighters(game_state->seed, game_state->difficulty, game_state->node_distance, entity_manager, _fighter_ships);
     }
 
     void end(std::shared_ptr<GameState> game_state) {
@@ -234,9 +327,6 @@ namespace BattleController {
         _projectile_missed.clear();
         _projectile_spawns.clear();
         Particles::clear(particles);
-
-        _player_count_last = 0;
-        _enemy_count_last = 0;
     }
 
     template<typename E>
@@ -358,65 +448,23 @@ namespace BattleController {
         }
     }
 
-    struct Fleet {
-        int max_count = 8;
-        std::vector<FighterData> fighters;
-    };
-
-    Fleet enemy_fleet = {
-        8, {
-            { 0, 8, FighterData::Type::Interceptor },
-            { 1, 1, FighterData::Type::Cruiser }
+    void system_energy_recharge(EnergySystem &e, const float dt) {
+        e.recharge_timer += dt;
+        if(e.recharge_timer >= e.recharge_rate) {
+            e.current = Math::clamp_i(e.current + e.recharge_amount, 0, e.max);
+            e.recharge_timer = 0.0f;
         }
-    };
-
-    void system_spawn_enemies() {
-        spawn_one_of_type(enemy_fleet.fighters[0].fighter_type, enemy_fleet.fighters, enemy_fleet.max_count, ENEMY_FACTION);
-        // spawn_fighter(enemy_fleet.fighters[0], enemy_fleet.max_count, ENEMY_FACTION);
-
-        // for(auto &f : enemy_fleet.fighters) {
-        //     spawn_fighter(f, enemy_fleet.max_count, ENEMY_FACTION);
-        // }
-
-
-        // // spawn if there are slots left
-        // int i, c, d;
-        // for(auto &f : _fighter_ships) {
-        //     if(f.faction.faction == PLAYER_FACTION) {
-        //         continue;
-        //     }
-
-        //     if(f.type == FighterShip::Interceptor) {
-        //         i++;
-        //     }
-        //     if(f.type == FighterShip::Cruiser) {
-        //         c++;
-        //     }
-        //     if(f.type == FighterShip::Destroyer) {
-        //         d++;
-        //     }
-        // }
-
-        // if(i < enemy_fleet.max_count) {
-        //     for(int i = enemy_fleet.max_count - i; i <= enemy_fleet.max_count; i++) {
-        //         spawn_fighter(enemy_fleet.fighters[0], enemy_fleet.max_count, ENEMY_FACTION);
-        //     }
-        // }
-        // if(c < enemy_fleet.max_count) {
-            
-        // }
-        // if(d < enemy_fleet.max_count) {
-            
-        // }
     }
-
-
+    
     void update() {
         Particles::update(particles, Time::delta_time);
 
         system_abilities(_motherships);
         system_abilities(_fighter_ships);
 
+        system_energy_recharge(player_energy_system, Time::delta_time);
+        system_energy_recharge(fleet_ai.energy_system, Time::delta_time);
+        
         system_shield_recharge(_motherships);
         system_shield_recharge(_fighter_ships);
         
@@ -460,7 +508,7 @@ namespace BattleController {
         _projectiles.erase(std::remove_if(_projectiles.begin(), _projectiles.end(), entity_remove<Projectile>), _projectiles.end());
         _projectile_missed.erase(std::remove_if(_projectile_missed.begin(), _projectile_missed.end(), entity_remove<ProjectileMiss>), _projectile_missed.end());
 
-        system_spawn_enemies();
+        spawn_enemies();
 
         // Spawn projectiles
         for(auto &pspawn : _projectile_spawns) {
@@ -483,23 +531,19 @@ namespace BattleController {
         // Handle game over and battle win !
         auto player_count = 0;
         auto enemy_count = 0;
-        for(auto &ship : _fighter_ships) {
-            if(ship.faction.faction == PLAYER_FACTION) player_count++;
-            if(ship.faction.faction == ENEMY_FACTION) enemy_count++;
-        }
-        for(auto &ship : _motherships) {
-            if(ship.faction.faction == PLAYER_FACTION) player_count++;
-            if(ship.faction.faction == ENEMY_FACTION) enemy_count++;
+        for(auto &f : _motherships) {
+            if(f.faction.faction == ENEMY_FACTION) {
+                enemy_count = 1;
+            } else if(f.faction.faction == PLAYER_FACTION) {
+                player_count = 1;
+            }
         }
         
-        if(_player_count_last > 0 && player_count == 0) {
+        if(player_count == 0) {
             Services::events()->push(BattleOverEvent { ENEMY_FACTION });
-        } else if(_enemy_count_last > 0 && enemy_count == 0) {
+        } else if(enemy_count == 0) {
             Services::events()->push(BattleOverEvent { PLAYER_FACTION });
         }
-
-        _player_count_last = player_count;
-        _enemy_count_last = enemy_count;
     }
 
     /////

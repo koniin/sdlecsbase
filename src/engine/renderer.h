@@ -117,6 +117,7 @@ namespace Colors {
     const SDL_Color red = { 201, 82, 82, 255 };
     const SDL_Color blue = { 82, 82, 201, 255 };
     const SDL_Color yellow = { 242, 252, 60, 255 };
+    const SDL_Color cyan = { 0, 255, 255, 255 };
 
     inline SDL_Color make(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
         return { r, g, b, a };

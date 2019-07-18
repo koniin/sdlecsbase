@@ -13,6 +13,15 @@ namespace BattleController {
     extern std::vector<ProjectileMiss> _projectile_missed;
     extern Particles::ParticleContainer particles;
 
+    struct EnergySystem {
+        int current;
+        int max;
+        float recharge_rate;
+        float recharge_timer;
+        int recharge_amount;  
+    };
+    extern EnergySystem player_energy_system;
+
     void initialize();
     void create(std::shared_ptr<GameState> game_state);
     void end(std::shared_ptr<GameState> game_state);
