@@ -39,11 +39,12 @@ void MenuScene::update() {
 
 void MenuScene::render() {
 	renderer_clear();
-	// room_render();
-	renderer_draw_render_target_camera();
 	
 	Services::ui()->render();
 	draw_text_centered_str((int)(gw / 2), (int)(gh - 20), Colors::white, "Press start to play new game.");
+	// room_render();
+	renderer_draw_render_target_camera();
+	
 	
 	renderer_flip();
 }
