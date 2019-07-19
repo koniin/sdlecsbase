@@ -59,12 +59,13 @@ void render_export(RenderBuffer &render_buffer) {
                 auto cooldown = ship.abilities.get_cooldown(ability_id);
                 auto name = ship.abilities.get_name(ability_id);
                 auto reload_timer = ship.abilities.get_timer(ability_id);
+                auto cost = ship.abilities.get_cost(ability_id);
                 TextElement t;
                 t.color = reload_timer < cooldown ? Colors::red : Colors::green;
                 t.align = UIAlign::Left;
                 t.position = Point(50, gh - 60 + i * 15);
                 float reload_time = cooldown - reload_timer;
-                t.text = Text::format("%d. %s (%.2f)", i + 1, name.c_str(), reload_time > 0.f ? reload_time : 0);
+                t.text = Text::format("%d. %s (%.2f) (%d)", i + 1, name.c_str(), reload_time > 0.f ? reload_time : 0, cost);
                 Services::ui()->add_immediate_element(t);
                 i++;
             }
