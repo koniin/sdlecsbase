@@ -31,6 +31,7 @@ void GameState::new_game() {
     
     AbilityConfig w;
     w.type = AbilityConfig::IsWeapon;
+    w.usage_cost = 60;
     
     // Initialise with base
     w.weapon = Services::db()->get_weapon(0);
@@ -58,7 +59,6 @@ void GameState::new_game() {
 
     AbilityConfig a;
     a.type = AbilityConfig::IsAbility;
-    a.abilityTest = 666;
 
     mothership.abilities.push_back(a);
 

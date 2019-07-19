@@ -7,6 +7,7 @@
     = Goal:  CORE LOOP
 		
 		- weapons (one time energy cost)
+		- population cost for launching things
 
 		MORE health for all ships and/or more shields / faster recharge
 			-> more shield/faster recharge makes it so more ships are needed to actually kill stuff

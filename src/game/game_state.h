@@ -12,7 +12,7 @@ struct AbilityConfig {
     Weapon weapon;
     short targeting;
 
-    int abilityTest;
+    int usage_cost = 0;
 };
 
 struct MothershipConfig {

@@ -180,6 +180,7 @@ struct WeaponComponent {
     Weapon _weapon;
     std::shared_ptr<Targeting> _targeting;
     std::vector<std::shared_ptr<WeaponModifier>> _weaponModifiers;
+    int _usage_cost = 0;
 
     public:
     WeaponComponent() {}
@@ -191,9 +192,13 @@ struct WeaponComponent {
         _weapon.radius = weapon_get_radius(type);
     }
     
-    // void add(std::shared_ptr<WeaponModifier> modifier) {
-    //     _weaponModifiers.push_back(modifier);
-    // }
+    void set_usage_cost(int cost) {
+        _usage_cost = cost;
+    }
+
+    int get_usage_cost() {
+        return _usage_cost;
+    }
 
     template<typename T>
     void add(T modifier) {
@@ -262,13 +267,20 @@ struct Ability {
     int faction;
     float reload_time = 0.0f;
     std::string name = "Test";
+    int usage_cost = 0;
 };
 
 struct AbilityComponent {
+    private:
     Ability ability;
 
+    public:
     Ability &get_ability() {
         return ability;
+    }
+
+    int get_usage_cost() {
+        return ability.usage_cost;
     }
 
     void use(int faction, Vector2 position, std::vector<ProjectileSpawn> &projectile_spawns, std::vector<Effect> &effects, std::vector<ECS::EntityId> &target_override) {
@@ -354,9 +366,13 @@ struct MultiAbilityComponent {
         return _reload_timer[id];
     }
 
-    bool can_use(int id) {
+    bool can_use(int id, int energy_available) {
         size_t index = id;
         if(index < 0 || index >= _abilities.size()) {
+            return false;
+        }
+
+        if(energy_available < get_cost(id)) {
             return false;
         }
 
@@ -382,6 +398,15 @@ struct MultiAbilityComponent {
         }
 
         _reload_timer[index] = 0.0f;
+    }
+
+    int get_cost(int id) {
+        auto &ability = _abilities[id];
+        if(ability.type == TypeWrapper::AbilityType) {
+            return _abilities[id].a.get_usage_cost();
+        } else {
+            return _abilities[id].w.get_usage_cost();
+        }
     }
 
     void apply(const Effect &e) {

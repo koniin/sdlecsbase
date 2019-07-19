@@ -141,16 +141,18 @@ namespace UnitCreator {
         for(auto &a : mothership.abilities) {
             if(a.type == AbilityConfig::IsAbility) {
                 AbilityComponent ac;
-                ac.ability.name = "Ability " + std::to_string(a.abilityTest);
-                ac.ability.faction = PLAYER_FACTION;
-                ac.ability.reload_time = 6.0f;
+                Ability &ability = ac.get_ability();
+                ability.name = "Shield booster";
+                ability.faction = PLAYER_FACTION;
+                ability.reload_time = 6.0f;
+                ability.usage_cost = a.usage_cost;
                 ship.abilities.add(ac, true);
             } else {
                 WeaponComponent weaponComponent = WeaponComponent(a.weapon,
                     a.weapon.name, 
                     a.targeting == 1 ? _random_multi_targeter : _random_targeter, 
                     a.weapon.projectile_type);
-                
+                weaponComponent.set_usage_cost(a.usage_cost);
                 ship.abilities.add(weaponComponent, true);
             }
         }

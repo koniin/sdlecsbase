@@ -170,7 +170,7 @@ namespace BattleController {
         int lane = 0;
         switch(f.fighter_type) {
             case FighterData::Type::Interceptor: {
-                position.x = faction == PLAYER_FACTION ? 280 : 360;
+                position.x = faction == PLAYER_FACTION ? 280.0f : 360.0f;
                 i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [=](FighterShip &ship) {
                     return ship.faction.faction == faction && ship.type == FighterShip::Interceptor;
                 });
@@ -178,7 +178,7 @@ namespace BattleController {
                 break;
             }
             case FighterData::Type::Cruiser: {
-                position.x = faction == PLAYER_FACTION ? 200 : 440;
+                position.x = faction == PLAYER_FACTION ? 200.0f : 440.0f;
                 i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [=](FighterShip &ship) {
                     return ship.faction.faction == faction && ship.type == FighterShip::Cruiser;
                 });
@@ -186,7 +186,7 @@ namespace BattleController {
                 break;
             }
             case FighterData::Type::Destroyer: {
-                position.x = faction == PLAYER_FACTION ? 140 : 500;
+                position.x = faction == PLAYER_FACTION ? 140.0f : 500.0f;
                 i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [=](FighterShip &ship) {
                     return ship.faction.faction == faction && ship.type == FighterShip::Destroyer;
                 });
@@ -221,6 +221,17 @@ namespace BattleController {
                 return 60;
             }
         }
+        Engine::logn("WARNING: No energy cost set for fighter type | " __FUNCTION__);
+        return 9000;
+    }
+
+    int get_available_energy(int faction) {
+        return faction == PLAYER_FACTION ? player_energy_system.current : fleet_ai.energy_system.current;
+    }
+
+    void reduce_energy(int faction, int energy_cost) {
+        int &energy = faction == PLAYER_FACTION ? player_energy_system.current : fleet_ai.energy_system.current;
+        energy = energy - energy_cost;
     }
 
     void spawn_of_type(int count, FighterData::Type fighter_type, std::vector<FighterData> &fighters, int fighters_max, int faction) {
@@ -324,7 +335,7 @@ namespace BattleController {
     void end(std::shared_ptr<GameState> game_state) {
 
         // UPDATE game state with outcome?
-
+        
         _motherships.clear();
         _fighter_ships.clear();
         _projectiles.clear();
@@ -349,12 +360,14 @@ namespace BattleController {
             for(auto &id : entity.abilities.ids()) {
                 if(entity.abilities.is_manual(id)) {
                     int ability_id = GInput::pressed_id();
-                    if(entity.abilities.can_use(ability_id)) {
+                    if(entity.abilities.can_use(ability_id, get_available_energy(entity.faction.faction))) {
                         entity.abilities.use(ability_id, entity.faction.faction, entity.position.value, _projectile_spawns, _effects);
+                        reduce_energy(entity.faction.faction, entity.abilities.get_cost(id));
                     }
                 } else {
-                    if(entity.abilities.can_use(id)) {
+                    if(entity.abilities.can_use(id, get_available_energy(entity.faction.faction))) {
                         entity.abilities.use(id, entity.faction.faction, entity.position.value, _projectile_spawns, _effects);
+                        reduce_energy(entity.faction.faction, entity.abilities.get_cost(id));
                     }
                 }
             }
