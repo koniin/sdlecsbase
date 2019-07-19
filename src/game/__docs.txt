@@ -41,10 +41,19 @@
 		- start screen - a tiny bit nicer at least
 
 		more inbetween things
-		- research things (upgrades) - Interceptor max increased by one 
+		- research things (upgrades) 
+			- faster firing for ships but less damage
+			- stronger shields (less damage from energy weapons)
+			- new (interceptor, cruiser, destroyer) types
+			- etc etc 
 		- find pop, find resources
 		- find fighter types (after battles etc)
 
+		events
+		- morale choices vs resources
+		- risk vs reward
+		- weird shit
+		- pop vs resources 
 		
 		- is energy fully charged on entering level scene or does it carry over from last?
 			if it carries over it will be harder to play when you fled last time
