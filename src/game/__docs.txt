@@ -6,19 +6,17 @@
  next:
     = Goal:  CORE LOOP
 		
-		- weapons (one time energy cost)
-		- population cost for launching things
-
-		MORE health for all ships and/or more shields / faster recharge
-			-> more shield/faster recharge makes it so more ships are needed to actually kill stuff
-
+		
 		inbetween
 		- buy fighters of each type (resource and pop)
 		- only spawn fighters that you actually have (no made up numbers)
+			- gamestate setup I guess
 
 		combat 
 		- more distance between ships (player - enemy)
-		
+		- MORE health for all ships and/or more shields / faster recharge
+			-> more shield/faster recharge makes it so more ships are needed to actually kill stuff
+
 		JUICE TIME - actually making it look somewhat ok-ish
 		- see if juice doc from shooter is still there
 		- buy cheap things like ui and sprites
@@ -50,6 +48,8 @@
 		
 		- is energy fully charged on entering level scene or does it carry over from last?
 			if it carries over it will be harder to play when you fled last time
+
+		- resource for special weapons? like missiles etc
 
 		- chose what to charge (like ftl power selection)
 		 => like star trek reroute power to X (and FTL ;D)
