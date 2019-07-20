@@ -6,9 +6,11 @@
  next:
     = Goal:  CORE LOOP
 		
-		
+
 		inbetween
 		- buy fighters of each type (resource and pop)
+		  - show them as a row (one of each as buttons)
+		- we need a max on how many you can have of each?
 		- only spawn fighters that you actually have (no made up numbers)
 			- gamestate setup I guess
 
@@ -48,6 +50,7 @@
 			- etc etc 
 		- find pop, find resources
 		- find fighter types (after battles etc)
+		- moving on the map should be something moving on the line (like a dot moving from current to next node)
 
 		events
 		- morale choices vs resources
@@ -72,6 +75,11 @@
 				-> same thing with current system but not something you chose...
 			=> can be implemented as what you have now but with a map of charge system => energy bar
 
+		- more map resources (like food/fuel/hope/belief/confidence/ambition)
+		- select where to spawn fighters when they are built
+			- so you select what to spend energy on and then when you have some fighters created you can select 
+			  which column and row to spawn them in
+		- taunt - for fighters
 		- disabling stuff (disable enemy mothership so it cant gain energy etc)
 		- environmental effects (FTL)
 		- stalemate => button to withdraw like FTL
