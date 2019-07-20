@@ -9,7 +9,6 @@
 
 		inbetween
 		- buy fighters of each type (resource and pop)
-		  - show them as a row (one of each as buttons)
 		- we need a max on how many you can have of each?
 		- only spawn fighters that you actually have (no made up numbers)
 			- gamestate setup I guess
@@ -83,6 +82,7 @@
 		- disabling stuff (disable enemy mothership so it cant gain energy etc)
 		- environmental effects (FTL)
 		- stalemate => button to withdraw like FTL
+		- multiple blueprint/fighters and select which one to spawn/charge with energy
 
 		 Start with simple (AVOID FEATURE CREEP)
 		 	=> Vlaamber method of making games: https://www.youtube.com/watch?v=cBPYCmjDNkM

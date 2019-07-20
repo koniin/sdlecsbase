@@ -131,19 +131,19 @@ namespace BattleController {
         // Services::events().listen<EntityDestroyedEvent>(&entity_destroyed);
     }
 
-    std::vector<std::vector<bool>> lanes;
+    std::vector<std::vector<bool>> columns;
 
-    int next_free_in_lane(int lane) {
-        for(size_t i = 0; i < lanes[lane].size(); i++) {
-            if(!lanes[lane][i]) {
-                lanes[lane][i] = true;
+    int next_free_in_column(int column) {
+        for(size_t i = 0; i < columns[column].size(); i++) {
+            if(!columns[column][i]) {
+                columns[column][i] = true;
                 return i;
             }
         }
         return -1;
     }
 
-    int get_lane(FighterShip::FighterShipType type, int faction) {
+    int get_column(FighterShip::FighterShipType type, int faction) {
         if(type == FighterShip::Interceptor) {
             return faction == PLAYER_FACTION ? 0 : 3;
         } else if(type == FighterShip::Cruiser) {
@@ -154,9 +154,9 @@ namespace BattleController {
         return 9999;
     }
 
-    void toggle_lane_position(FighterShip::FighterShipType type, int faction, int lane_position) {
-        int lane = get_lane(type, faction);
-        lanes[lane][lane_position] = !lanes[lane][lane_position];
+    void toggle_column_position(FighterShip::FighterShipType type, int faction, int column_position) {
+        int column = get_column(type, faction);
+        columns[column][column_position] = !columns[column][column_position];
     }
 
     void spawn_fighter(FighterData &f, int max_count, int faction) {
@@ -167,14 +167,14 @@ namespace BattleController {
         Vector2 position = Vector2(170, 0);
         float y_start = 50;
         int i = 9000;
-        int lane = 0;
+        int column = 0;
         switch(f.fighter_type) {
             case FighterData::Type::Interceptor: {
                 position.x = faction == PLAYER_FACTION ? 280.0f : 360.0f;
                 i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [=](FighterShip &ship) {
                     return ship.faction.faction == faction && ship.type == FighterShip::Interceptor;
                 });
-                lane = faction == PLAYER_FACTION ? 0 : 3;
+                column = faction == PLAYER_FACTION ? 0 : 3;
                 break;
             }
             case FighterData::Type::Cruiser: {
@@ -182,7 +182,7 @@ namespace BattleController {
                 i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [=](FighterShip &ship) {
                     return ship.faction.faction == faction && ship.type == FighterShip::Cruiser;
                 });
-                lane = faction == PLAYER_FACTION ? 1 : 4;
+                column = faction == PLAYER_FACTION ? 1 : 4;
                 break;
             }
             case FighterData::Type::Destroyer: {
@@ -190,7 +190,7 @@ namespace BattleController {
                 i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [=](FighterShip &ship) {
                     return ship.faction.faction == faction && ship.type == FighterShip::Destroyer;
                 });
-                lane = faction == PLAYER_FACTION ? 2 : 5;
+                column = faction == PLAYER_FACTION ? 2 : 5;
                 break;
             }
         }
@@ -202,10 +202,10 @@ namespace BattleController {
 
         f.count--;
 
-        int lane_pos = next_free_in_lane(lane);
-        position.y = y_start + (float)lane_pos * 30;
+        int column_pos = next_free_in_column(column);
+        position.y = y_start + (float)column_pos * 30;
         auto fighter = UnitCreator::create_fighter(f, faction, position, entity_manager);
-        fighter.lane_position = lane_pos;
+        fighter.column_position = column_pos;
         _fighter_ships.push_back(fighter);
     }
 
@@ -302,18 +302,18 @@ namespace BattleController {
 
         UnitCreator::create_player_mothership(game_state->mothership, entity_manager, _motherships);
         
-        lanes.clear();
+        columns.clear();
         for(int i = 0; i < 3; i++) {
-            lanes.push_back(std::vector<bool>(game_state->fighters_max));
+            columns.push_back(std::vector<bool>(game_state->fighters_max));
         }
 
         // for(auto &f : game_state->fighters) {
         //     spawn_fighter(f, game_state->fighters_max, PLAYER_FACTION);
         // }
         
-        int ENEMY_MAX_LANE_SIZE = 8;
+        int ENEMY_MAX_column_SIZE = 8;
         for(int i = 3; i < 6; i++) {
-            lanes.push_back(std::vector<bool>(ENEMY_MAX_LANE_SIZE));
+            columns.push_back(std::vector<bool>(ENEMY_MAX_column_SIZE));
         }
 
         fleet_ai.fleet = {
@@ -386,10 +386,10 @@ namespace BattleController {
     }
 
     template<typename EntityVector>
-    void system_update_lanes(EntityVector& entities) {
+    void system_update_columns(EntityVector& entities) {
         for(auto &e : entities) {
             if(e.life_time.marked_for_deletion) { 
-                toggle_lane_position(e.type, e.faction.faction, e.lane_position);
+                toggle_column_position(e.type, e.faction.faction, e.column_position);
             }
         }
     }
@@ -524,7 +524,7 @@ namespace BattleController {
         system_remove_outside(_projectiles, world_bounds);
         system_remove_outside(_projectile_missed, world_bounds);
 
-        system_update_lanes(_fighter_ships);
+        system_update_columns(_fighter_ships);
 
         // Remove entities with no lifetime left
         _fighter_ships.erase(std::remove_if(_fighter_ships.begin(), _fighter_ships.end(), entity_remove<FighterShip>), _fighter_ships.end());

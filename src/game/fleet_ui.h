@@ -59,9 +59,9 @@ struct FighterUIElement : public Element {
     }
 
     void render() override {
-        draw_spritesheet_name_centered(Resources::sprite_sheet_get(sheet_name), sprite, rect.x, rect.y);
-        // draw_g_rectangle_filled(rect.x, rect.y, rect.w, rect.h, color);
-        draw_text_centered_str(rect.x, rect.y + rect.h, text_color, _text);
+        draw_g_rectangle_filled(rect.x, rect.y, rect.w, rect.h, color);
+        draw_spritesheet_name_centered(Resources::sprite_sheet_get(sheet_name), sprite, position.x, position.y);
+        draw_text_centered_str(position.x, position.y + rect.h - 5, text_color, _text);
     }
 };
 
@@ -75,6 +75,9 @@ void list_blueprints() {
         
         std::string text = std::to_string(f_data.count) + " : " + f.weapons[0].weapon.name;
         FighterUIElement fe = FighterUIElement(x, y_start + y * spacing, "combat_sprites", f.sprite_base, text);
+        fe.on_click = []() { 
+            Engine::logn("FighterUIElement -> display cost for purhcase and use cost when clicked!"); 
+        };
         Services::ui()->add_element(fe, "fleet_ui");
         y++;
     }
