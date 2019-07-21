@@ -8,8 +8,6 @@
 		
 
 		inbetween
-		- buy fighters of each type (resource and pop)
-		- we need a max on how many you can have of each?
 		- only spawn fighters that you actually have (no made up numbers)
 			- gamestate setup I guess
 

@@ -239,6 +239,7 @@ namespace BattleController {
             int &energy = faction == PLAYER_FACTION ? player_energy_system.current : fleet_ai.energy_system.current;
             int energy_cost = get_energy_cost(fighter_type);
             if(energy < energy_cost) {
+                Engine::logn("Not enough energy");
                 return;
             }
 
@@ -247,7 +248,7 @@ namespace BattleController {
             for(auto &f : fighters) {
                 if(f.fighter_type == fighter_type) {
                     spawn_fighter(f, fighters_max, faction);
-
+                    return;
                 }
             }
         }
