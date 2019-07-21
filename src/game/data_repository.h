@@ -14,12 +14,21 @@ struct WeaponConfig {
     short targeting;
 };
 
+struct Cost {
+    int resource;
+    int population;
+
+    Cost() {}
+    Cost(int res, int pop) : resource(res), population(pop) {}
+};
+
 struct FighterConfig {
     int id;
     std::string name;
     std::string sprite_base;
     DefenseConfig defense;
     std::vector<WeaponConfig> weapons;
+    Cost cost;
 };
 
 struct DB {

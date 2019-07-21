@@ -391,8 +391,8 @@ void MapScene::render() {
     map_navigator.render();
     Services::node_event_manager()->render();
 
-    int population = Services::game_state()->population;
-    int resources = Services::game_state()->resources;
+    int population = Services::game_state()->resources.population;
+    int resources = Services::game_state()->resources.resource;
     std::string info_text = "Population: " + std::to_string(population) + " |  Resources: " + std::to_string(resources);
     draw_text_centered_str((int)(gw / 2), 10, Colors::white, info_text);
 

@@ -10,8 +10,25 @@ struct FighterUIElement : public Element {
     Point size;
     Rectangle rect;
     std::string _text;
+    std::string _text_pattern;
+    int _count;
+    int data;
 
-    std::function<void(void)> on_click = nullptr;
+    void on_click(int id) {
+        for(FighterData &f : Services::game_state()->fighters) {
+            if(f.id == id) {
+                auto config = Services::db()->get_fighter_config(f.id);
+                if(resources_available(Services::game_state()->resources, config.cost, 1)) {
+                    f.count = f.count + 1;
+                    _count = f.count;
+                    _text = std::to_string(_count) + _text_pattern;
+                    resources_use(Services::game_state()->resources, config.cost, 1);
+                } else {
+                    Engine::logn("No resources mate");
+                }
+            }
+        }
+    }
 
     SDL_Color color;
     SDL_Color text_color = Colors::white;
@@ -22,14 +39,16 @@ struct FighterUIElement : public Element {
     std::string sheet_name;
     std::string sprite;
 
-    FighterUIElement(int x, int y, std::string sprite_sheet, std::string sprite_name, std::string text) {
+    FighterUIElement(int x, int y, std::string sprite_sheet, std::string sprite_name, std::string text_pattern, int count) {
         position = { x, y };
         color = normal;
-        TextCache::size(text.c_str(), &size.x, &size.y);
+        _count = count;
+        _text = std::to_string(_count) + text_pattern;
+        TextCache::size(_text.c_str(), &size.x, &size.y);
         size.x += 10;
         size.y += 5;
 
-        _text = text;
+        _text_pattern = text_pattern;
 
         sheet_name = sprite_sheet;
         sprite = sprite_name;
@@ -49,9 +68,7 @@ struct FighterUIElement : public Element {
 
             if(Input::mouse_left_down) {
                 color = activated;
-                if(on_click != nullptr) {
-                    on_click();
-                }
+                on_click(data);
             }
         } else {
             color = normal;
@@ -72,12 +89,10 @@ void list_blueprints() {
     int y = 0;
     for(auto &f_data : Services::game_state()->fighters) {
         auto &f = Services::db()->get_fighter_config(f_data.id);
-        
-        std::string text = std::to_string(f_data.count) + " : " + f.weapons[0].weapon.name;
-        FighterUIElement fe = FighterUIElement(x, y_start + y * spacing, "combat_sprites", f.sprite_base, text);
-        fe.on_click = []() { 
-            Engine::logn("FighterUIElement -> display cost for purhcase and use cost when clicked!"); 
-        };
+
+        std::string text = " : " + f.weapons[0].weapon.name;
+        FighterUIElement fe = FighterUIElement(x, y_start + y * spacing, "combat_sprites", f.sprite_base, text, f_data.count);
+        fe.data = f_data.id;
         Services::ui()->add_element(fe, "fleet_ui");
         y++;
     }

@@ -68,7 +68,7 @@ void NodeEventManager::start_event(const Node &n) {
             EventScreen e_after_battle;
             e_after_battle.description = "Yay battle is done! You got 50 resources, cool eh?";
             e_after_battle.options.push_back( { "Continue", [&]() { 
-                    Services::game_state()->resources += 50;
+                    Services::game_state()->resources.resource += 50;
                 } 
             });
             screens.push_back(e_after_battle);

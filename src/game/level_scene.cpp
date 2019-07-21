@@ -126,7 +126,7 @@ void LevelScene::render() {
     
     Services::ui()->render();
 
-    int population = Services::game_state()->population;
+    int population = Services::game_state()->resources.population;
     std::string population_text = "Population: " + std::to_string(population);
     draw_text_centered_str((int)(gw / 2), 10, Colors::white, population_text);
     

@@ -38,6 +38,20 @@ struct FighterData {
     }
 };
 
+struct ResourceContainer {
+    int resource;
+    int population;
+};
+
+inline bool resources_available(const ResourceContainer r, const Cost c, const int count) {
+    return r.population >= c.population * count && r.resource >= c.resource * count;
+}
+
+inline void resources_use(ResourceContainer &r, const Cost c, const int count) {
+    r.population -= c.population * count;
+    r.resource -= c.resource * count;
+}
+
 struct GameState {
     void new_game();
     void set_current_node(const Point &next_node);
@@ -58,8 +72,7 @@ struct GameState {
     MothershipConfig mothership;
     std::vector<FighterData> fighters;
 
-    int population;
-    int resources;
+    ResourceContainer resources;
     int fighters_max;
     int spawn_count;
 };

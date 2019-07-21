@@ -178,6 +178,7 @@ void DB::load() {
     f.weapons.push_back(wc);
     f.id = _fighters.size();
     f.name = "Lazer Interceptor";
+    f.cost = Cost(20, 5);
     _fighters.push_back(f);
 }
     // Cruiser
@@ -191,6 +192,7 @@ void DB::load() {
     f.weapons.push_back(wc);
     f.id = _fighters.size();
     f.name = "Lazer Cruiser";
+    f.cost = Cost(40, 10);
     _fighters.push_back(f);
  }
       // Destroyer
@@ -203,7 +205,8 @@ void DB::load() {
     wc.weapon = get_weapon(5);
     f.weapons.push_back(wc);
     f.id = _fighters.size();
-    f.name = "Lazer Cruiser";
+    f.name = "TEST Destroyer";
+    f.cost = Cost(80, 20);
     _fighters.push_back(f);
  }
 }

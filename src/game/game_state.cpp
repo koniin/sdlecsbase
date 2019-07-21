@@ -61,9 +61,9 @@ void GameState::new_game() {
     a.type = AbilityConfig::IsAbility;
 
     mothership.abilities.push_back(a);
-
-    population = mothership.population_max / 4;
-    resources = 30;
+    
+    resources.resource = 30;
+    resources.population = mothership.population_max / 4;
     fighters_max = 8; // per column
     spawn_count = 1; // per spawn (launch bays?)
 
