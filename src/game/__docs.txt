@@ -7,10 +7,6 @@
     = Goal:  CORE LOOP
 		
 
-		inbetween
-		- only spawn fighters that you actually have (no made up numbers)
-			- gamestate setup I guess
-
 		combat 
 		- more distance between ships (player - enemy)
 		- MORE health for all ships and/or more shields / faster recharge

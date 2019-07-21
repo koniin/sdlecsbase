@@ -89,15 +89,15 @@ void LevelScene::update() {
     auto gs = Services::game_state();
 
     if(Input::key_pressed(SDLK_q)) {
-        BattleController::spawn_of_type(gs->spawn_count, FighterData::Destroyer, 
+        BattleController::spawn_of_type(gs->spawn_count, FighterType::Destroyer, 
             gs->fighters, gs->fighters_max, PLAYER_FACTION);
 	}
     if(Input::key_pressed(SDLK_w)) {
-        BattleController::spawn_of_type(gs->spawn_count, FighterData::Cruiser, 
+        BattleController::spawn_of_type(gs->spawn_count, FighterType::Cruiser, 
             gs->fighters, gs->fighters_max, PLAYER_FACTION);
 	}
     if(Input::key_pressed(SDLK_e)) {
-        BattleController::spawn_of_type(gs->spawn_count, FighterData::Interceptor, 
+        BattleController::spawn_of_type(gs->spawn_count, FighterType::Interceptor, 
             gs->fighters, gs->fighters_max, PLAYER_FACTION);
 	}
     

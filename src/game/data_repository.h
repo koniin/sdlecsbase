@@ -22,6 +22,12 @@ struct Cost {
     Cost(int res, int pop) : resource(res), population(pop) {}
 };
 
+enum FighterType {
+    Interceptor,
+    Cruiser,
+    Destroyer
+};
+
 struct FighterConfig {
     int id;
     std::string name;
@@ -29,6 +35,8 @@ struct FighterConfig {
     DefenseConfig defense;
     std::vector<WeaponConfig> weapons;
     Cost cost;
+    FighterType type;
+    int energy_cost;
 };
 
 struct DB {

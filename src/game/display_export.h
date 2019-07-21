@@ -6,6 +6,7 @@
 #include "services.h"
 #include "components.h"
 #include "battle_controller.h"
+#include "data_repository.h"
 
 void export_sprite_data(const Position &position, const SpriteComponent &sprite, SpriteBufferData &spr, std::vector<SpriteSheet> *sprite_sheets);
 
@@ -73,21 +74,22 @@ void render_export(RenderBuffer &render_buffer) {
     }
 
     for(auto &f : Services::game_state()->fighters) {
-        std::string fighter_type = "";
+        std::string fighter_type_text = "";
         TextElement t;
-        if(f.fighter_type == FighterData::Interceptor) {
-            fighter_type = "Interceptors";
+        auto fighter_type = Services::db()->get_fighter_config(f.id).type;
+        if(fighter_type == FighterType::Interceptor) {
+            fighter_type_text = "Interceptors";
             t.position = Point(10, gh - 105);
-        } else if(f.fighter_type == FighterData::Cruiser) {
-            fighter_type = "Cruisers";
+        } else if(fighter_type == FighterType::Cruiser) {
+            fighter_type_text = "Cruisers";
             t.position = Point(10, gh - 90);
-        } else if(f.fighter_type == FighterData::Destroyer) {
-            fighter_type = "Destroyers";
+        } else if(fighter_type == FighterType::Destroyer) {
+            fighter_type_text = "Destroyers";
             t.position = Point(10, gh - 75);
         }
         t.color = Colors::cyan;
         t.align = UIAlign::Left;
-        t.text = Text::format("%s %d", fighter_type.c_str(), f.count);
+        t.text = Text::format("%s %d", fighter_type_text.c_str(), f.count);
         Services::ui()->add_immediate_element(t);
     }
 

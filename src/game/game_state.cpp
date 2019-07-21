@@ -68,10 +68,10 @@ void GameState::new_game() {
     spawn_count = 1; // per spawn (launch bays?)
 
     fighters.push_back(
-        { 0, 8, FighterData::Type::Interceptor }
+        { 0, 8 }
     );
     fighters.push_back(
-        { 1, 1, FighterData::Type::Cruiser }
+        { 1, 1 }
     );
 }
 

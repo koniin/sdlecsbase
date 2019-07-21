@@ -143,18 +143,18 @@ namespace BattleController {
         return -1;
     }
 
-    int get_column(FighterShip::FighterShipType type, int faction) {
-        if(type == FighterShip::Interceptor) {
+    int get_column(FighterType type, int faction) {
+        if(type == FighterType::Interceptor) {
             return faction == PLAYER_FACTION ? 0 : 3;
-        } else if(type == FighterShip::Cruiser) {
+        } else if(type == FighterType::Cruiser) {
             return faction == PLAYER_FACTION ? 1 : 4;
-        } else if(type == FighterShip::Destroyer) {
+        } else if(type == FighterType::Destroyer) {
             return faction == PLAYER_FACTION ? 2 : 5;
         }
         return 9999;
     }
 
-    void toggle_column_position(FighterShip::FighterShipType type, int faction, int column_position) {
+    void toggle_column_position(FighterType type, int faction, int column_position) {
         int column = get_column(type, faction);
         columns[column][column_position] = !columns[column][column_position];
     }
@@ -168,27 +168,28 @@ namespace BattleController {
         float y_start = 50;
         int i = 9000;
         int column = 0;
-        switch(f.fighter_type) {
-            case FighterData::Type::Interceptor: {
+        auto fighter_cfg = Services::db()->get_fighter_config(f.id);
+        switch(fighter_cfg.type) {
+            case FighterType::Interceptor: {
                 position.x = faction == PLAYER_FACTION ? 280.0f : 360.0f;
                 i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [=](FighterShip &ship) {
-                    return ship.faction.faction == faction && ship.type == FighterShip::Interceptor;
+                    return ship.faction.faction == faction && ship.type == FighterType::Interceptor;
                 });
                 column = faction == PLAYER_FACTION ? 0 : 3;
                 break;
             }
-            case FighterData::Type::Cruiser: {
+            case FighterType::Cruiser: {
                 position.x = faction == PLAYER_FACTION ? 200.0f : 440.0f;
                 i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [=](FighterShip &ship) {
-                    return ship.faction.faction == faction && ship.type == FighterShip::Cruiser;
+                    return ship.faction.faction == faction && ship.type == FighterType::Cruiser;
                 });
                 column = faction == PLAYER_FACTION ? 1 : 4;
                 break;
             }
-            case FighterData::Type::Destroyer: {
+            case FighterType::Destroyer: {
                 position.x = faction == PLAYER_FACTION ? 140.0f : 500.0f;
                 i = std::count_if(_fighter_ships.begin(), _fighter_ships.end(), [=](FighterShip &ship) {
-                    return ship.faction.faction == faction && ship.type == FighterShip::Destroyer;
+                    return ship.faction.faction == faction && ship.type == FighterType::Destroyer;
                 });
                 column = faction == PLAYER_FACTION ? 2 : 5;
                 break;
@@ -209,22 +210,6 @@ namespace BattleController {
         _fighter_ships.push_back(fighter);
     }
 
-    int get_energy_cost(FighterData::Type fighter_type) {
-        switch(fighter_type) {
-            case FighterData::Type::Interceptor: {
-                return 20;
-            }
-            case FighterData::Type::Cruiser: {
-                return 40;
-            }
-            case FighterData::Type::Destroyer: {
-                return 60;
-            }
-        }
-        Engine::logn("WARNING: No energy cost set for fighter type | " __FUNCTION__);
-        return 9000;
-    }
-
     int get_available_energy(int faction) {
         return faction == PLAYER_FACTION ? player_energy_system.current : fleet_ai.energy_system.current;
     }
@@ -234,19 +219,20 @@ namespace BattleController {
         energy = energy - energy_cost;
     }
 
-    void spawn_of_type(int count, FighterData::Type fighter_type, std::vector<FighterData> &fighters, int fighters_max, int faction) {
+    void spawn_of_type(int count, FighterType fighter_type, std::vector<FighterData> &fighters, int fighters_max, int faction) {
         for(int i = 0; i < count; i++) {
-            int &energy = faction == PLAYER_FACTION ? player_energy_system.current : fleet_ai.energy_system.current;
-            int energy_cost = get_energy_cost(fighter_type);
-            if(energy < energy_cost) {
-                Engine::logn("Not enough energy");
-                return;
-            }
-
-            energy -= energy_cost;
-
             for(auto &f : fighters) {
-                if(f.fighter_type == fighter_type) {
+                auto fighter = Services::db()->get_fighter_config(f.id);
+                if(fighter.type == fighter_type) {
+                    int &energy = faction == PLAYER_FACTION ? player_energy_system.current : fleet_ai.energy_system.current;
+                    int energy_cost = fighter.energy_cost;
+                    if(energy < energy_cost) {
+                        Engine::logn("Not enough energy");
+                        return;
+                    }
+
+                    energy -= energy_cost;
+
                     spawn_fighter(f, fighters_max, faction);
                     return;
                 }
@@ -255,7 +241,8 @@ namespace BattleController {
     }
 
     void spawn_enemies() {
-        spawn_of_type(fleet_ai.spawn_count, fleet_ai.fleet.fighters[0].fighter_type, fleet_ai.fleet.fighters, fleet_ai.fleet.max_count, ENEMY_FACTION);
+        auto fighter = Services::db()->get_fighter_config(fleet_ai.fleet.fighters[0].id);
+        spawn_of_type(fleet_ai.spawn_count, fighter.type, fleet_ai.fleet.fighters, fleet_ai.fleet.max_count, ENEMY_FACTION);
         
         // spawn_fighter(enemy_fleet.fighters[0], enemy_fleet.max_count, ENEMY_FACTION);
 
@@ -319,8 +306,8 @@ namespace BattleController {
 
         fleet_ai.fleet = {
             8, {
-                { 0, 8, FighterData::Type::Interceptor },
-                { 1, 1, FighterData::Type::Cruiser }
+                { 0, 8 },
+                { 1, 1 }
             }
         };
         

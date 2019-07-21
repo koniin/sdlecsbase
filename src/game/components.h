@@ -4,6 +4,7 @@
 #include "engine.h"
 #include "renderer.h"
 #include "abilities.h"
+#include "data_repository.h"
 
 // Should be components for the engine/renderer really
 // Could be nice to have a base component library 
@@ -249,16 +250,12 @@ struct MotherShip {
 
 struct FighterShip {
     ECS::Entity entity;
-    enum FighterShipType {
-        Interceptor,
-        Cruiser,
-        Destroyer
-    } type;
+    FighterType type;
     int column_position = 0;
     Position position;
     SpriteComponent sprite;
     LifeTime life_time;
-    FighterShip(ECS::Entity e, FighterShipType t) : entity(e), type(t) {}
+    FighterShip(ECS::Entity e, FighterType t) : entity(e), type(t) {}
     
     std::vector<Effect> effects;
 
