@@ -5,14 +5,42 @@
 
  next:
     = Goal:  CORE LOOP
-		
+
+		work on actual units now 
+		- rock paper scissors 		
 
 		combat 
 		- more distance between ships (player - enemy)
 		- MORE health for all ships and/or more shields / faster recharge
 			-> more shield/faster recharge makes it so more ships are needed to actually kill stuff
 
-		JUICE TIME - actually making it look somewhat ok-ish
+		- rock/paper/scissors 
+			- energy weapons < shields
+			
+Scout/tank/artillery
+
+Artillery can also be missiles
+
+Deploy zones? Front,middle,back? Depending on range ?
+
+Some weapons only work in certain positions like darkest dungeon
+
+Perhaps there should be more difference between fighters like heavy on shields and some weapons are good against that etc
+
+What if we don't have three types where one is more powerful than the other like interceptors, cruiser etc but they are more equal like fighters in nowhere prophet
+Also then you select which column to spawn it in
+
+You have a "team of fighters" like in teamfight tactics
+
+More rock paper scissors units so you select units to counter the enemy's units
+
+
+		- juice prio
+			- show shields 
+			- buttons/icons for launching
+			- buttons/icons for abilities
+
+		JUICE TIME - actually making it look a little more ok
 		- see if juice doc from shooter is still there
 		- buy cheap things like ui and sprites
 			- https://zintoki.itch.io/space-breaker
@@ -33,7 +61,7 @@
 		- buying UI - some better looking buttons
 		- map selection ui (just a tiny bit - sprites instead of lines and circles)
 		- hide research and make the buttons nicer
-		- start screen - a tiny bit nicer at least
+		
 
 		more inbetween things
 		- research things (upgrades) 
