@@ -3,11 +3,22 @@
 	- no mixed weapons etc
 - there is always a mothership for each fleet
 
+bugs:
+- spawning a ship at the same time as its destroyed makes it so no more ships are spawned?
+
  next:
     = Goal:  CORE LOOP
 
 		work on actual units now 
 		- rock paper scissors 		
+		  - shields are good against energy weapons
+		  - reactive armor is good against explosive weapons
+		  - hull plating is good against kinetic weapons
+		- positioning
+		  - range ? like has 1 column range (can only shoot when in first row etc)
+		  - only spawn in some column ?
+		  - more damage when in some column/s ?
+		  - 
 
 		combat 
 		- more distance between ships (player - enemy)
@@ -27,7 +38,8 @@ Some weapons only work in certain positions like darkest dungeon
 
 Perhaps there should be more difference between fighters like heavy on shields and some weapons are good against that etc
 
-What if we don't have three types where one is more powerful than the other like interceptors, cruiser etc but they are more equal like fighters in nowhere prophet
+What if we don't have three types where one is more powerful than the other like interceptors, cruiser etc 
+but they are more equal like fighters in nowhere prophet
 Also then you select which column to spawn it in
 
 You have a "team of fighters" like in teamfight tactics
