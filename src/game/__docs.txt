@@ -9,21 +9,64 @@ bugs:
  next:
     = Goal:  CORE LOOP
 
-		work on actual units now 
+	- test implement to select what column to spawn in 
+	- make fighters 
+		-> first layer is ;
+
 		- rock paper scissors 		
 		  - shields are good against energy weapons
-		  - reactive armor is good against explosive weapons
 		  - hull plating is good against kinetic weapons
+		  - reactive armor is good against explosive weapons
+		
+		-> second layer is ;
+
+		- tank, melee dps, ranged (like that)
+		  - 
+
+		what we got ;
+		- spawn fighters (can be different types, np)
+		- fixed column, random row
+
+			
+
+		so row should not matter , but column should
+		- flanking is then not possible?
+		- could be three rows (can be many ships in each square)
+		- could be flanking damage if shooting at a fighter in another row
+
+
+		work on actual units now 
+		  
 		- positioning
 		  - range ? like has 1 column range (can only shoot when in first row etc)
+		  	- does it even do something? you'll just put whatever unit you get in the correct spot
+		  - easier to hit fighters in closer columns
+		  - system where you can move all fighters from one column to another or one row to another
+		  - different weapons will be fired depending on where the fighter is (like long range missiles and short range)
 		  - only spawn in some column ?
 		  - more damage when in some column/s ?
-		  - 
+		  - fighters only shoot against current row (unless empty?)
+		
+
+			- aggro => like some ships are more threatening (more likely to get targeted)
+
+		  
+
+		  => all these are if there is some implication if we are in some column, not the reason for having columns
+		  	- so what is the reason to have columns?
+			- flanking - without selecting position this is useless
+			- harder to hit farther away
+			- different attack patterns (?) depending on what column a unit is in 
+			- tanks / support / dps ? 
+		  
+		  darkest dungeon does same row and only certain ranges 
 
 		combat 
 		- more distance between ships (player - enemy)
 		- MORE health for all ships and/or more shields / faster recharge
 			-> more shield/faster recharge makes it so more ships are needed to actually kill stuff
+
+		- status effects - on fire, x disabled, crew low morale etc
 
 		- rock/paper/scissors 
 			- energy weapons < shields
@@ -37,6 +80,8 @@ Deploy zones? Front,middle,back? Depending on range ?
 Some weapons only work in certain positions like darkest dungeon
 
 Perhaps there should be more difference between fighters like heavy on shields and some weapons are good against that etc
+
+you can have more types of fighters but only use x in battle
 
 What if we don't have three types where one is more powerful than the other like interceptors, cruiser etc 
 but they are more equal like fighters in nowhere prophet
