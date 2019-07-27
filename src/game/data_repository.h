@@ -43,7 +43,7 @@ struct DB {
     void load();
     std::vector<FighterConfig> &get_fighters();
     const FighterConfig &get_fighter_config(int id);
-    const Weapon &get_weapon(int id);
+    const Weapon &get_ability_weapon(int id);
 };
 
 #endif

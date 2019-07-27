@@ -34,7 +34,7 @@ void GameState::new_game() {
     w.usage_cost = 60;
     
     // Initialise with base
-    w.weapon = Services::db()->get_weapon(0);
+    w.weapon = Services::db()->get_ability_weapon(0);
     w.targeting = 1;
 
     w.weapon.name = "Dual Lazer";
@@ -59,7 +59,6 @@ void GameState::new_game() {
 
     AbilityConfig a;
     a.type = AbilityConfig::IsAbility;
-
     mothership.abilities.push_back(a);
     
     resources.resource = 30;

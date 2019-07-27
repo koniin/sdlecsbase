@@ -9,11 +9,26 @@ bugs:
  next:
     = Goal:  CORE LOOP
 
-	- test implement to select what column to spawn in 
+	to make fighters and weapons without re-compiling we need;
+	
+	- load weapons from file => we have this already
+		=> Load fighters 
+	- tweak data values (update data repository values)
+		- need to be able to edit a list of structs 
+		- floats, ints
+		- display text
+		- so it will be pretty custom anyway?
+		- easy to create a list of things with things to edit in 
+
+	- we should setup faster compile for "next" project if we want it
+		seems like much work now?
+		- engine exe and game dll ?
+		https://chadaustin.me/2009/05/unintrusive-precompiled-headers-pch/
+
 	- make fighters 
 		-> first layer is ;
 
-		- rock paper scissors 		
+		- rock paper scissors
 		  - shields are good against energy weapons
 		  - hull plating is good against kinetic weapons
 		  - reactive armor is good against explosive weapons
@@ -22,11 +37,9 @@ bugs:
 
 		- tank, melee dps, ranged (like that)
 		  - 
-
-		what we got ;
-		- spawn fighters (can be different types, np)
-		- fixed column, random row
-
+	
+	
+	- test implement to select what column to spawn in 
 			
 
 		so row should not matter , but column should

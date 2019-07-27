@@ -99,18 +99,11 @@ const std::vector<Weapon> _weapons {
 };
 
 void test_load() {
+
     std::string file = "weapons.data";
     std::string map_name = Engine::get_base_data_folder() + file;
     std::ifstream data(map_name);
 
-    std::map<std::string, ProjectileType> proj = {
-        {  "ProjectileType::Bullet", ProjectileType::Bullet } ,
-        {  "ProjectileType::LazerBeamGreen", ProjectileType::LazerBeamGreen } ,
-        {  "ProjectileType::LazerBulletRed", ProjectileType::LazerBulletRed } ,
-        {  "ProjectileType::LazerBulletRedLarge", ProjectileType::LazerBulletRedLarge } ,
-        {  "ProjectileType::Missile", ProjectileType::Missile } ,
-        {  "ProjectileType::SmallBullet", ProjectileType::SmallBullet } 
-    };
     /*
     "Dual Heavy Lazer", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
         0.65f, //float reload_time = 1.0f; // in seconds (0.2f)
@@ -125,43 +118,52 @@ void test_load() {
         0.0f // float projectile_speed_max = 0.0f;
         */
     if(data) {
+        std::map<std::string, ProjectileType> proj = {
+            {  "ProjectileType::Bullet", ProjectileType::Bullet } ,
+            {  "ProjectileType::LazerBeamGreen", ProjectileType::LazerBeamGreen } ,
+            {  "ProjectileType::LazerBulletRed", ProjectileType::LazerBulletRed } ,
+            {  "ProjectileType::LazerBulletRedLarge", ProjectileType::LazerBulletRedLarge } ,
+            {  "ProjectileType::Missile", ProjectileType::Missile } ,
+            {  "ProjectileType::SmallBullet", ProjectileType::SmallBullet } 
+        };
         Weapon w;
         std::string value;
         while ( data.good() )
         {
-            std::getline(data, w.name, ',');
-            std::getline(data, value, ',');
+            std::getline(data, w.name, '|');
+            std::getline(data, value, '|');
             w.reload_time = std::stof(value);
-            std::getline(data, value, ',');
+            std::getline(data, value, '|');
             w.damage = std::stoi(value);
-            std::getline(data, value, ',');
+            std::getline(data, value, '|');
             w.accuracy = std::stof(value);
             
-            std::getline(data, value, ',');
+            std::getline(data, value, '|');
             w.projectile_type = proj[value];
 
-            std::getline(data, value, ',');
+            std::getline(data, value, '|');
             w.projectile_count = std::stoi(value);
 
-            std::getline(data, value, ',');
+            std::getline(data, value, '|');
             w.burst_delay = std::stof(value);
 
-            std::getline(data, value, ',');
+            std::getline(data, value, '|');
             w.radius = std::stoi(value);
 
-            std::getline(data, value, ',');
+            std::getline(data, value, '|');
             w.projectile_speed = std::stof(value);
 
-            std::getline(data, value, ',');
+            std::getline(data, value, '|');
             w.projectile_speed_increase = std::stof(value);
-            std::getline(data, value, ',');
+            std::getline(data, value, '|');
             w.projectile_speed_max = std::stof(value);
 
             GLOBAL_BASE_WEAPON = w;
         }
     } else {
         Engine::log("\n[WARNING] unable to open tilemap file");
-    }
+    } 
+
 }
 
 void DB::load() {
@@ -174,7 +176,7 @@ void DB::load() {
     f.sprite_base = "interceptor_1";
     WeaponConfig wc;
     wc.targeting = 2;
-    wc.weapon = get_weapon(0);
+    wc.weapon = _weapons[5];
     f.weapons.push_back(wc);
     f.id = _fighters.size();
     f.name = "Lazer Interceptor";
@@ -190,7 +192,7 @@ void DB::load() {
     f.sprite_base = "cruiser_1";
     WeaponConfig wc;
     wc.targeting = 2;
-    wc.weapon = get_weapon(3);
+    wc.weapon = _weapons[5];
     f.weapons.push_back(wc);
     f.id = _fighters.size();
     f.name = "Lazer Cruiser";
@@ -206,7 +208,7 @@ void DB::load() {
     f.sprite_base = "destroyer_1";
     WeaponConfig wc;
     wc.targeting = 2;
-    wc.weapon = get_weapon(5);
+    wc.weapon = _weapons[5];
     f.weapons.push_back(wc);
     f.id = _fighters.size();
     f.name = "TEST Destroyer";
@@ -230,7 +232,7 @@ const FighterConfig &DB::get_fighter_config(int id) {
     ASSERT_WITH_MSG(false, "Fighter config not found!");
 }
 
-const Weapon &DB::get_weapon(int id) {
-    return _weapons[id];
+const Weapon &DB::get_ability_weapon(int id) {
+    return GLOBAL_BASE_WEAPON;
     // return GLOBAL_BASE_WEAPON;
 }
