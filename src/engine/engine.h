@@ -1,20 +1,7 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
-#include "SDL.h"
-#include <algorithm>
-#include <vector>
-#include <random>
-#include <map>
-#include <functional>
-#include <iostream>
-#include <sstream>
-#include <queue>
-#include <memory>
-#include <unordered_map>
-#include <stack>
-#include <bitset>
-#include  <iterator>
+#include "precompiled.h"
 
 #ifdef _DEBUG
 #define ASSERT_WITH_MSG(cond, msg) do \
@@ -26,8 +13,8 @@
 
 // timer
 typedef struct {
-    Uint64 now;
-    Uint64 last;
+    uint64_t now;
+    uint64_t last;
     double dt;
     double fixed_dt;
     double accumulator;
@@ -385,8 +372,8 @@ namespace Math {
 	static const float Pi = 3.14159265358979323846f; // 180 degrees
 	static constexpr float TwoPi = 3.14159265358979323846f * 2; // 360 degrees
 	static constexpr float PiOver2 = 3.14159265358979323846f / 2.0f;
-	static const float RAD_TO_DEGREE = 180.0f / (float)M_PI;
-	static const float DEGREE_TO_RAD = (float)M_PI / 180.0f;
+	static const float RAD_TO_DEGREE = 180.0f / (float)Pi;
+	static const float DEGREE_TO_RAD = (float)Pi / 180.0f;
 	
 	inline int clamp_i(int x, int a, int b) {
     	x = std::max(x, a);

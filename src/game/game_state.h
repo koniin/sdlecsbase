@@ -1,10 +1,11 @@
 #ifndef GAME_STATE_H
 #define GAME_STATE_H
 
-#include "engine.h"
 #include "abilities.h"
 #include "maze.h"
 #include "data_repository.h"
+
+struct Point;
 
 struct AbilityConfig {
     enum { IsAbility, IsWeapon } type;

@@ -1,7 +1,7 @@
 #include "engine.h"
 #include <unordered_set>
 #include <fstream>
-
+#include "SDL.h"
 #include "sound.h"
 
 namespace FrameLog {

@@ -1,7 +1,6 @@
 #ifndef DATA_REPOSITORY_H
 #define DATA_REPOSITORY_H
 
-#include "engine.h"
 #include "abilities.h"
 
 struct DefenseConfig {

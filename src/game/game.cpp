@@ -1,6 +1,4 @@
-#ifndef GAME_H
-#define GAME_H
-
+#include "game.h"
 #include "engine.h"
 #include "renderer.h"
 #include "services.h"
@@ -10,7 +8,7 @@
 #include "game_input_wrapper.h"
 // #include "_engine_test.h"
 
-inline void game_load() {
+void game_load() {
 	// Allocate memory and load resources
 	Engine::set_base_data_folder("data");
 	Font *font = Resources::font_load("normal", "pixeltype.ttf", 15);
@@ -33,5 +31,3 @@ inline void game_load() {
 	SDL_ShowCursor(SDL_ENABLE);
 	// engine_test();
 }
-
-#endif
