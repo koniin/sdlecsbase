@@ -46,7 +46,7 @@ IF "%ARG1%"=="release" (
 
     REM cl /nologo /EHsc /W4 /MTd /wd4996 /wd4100 /DEBUG /Zf /Zi /Yc %~dp0src\engine\precompiled.cpp /I %SDLINC% /I %SDL_TTFINC% /I %SDL_IMGINC% /I %AUDIO_INC% /I %~dp0src\engine\ /I %~dp0src\game\ /link /LIBPATH:%SDLLIB% /LIBPATH:%SDL_TTFLIB% /LIBPATH:%SDL_IMGLIB% /LIBPATH:%AUDIO_LIB% SDL2main.lib SDL2.lib SDL2_ttf.lib SDL2_image.lib SDL2_mixer.lib opengl32.lib /out:%OUTPUT% /SUBSYSTEM:CONSOLE
 
-	cl /Bt /nologo /EHsc /W4 /MP /MTd /wd4996 /wd4100 /DEBUG /Zf /Zi %SOURCE% /I %SDLINC% /I %SDL_TTFINC% /I %SDL_IMGINC% /I %AUDIO_INC% /I %~dp0src\engine\ /I %~dp0src\game\ /link /LIBPATH:%SDLLIB% /LIBPATH:%SDL_TTFLIB% /LIBPATH:%SDL_IMGLIB% /LIBPATH:%AUDIO_LIB% SDL2main.lib SDL2.lib SDL2_ttf.lib SDL2_image.lib SDL2_mixer.lib opengl32.lib /out:%OUTPUT% /SUBSYSTEM:CONSOLE
+	cl /nologo /EHsc /W4 /MP /MTd /wd4996 /wd4100 /DEBUG /Zf /Zi %SOURCE% /I %SDLINC% /I %SDL_TTFINC% /I %SDL_IMGINC% /I %AUDIO_INC% /I %~dp0src\engine\ /I %~dp0src\game\ /link /LIBPATH:%SDLLIB% /LIBPATH:%SDL_TTFLIB% /LIBPATH:%SDL_IMGLIB% /LIBPATH:%AUDIO_LIB% SDL2main.lib SDL2.lib SDL2_ttf.lib SDL2_image.lib SDL2_mixer.lib opengl32.lib /out:%OUTPUT% /SUBSYSTEM:CONSOLE
 	
     echo ---- COMPLETED DEBUG BUILD ---- 
 )
