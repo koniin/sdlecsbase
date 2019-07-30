@@ -3,6 +3,7 @@
 #include <fstream>
 #include "SDL.h"
 #include "sound.h"
+#include "immediate_gui.h"
 
 namespace FrameLog {
 	void clear();
@@ -63,6 +64,8 @@ namespace Engine {
 	}
 
 	void update() {
+		IGUI::frame();
+
 		if(FrameLog::is_enabled()) {
 			FrameLog::clear();
 			Time::delta_time = Engine::is_paused() ? 0.0f : Time::delta_time_raw;

@@ -24,25 +24,8 @@ struct TextElement : public Element {
     SDL_Color color;
     UIAlign align = UIAlign::Center;
 
-    void update() override {
-        // Point p;
-        // Input::mouse_current(p);
-        // if(rect.contains(p)) {
-        //     color = highlighted;
-        // } else {
-        //     color = normal;
-        // }
-    }
-
-    void render() override {
-        if(align == UIAlign::Center) {
-            draw_text_centered_str((int)position.x, (int)position.y, color, text);
-        } else if(align == UIAlign::Left) {
-            draw_text_str((int)position.x, (int)position.y, color, text);
-        } else if(align == UIAlign::Right) {
-            draw_text_right_str((int)position.x, (int)position.y, color, text);
-        }
-    }
+    void update() override;
+    void render() override;
 };
 
 // struct ImageElement : public Element {

@@ -5,6 +5,7 @@
 #include "particles.h"
 #include "services.h"
 #include "game_input_wrapper.h"
+#include "immediate_gui.h"
 
 #include <chrono>
 
@@ -68,9 +69,15 @@ void LevelScene::end() {
     battle_over = false;
 }
 
+int test = 4;
+
 void LevelScene::update() {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 	
+
+    IGUI::number_edit_i("test", &test, 0, 10, 1);
+
+
     BattleController::update();
     Particles::update(BattleController::particles, Time::delta_time);
     Services::events()->emit();
@@ -131,6 +138,9 @@ void LevelScene::render() {
     draw_text_centered_str((int)(gw / 2), 10, Colors::white, population_text);
     
     renderer_draw_render_target_camera();
+
+    IGUI::render();
+
 	renderer_flip();
 }
 

@@ -11,8 +11,13 @@ bugs:
 
 	to make fighters and weapons without re-compiling we need;
 	
-	- load weapons from file => we have this already
-		=> Load fighters 
+	[] load all weapons from file
+	[] Load fighters from file (use weapons by id from weapons data) 
+
+	the best control for editing a number is a text box with two buttons to step up or down 
+	combined with a file reload function we can keep running the game without recompile
+
+	
 	- tweak data values (update data repository values)
 		- need to be able to edit a list of structs 
 		- floats, ints

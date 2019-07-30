@@ -1,21 +1,13 @@
 #include "gui.h"
 
-Button::Button(int x, int y, std::string text) {
-    position = { x, y };
-    color = normal;
-    TextCache::size(text.c_str(), &size.x, &size.y);
-    size.x += 10;
-    size.y += 5;
-    _text = text;
-}
-
-void Button::update() {
+void click_check(Rectangle &rect, 
+        SDL_Color &color, 
+        SDL_Color highlighted, 
+        SDL_Color activated, 
+        SDL_Color normal, 
+        std::function<void(void)> on_click) {
     Point p;
     Input::mouse_current(p);
-    rect.x = position.x - size.x / 2;
-    rect.y = position.y - size.y / 2;
-    rect.w = size.x;
-    rect.h = size.y;
     if(rect.contains(p)) {
         color = highlighted;
         if(Input::mouse_left_down) {
@@ -27,6 +19,43 @@ void Button::update() {
     } else {
         color = normal;
     }
+}
+
+void TextElement::update() {
+        // Point p;
+        // Input::mouse_current(p);
+        // if(rect.contains(p)) {
+        //     color = highlighted;
+        // } else {
+        //     color = normal;
+        // }
+}
+
+void TextElement::render() {
+        if(align == UIAlign::Center) {
+            draw_text_centered_str((int)position.x, (int)position.y, color, text);
+        } else if(align == UIAlign::Left) {
+            draw_text_str((int)position.x, (int)position.y, color, text);
+        } else if(align == UIAlign::Right) {
+            draw_text_right_str((int)position.x, (int)position.y, color, text);
+        }
+    }
+
+Button::Button(int x, int y, std::string text) {
+    position = { x, y };
+    color = normal;
+    TextCache::size(text.c_str(), &size.x, &size.y);
+    size.x += 10;
+    size.y += 5;
+    _text = text;
+}
+
+void Button::update() {
+    rect.x = position.x - size.x / 2;
+    rect.y = position.y - size.y / 2;
+    rect.w = size.x;
+    rect.h = size.y;
+    click_check(rect, color, highlighted, activated, normal, on_click);
 }
 
 void Button::render() {
