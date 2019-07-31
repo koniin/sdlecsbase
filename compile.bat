@@ -3,13 +3,16 @@
 SET ARG1=%1
 
 call console.bat 
-REM -- COMMENT THIS TO NOT MAKE UNITY BUILD
+REM -- Makes the game unity compilation file
 call make_game_unity_cpp.bat
 
 SET OUTPUT=%~dp0bin\main.exe
 
+REM -- These lines decides if we do unity compile or not
 SET SOURCE=%~dp0src\main.cpp %~dp0src\engine_unity.cpp %~dp0src\game_unity.cpp
 REM SET SOURCE=%~dp0src\main.cpp %~dp0src\engine\*.cpp %~dp0src\game\*.cpp
+REM -- 
+
 SET SDLINC=%~dp0lib\SDL2-2.0.7\include\
 SET SDLLIB=%~dp0lib\SDL2-2.0.7\lib\x86\
 REM SET SDLLIB=%~dp0lib\SDL2-2.0.7\lib\x64\
