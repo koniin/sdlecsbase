@@ -3,19 +3,19 @@
 
 std::vector<FighterConfig> _fighters;
 
-Weapon GLOBAL_BASE_WEAPON = {
-    "GLOBAL_BASE", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
-    0.5f, //float reload_time = 1.0f; // in seconds (0.2f)
-    1, // int damage = 1;
-    0.8f, // float accuracy = 0.5f;
-    ProjectileType::SmallBullet, // ProjectileType projectile_type; // name of sprite for projectile
-    1, // int projectile_count = 1;
-    0.0f, // float burst_delay = 0.0f;
-    6, // int radius = 8;
-    500.0f, // float projectile_speed = 500.0f;
-    0.0f, // float projectile_speed_increase = 0.0f;
-    0.0f // float projectile_speed_max = 0.0f;
-};
+// Weapon GLOBAL_BASE_WEAPON = {
+//     "GLOBAL_BASE", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
+//     0.5f, //float reload_time = 1.0f; // in seconds (0.2f)
+//     1, // int damage = 1;
+//     0.8f, // float accuracy = 0.5f;
+//     ProjectileType::SmallBullet, // ProjectileType projectile_type; // name of sprite for projectile
+//     1, // int projectile_count = 1;
+//     0.0f, // float burst_delay = 0.0f;
+//     6, // int radius = 8;
+//     500.0f, // float projectile_speed = 500.0f;
+//     0.0f, // float projectile_speed_increase = 0.0f;
+//     0.0f // float projectile_speed_max = 0.0f;
+// };
 
 std::vector<Weapon> _weapons {
     {
@@ -227,6 +227,6 @@ const FighterConfig &DB::get_fighter_config(int id) {
 }
 
 const Weapon &DB::get_ability_weapon(int id) {
-    return GLOBAL_BASE_WEAPON;
+    return _weapons[0];
     // return GLOBAL_BASE_WEAPON;
 }
