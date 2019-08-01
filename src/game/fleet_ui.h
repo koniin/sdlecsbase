@@ -89,8 +89,8 @@ void list_blueprints() {
     int y = 0;
     for(auto &f_data : Services::game_state()->fighters) {
         auto &f = Services::db()->get_fighter_config(f_data.id);
-
-        std::string text = " : " + f.weapons[0].weapon.name;
+        auto &weapon = Services::db()->get_ability_weapon(f.weapons[0].weapon_id);
+        std::string text = " : " + weapon.name;
         FighterUIElement fe = FighterUIElement(x, y_start + y * spacing, "combat_sprites", f.sprite_base, text, f_data.count);
         fe.data = f_data.id;
         Services::ui()->add_element(fe, "fleet_ui");

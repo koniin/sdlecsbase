@@ -170,7 +170,7 @@ void DB::load() {
     f.sprite_base = "interceptor_1";
     WeaponConfig wc;
     wc.targeting = 2;
-    wc.weapon = _weapons[0];
+    wc.weapon_id = 0;
     f.weapons.push_back(wc);
     f.id = _fighters.size();
     f.name = "Lazer Interceptor";
@@ -186,7 +186,7 @@ void DB::load() {
     f.sprite_base = "cruiser_1";
     WeaponConfig wc;
     wc.targeting = 2;
-    wc.weapon = _weapons[5];
+    wc.weapon_id = 5;
     f.weapons.push_back(wc);
     f.id = _fighters.size();
     f.name = "Lazer Cruiser";
@@ -202,7 +202,7 @@ void DB::load() {
     f.sprite_base = "destroyer_1";
     WeaponConfig wc;
     wc.targeting = 2;
-    wc.weapon = _weapons[5];
+    wc.weapon_id = 5;
     f.weapons.push_back(wc);
     f.id = _fighters.size();
     f.name = "TEST Destroyer";
@@ -227,6 +227,6 @@ const FighterConfig &DB::get_fighter_config(int id) {
 }
 
 const Weapon &DB::get_ability_weapon(int id) {
-    return _weapons[0];
+    return _weapons[id];
     // return GLOBAL_BASE_WEAPON;
 }

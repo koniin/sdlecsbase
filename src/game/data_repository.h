@@ -9,7 +9,7 @@ struct DefenseConfig {
 };
 
 struct WeaponConfig {
-    Weapon weapon;
+    int weapon_id;
     short targeting;
 };
 

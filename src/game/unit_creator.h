@@ -89,12 +89,13 @@ namespace UnitCreator {
         s.layer = FIGHTER_LAYER;
         s.flip = faction == PLAYER_FACTION ? 0 : 1;
         ship.sprite = s;
-
+        
         for(auto &w : f_cfg.weapons) {
-            WeaponComponent weaponComponent = WeaponComponent(w.weapon,
-                w.weapon.name, 
+            auto &weapon = Services::db()->get_ability_weapon(w.weapon_id);
+            WeaponComponent weaponComponent = WeaponComponent(weapon,
+                weapon.name, 
                 w.targeting == 1 ? _random_multi_targeter : _random_targeter, 
-                w.weapon.projectile_type);
+                weapon.projectile_type);
             
             ship.abilities.add(weaponComponent);
         }
