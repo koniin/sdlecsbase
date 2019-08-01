@@ -2,104 +2,9 @@
 #include <fstream>
 
 std::vector<FighterConfig> _fighters;
+std::vector<Weapon> _weapons;
 
-// Weapon GLOBAL_BASE_WEAPON = {
-//     "GLOBAL_BASE", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
-//     0.5f, //float reload_time = 1.0f; // in seconds (0.2f)
-//     1, // int damage = 1;
-//     0.8f, // float accuracy = 0.5f;
-//     ProjectileType::SmallBullet, // ProjectileType projectile_type; // name of sprite for projectile
-//     1, // int projectile_count = 1;
-//     0.0f, // float burst_delay = 0.0f;
-//     6, // int radius = 8;
-//     500.0f, // float projectile_speed = 500.0f;
-//     0.0f, // float projectile_speed_increase = 0.0f;
-//     0.0f // float projectile_speed_max = 0.0f;
-// };
-
-std::vector<Weapon> _weapons {
-    {
-        "Lazer", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
-        0.5f, //float reload_time = 1.0f; // in seconds (0.2f)
-        1, // int damage = 1;
-        0.8f, // float accuracy = 0.5f;
-        ProjectileType::LazerBulletRed, // ProjectileType projectile_type; // name of sprite for projectile
-        1, // int projectile_count = 1;
-        0.0f, // float burst_delay = 0.0f;
-        6, // int radius = 8;
-        300.0f, // float projectile_speed = 500.0f;
-        0.0f, // float projectile_speed_increase = 0.0f;
-        0.0f // float projectile_speed_max = 0.0f;
-    },
-    { // 1
-        "Dual Lazer", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
-        0.6f, //float reload_time = 1.0f; // in seconds (0.2f)
-        1, // int damage = 1;
-        0.8f, // float accuracy = 0.5f;
-        ProjectileType::LazerBulletRed, // ProjectileType projectile_type; // name of sprite for projectile
-        2, // int projectile_count = 1;
-        0.15f, // float burst_delay = 0.0f;
-        6, // int radius = 8;
-        300.0f, // float projectile_speed = 500.0f;
-        0.0f, // float projectile_speed_increase = 0.0f;
-        0.0f // float projectile_speed_max = 0.0f;
-    },
-    { // 2
-        "Burst Lazer", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
-        1.2f, //float reload_time = 1.0f; // in seconds (0.2f)
-        1, // int damage = 1;
-        0.8f, // float accuracy = 0.5f;
-        ProjectileType::LazerBulletRed, // ProjectileType projectile_type; // name of sprite for projectile
-        5, // int projectile_count = 1;
-        0.1f, // float burst_delay = 0.0f;
-        6, // int radius = 8;
-        300.0f, // float projectile_speed = 500.0f;
-        0.0f, // float projectile_speed_increase = 0.0f;
-        0.0f // float projectile_speed_max = 0.0f;
-    },
-    { // 3
-        "Heavy Lazer", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
-        0.5f, //float reload_time = 1.0f; // in seconds (0.2f)
-        2, // int damage = 1;
-        0.8f, // float accuracy = 0.5f;
-        ProjectileType::LazerBulletRedLarge, // ProjectileType projectile_type; // name of sprite for projectile
-        1, // int projectile_count = 1;
-        0.0f, // float burst_delay = 0.0f;
-        6, // int radius = 8;
-        200.0f, // float projectile_speed = 500.0f;
-        0.0f, // float projectile_speed_increase = 0.0f;
-        0.0f // float projectile_speed_max = 0.0f;
-    },
-    { // 4
-        "Dual Heavy Lazer", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
-        0.65f, //float reload_time = 1.0f; // in seconds (0.2f)
-        2, // int damage = 1;
-        0.8f, // float accuracy = 0.5f;
-        ProjectileType::LazerBulletRedLarge, // ProjectileType projectile_type; // name of sprite for projectile
-        2, // int projectile_count = 1;
-        0.15f, // float burst_delay = 0.0f;
-        6, // int radius = 8;
-        200.0f, // float projectile_speed = 500.0f;
-        0.0f, // float projectile_speed_increase = 0.0f;
-        0.0f // float projectile_speed_max = 0.0f;
-    },
-    { // 5
-        "Rocket Battery", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
-        1.65f, //float reload_time = 1.0f; // in seconds (0.2f)
-        1, // int damage = 1;
-        0.8f, // float accuracy = 0.5f;
-        ProjectileType::Missile, // ProjectileType projectile_type; // name of sprite for projectile
-        5, // int projectile_count = 1;
-        0.15f, // float burst_delay = 0.0f;
-        3, // int radius = 8;
-        100.0f, // float projectile_speed = 500.0f;
-        4.0f, // float projectile_speed_increase = 0.0f;
-        300.0f // float projectile_speed_max = 0.0f;
-    }
-};
-
-void test_load() {
-
+void load_weapons() {
     std::string file = "weapons.data";
     std::string file_name = Engine::get_base_data_folder() + file;
     std::ifstream weapon_data(file_name);
@@ -155,15 +60,69 @@ void test_load() {
             w.projectile_speed_max = std::stof(value);
         }
     } else {
-        Engine::log("\n[WARNING] unable to open tilemap file");
+        Engine::log("\n[WARNING] unable to open weapons file");
     } 
-
 }
 
-void DB::load() {
-    test_load();
+void load_fighters() {
+    // std::string file = "weapons.data";
+    // std::string file_name = Engine::get_base_data_folder() + file;
+    // std::ifstream weapon_data(file_name);
 
-    // Interceptor
+    // if (!weapon_data.is_open()) {
+    //     Engine::logn("ERROR: No data in weapons.data");
+    //     Engine::exit();
+    //     return;
+    // }
+    
+    // if(weapon_data) {
+    //     std::map<std::string, ProjectileType> proj = {
+    //         {  "ProjectileType::Bullet", ProjectileType::Bullet } ,
+    //         {  "ProjectileType::LazerBeamGreen", ProjectileType::LazerBeamGreen } ,
+    //         {  "ProjectileType::LazerBulletRed", ProjectileType::LazerBulletRed } ,
+    //         {  "ProjectileType::LazerBulletRedLarge", ProjectileType::LazerBulletRedLarge } ,
+    //         {  "ProjectileType::Missile", ProjectileType::Missile } ,
+    //         {  "ProjectileType::SmallBullet", ProjectileType::SmallBullet } 
+    //     };
+    //     Weapon w;
+        
+    //     std::string line;
+    //     std::getline(weapon_data, line); // ignore header
+    //     while (std::getline(weapon_data, line)) {
+    //         std::istringstream data(line);
+    //         std::string value;
+    //         std::getline(data, w.name, '|');
+    //         std::getline(data, value, '|');
+    //         w.reload_time = std::stof(value);
+    //         std::getline(data, value, '|');
+    //         w.damage = std::stoi(value);
+    //         std::getline(data, value, '|');
+    //         w.accuracy = std::stof(value);
+            
+    //         std::getline(data, value, '|');
+    //         w.projectile_type = proj[value];
+
+    //         std::getline(data, value, '|');
+    //         w.projectile_count = std::stoi(value);
+
+    //         std::getline(data, value, '|');
+    //         w.burst_delay = std::stof(value);
+
+    //         std::getline(data, value, '|');
+    //         w.radius = std::stoi(value);
+
+    //         std::getline(data, value, '|');
+    //         w.projectile_speed = std::stof(value);
+
+    //         std::getline(data, value, '|');
+    //         w.projectile_speed_increase = std::stof(value);
+    //         std::getline(data, value, '|');
+    //         w.projectile_speed_max = std::stof(value);
+    //     }
+    // } else {
+    //     Engine::log("\n[WARNING] unable to open weapons file");
+    // }
+// Interceptor
 {
     FighterConfig f;
     f.defense = { 5, 0 };
@@ -211,6 +170,11 @@ void DB::load() {
     f.energy_cost = 60;
     _fighters.push_back(f);
  }
+}
+
+void DB::load() {
+    load_weapons();
+    load_fighters();  
 }
 
 std::vector<FighterConfig> &DB::get_fighters() {
