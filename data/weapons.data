@@ -1,1 +1,7 @@
-GLOBAL_BASE|0.5|1|0.8|ProjectileType::Missile|1|0.0|6|500.0|0.0|0.0
+name|reload_time|damage|accuracy|ProjectileType|projectile_count|burst_delay|radius|projectile_speed|projectile_speed_increase|projectile_speed_max
+"Lazer"|0.5|1|0.8|ProjectileType::LazerBulletRed|1|0.0|6|300.0|0.0|0.0
+"Dual Lazer"|0.6|1|0.8|ProjectileType::LazerBulletRed|2|0.15|6|300.0|0.0|0.0
+"Burst Lazer"|1.2|1|0.8|ProjectileType::LazerBulletRed|5|0.1|6|300.0|0.0|0.0
+"Heavy Lazer"|0.5|2|0.8|ProjectileType::LazerBulletRedLarge|1|0.0|6|200.0|0.0|0.0
+"Dual Heavy Lazer"|0.65|2|0.8|ProjectileType::LazerBulletRedLarge|2|0.15|6|200.0|0.0|0.0
+"Rocket Battery"|1.65|1|0.8|ProjectileType::Missile|5|0.15|3|100.0|4.0|300.0

@@ -17,7 +17,7 @@ Weapon GLOBAL_BASE_WEAPON = {
     0.0f // float projectile_speed_max = 0.0f;
 };
 
-const std::vector<Weapon> _weapons {
+std::vector<Weapon> _weapons {
     {
         "Lazer", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
         0.5f, //float reload_time = 1.0f; // in seconds (0.2f)
@@ -101,23 +101,16 @@ const std::vector<Weapon> _weapons {
 void test_load() {
 
     std::string file = "weapons.data";
-    std::string map_name = Engine::get_base_data_folder() + file;
-    std::ifstream data(map_name);
+    std::string file_name = Engine::get_base_data_folder() + file;
+    std::ifstream weapon_data(file_name);
 
-    /*
-    "Dual Heavy Lazer", // std::string name = "Basic weapon"; // (Blaster MK2 etc)
-        0.65f, //float reload_time = 1.0f; // in seconds (0.2f)
-        2, // int damage = 1;
-        0.8f, // float accuracy = 0.5f;
-        ProjectileType::LazerBulletRedLarge, // ProjectileType projectile_type; // name of sprite for projectile
-        2, // int projectile_count = 1;
-        0.15f, // float burst_delay = 0.0f;
-        6, // int radius = 8;
-        400.0f, // float projectile_speed = 500.0f;
-        0.0f, // float projectile_speed_increase = 0.0f;
-        0.0f // float projectile_speed_max = 0.0f;
-        */
-    if(data) {
+    if (!weapon_data.is_open()) {
+        Engine::logn("ERROR: No data in weapons.data");
+        Engine::exit();
+        return;
+    }
+    
+    if(weapon_data) {
         std::map<std::string, ProjectileType> proj = {
             {  "ProjectileType::Bullet", ProjectileType::Bullet } ,
             {  "ProjectileType::LazerBeamGreen", ProjectileType::LazerBeamGreen } ,
@@ -127,9 +120,12 @@ void test_load() {
             {  "ProjectileType::SmallBullet", ProjectileType::SmallBullet } 
         };
         Weapon w;
-        std::string value;
-        while ( data.good() )
-        {
+        
+        std::string line;
+        std::getline(weapon_data, line); // ignore header
+        while (std::getline(weapon_data, line)) {
+            std::istringstream data(line);
+            std::string value;
             std::getline(data, w.name, '|');
             std::getline(data, value, '|');
             w.reload_time = std::stof(value);
@@ -157,8 +153,6 @@ void test_load() {
             w.projectile_speed_increase = std::stof(value);
             std::getline(data, value, '|');
             w.projectile_speed_max = std::stof(value);
-
-            GLOBAL_BASE_WEAPON = w;
         }
     } else {
         Engine::log("\n[WARNING] unable to open tilemap file");
@@ -176,7 +170,7 @@ void DB::load() {
     f.sprite_base = "interceptor_1";
     WeaponConfig wc;
     wc.targeting = 2;
-    wc.weapon = _weapons[5];
+    wc.weapon = _weapons[0];
     f.weapons.push_back(wc);
     f.id = _fighters.size();
     f.name = "Lazer Interceptor";
