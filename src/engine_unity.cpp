@@ -4,3 +4,4 @@
 #include "particles.cpp"
 #include "renderer.cpp"
 #include "sound.cpp"
+#include "maze.cpp"

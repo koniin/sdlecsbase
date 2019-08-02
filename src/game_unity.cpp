@@ -6,7 +6,6 @@
 #include "game_state.cpp"
 #include "level_scene.cpp"
 #include "map_scene.cpp"
-#include "maze.cpp"
 #include "menu_scene.cpp"
 #include "node_event_manager.cpp"
 #include "services.cpp"

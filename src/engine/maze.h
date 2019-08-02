@@ -1,8 +1,6 @@
 #ifndef _MAZE_H
 #define _MAZE_H
 
-#include "engine.h"
-
 enum Directions : int {
 	None = 0,
 	North = 1,

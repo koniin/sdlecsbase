@@ -58,6 +58,8 @@ void load_weapons() {
             w.projectile_speed_increase = std::stof(value);
             std::getline(data, value, '|');
             w.projectile_speed_max = std::stof(value);
+
+            _weapons.push_back(w);
         }
     } else {
         Engine::log("\n[WARNING] unable to open weapons file");

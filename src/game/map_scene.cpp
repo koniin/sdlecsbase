@@ -6,6 +6,7 @@
 #include "renderer.h"
 #include "map_node.h"
 #include "fleet_ui.h"
+#include "maze.h"
 
 #include <chrono>
 
