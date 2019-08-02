@@ -13,12 +13,25 @@ bugs:
 	
 	[ ] Load fighters from file (use weapons by id from weapons data) 
 	[ ] Load starting units for player and enemy from file 
-	
+	 
 	[ ] work on actual units 
 		- more health
 		- less difference between units (health wise)
+		=> we do not implement dodge/evasion etc 
+		=> we do not implement different armor types etc 
+		 ==> make it ok as is and 
 	
 	[ ] Evaluate (do we continue ?)
+
+	[ ] make it so there are three total rows and fighters spawn in those rows automatically
+		- split the screen in three rows
+	[ ] implement to select what row to spawn in (row makes more sense since its side view (so its like darkest dungeon but multiple rows))
+	[ ] fighters prioritize fighters in the same row
+		or fighters only fire at enemies in the same row 
+	[ ] rock paper scissors fighters 
+		
+
+	[ ] column/row implications
 
 	- make fighters 
 		-> first layer is ;
@@ -32,9 +45,61 @@ bugs:
 
 		- tank, melee dps, ranged (like that)
 		  - 
+
+	=============
+
+	Three columns, any fighter in any column, prioritizes to fire on fighters in same column or different fighters prioritize different columns and get different bonuses/no negatives
+		- interceptors - same column
+		- cruiser - adjacent
+		- destroyer - far
+		So it's just a type and has nothing to do with hp/shield?
+
+	=============
 	
-	
-	- test implement to select what column to spawn in 
+	Could also be nine zones of control and you can only spawn in an owned zone
+	Or spawn in any zone
+	Rules from other mail could still apply
+
+	For any zone (9 or three columns ) it could give bonuses if you have X ships in X zone/s
+
+	You could also do rows, select what row to spawn in and ships move forward (or not) in that row and can only fire in that row (unless empty and then you get flanking bonus
+	Ships can't change row (or they can later)
+	Basically it's three Vs three and you need to counter the other ship
+	So you queue up ships?
+	Or there are front line column and transport column
+	Some ships can only fire in front and some can fire in both
+	Or there are penalties while in transport
+
+	Or it's three total columns and you select where to spawn to counter the ships in the current column
+
+	Auto darkest dungeon
+	Three rows and you select row to spawn in
+	Also columns, ships move to the column closest to the enemy columns automatically when space is available
+	So to keep a ship in the "right" column you need to keep the other column occupied
+
+	Need to be able to iterate "fast" on this logic
+	Keep it separate somewhere.
+
+	==================
+
+	I'm du vill ha mindre ring kan evasion Eller Dodge eller någon sådan mechanic vara som sköld att 
+	man alltid evadar ett visst antal hits, som laddar upp igen eller inte
+
+	Kan också vara att man får en miss mot sig var x:e träff
+
+	Mer speed kan vara högre evade men lägre träff-chans
+
+	About positioning and stuff
+	Avoidance and evasion is probably good stats
+	Since there is no movement it could substitute for movement in some way
+	"Fast/light" fighters could have more avoidance or evasion so they are better against slow firing weapons
+
+	Also could have speed as an evasion like stat
+
+	Like armour/life/es and evasion/dodge in Poe :)
+
+
+	======================
 
 		so row should not matter , but column should
 		- flanking is then not possible?
