@@ -398,6 +398,10 @@ void MapScene::render() {
     draw_text_centered_str((int)(gw / 2), 10, Colors::white, info_text);
 
 	Services::ui()->render();
+
+    static SDL_Color mouse_color = Colors::yellow;
+    draw_g_circle_color(Input::mousex, Input::mousey, 3, mouse_color);
+    
     renderer_draw_render_target_camera();
 	renderer_flip();
 }

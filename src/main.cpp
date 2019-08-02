@@ -48,9 +48,9 @@ void input() {
 	}
 }
 
-
+const unsigned int STARTING_SCALE = 2; // 1,2,3 are good values ;)
 int main(int argc, char* argv[]) {
-	if(!renderer_init("TITLE", 640, 360, 1)) {
+	if(!renderer_init("TITLE", 640, 360, STARTING_SCALE)) {
 		printf("init renderer failed");
 		return 1;
 	}

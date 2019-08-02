@@ -11,24 +11,14 @@ bugs:
 
 	to make fighters and weapons without re-compiling we need;
 	
-	[] load all weapons from file
-	[] Load fighters from file (use weapons by id from weapons data) 
-
-	the best control for editing a number is a text box with two buttons to step up or down 
-	combined with a file reload function we can keep running the game without recompile
-
+	[ ] Load fighters from file (use weapons by id from weapons data) 
+	[ ] Load starting units for player and enemy from file 
 	
-	- tweak data values (update data repository values)
-		- need to be able to edit a list of structs 
-		- floats, ints
-		- display text
-		- so it will be pretty custom anyway?
-		- easy to create a list of things with things to edit in 
-
-	- we should setup faster compile for "next" project if we want it
-		seems like much work now?
-		- engine exe and game dll ?
-		https://chadaustin.me/2009/05/unintrusive-precompiled-headers-pch/
+	[ ] work on actual units 
+		- more health
+		- less difference between units (health wise)
+	
+	[ ] Evaluate (do we continue ?)
 
 	- make fighters 
 		-> first layer is ;
@@ -45,7 +35,6 @@ bugs:
 	
 	
 	- test implement to select what column to spawn in 
-			
 
 		so row should not matter , but column should
 		- flanking is then not possible?
@@ -53,7 +42,6 @@ bugs:
 		- could be flanking damage if shooting at a fighter in another row
 
 
-		work on actual units now 
 		  
 		- positioning
 		  - range ? like has 1 column range (can only shoot when in first row etc)
