@@ -67,16 +67,32 @@ void load_weapons() {
 }
 
 void load_fighters() {
-    // std::string file = "weapons.data";
-    // std::string file_name = Engine::get_base_data_folder() + file;
-    // std::ifstream weapon_data(file_name);
+    std::string file = "fighter.data";
+    std::string file_name = Engine::get_base_data_folder() + file;
+    std::ifstream fighter_data(file_name);
 
-    // if (!weapon_data.is_open()) {
-    //     Engine::logn("ERROR: No data in weapons.data");
-    //     Engine::exit();
-    //     return;
-    // }
+    if (!fighter_data.is_open()) {
+        Engine::logn("ERROR: No data in fighter.data");
+        Engine::exit();
+        return;
+    }
     
+    if(fighter_data) {
+        FighterConfig f;
+        std::string line;
+        std::getline(fighter_data, line); // ignore header
+        // id|name|type|cost|energy_cost|sprite|defense|weapons
+        while (std::getline(fighter_data, line)) {
+            std::istringstream data(line);
+            std::string value;
+            std::getline(data, value, '|');
+            f.id = std::stoi(value);
+            std::getline(data, value, '|');
+            f.name = value;
+
+            std::getline(data, value, '|');
+        }
+    }
     // if(weapon_data) {
     //     std::map<std::string, ProjectileType> proj = {
     //         {  "ProjectileType::Bullet", ProjectileType::Bullet } ,
@@ -124,54 +140,6 @@ void load_fighters() {
     // } else {
     //     Engine::log("\n[WARNING] unable to open weapons file");
     // }
-// Interceptor
-{
-    FighterConfig f;
-    f.defense = { 5, 0 };
-    f.sprite_base = "interceptor_1";
-    WeaponConfig wc;
-    wc.targeting = 2;
-    wc.weapon_id = 0;
-    f.weapons.push_back(wc);
-    f.id = _fighters.size();
-    f.name = "Lazer Interceptor";
-    f.cost = Cost(20, 5);
-    f.type = FighterType::Interceptor;
-    f.energy_cost = 20;
-    _fighters.push_back(f);
-}
-    // Cruiser
- {
-    FighterConfig f;
-    f.defense = { 25, 5 };
-    f.sprite_base = "cruiser_1";
-    WeaponConfig wc;
-    wc.targeting = 2;
-    wc.weapon_id = 5;
-    f.weapons.push_back(wc);
-    f.id = _fighters.size();
-    f.name = "Lazer Cruiser";
-    f.cost = Cost(40, 10);
-    f.type = FighterType::Cruiser;
-    f.energy_cost = 40;
-    _fighters.push_back(f);
- }
-      // Destroyer
- {
-    FighterConfig f;
-    f.defense = { 60, 10 };
-    f.sprite_base = "destroyer_1";
-    WeaponConfig wc;
-    wc.targeting = 2;
-    wc.weapon_id = 5;
-    f.weapons.push_back(wc);
-    f.id = _fighters.size();
-    f.name = "TEST Destroyer";
-    f.cost = Cost(80, 20);
-    f.type = FighterType::Destroyer;
-    f.energy_cost = 60;
-    _fighters.push_back(f);
- }
 }
 
 void DB::load() {
