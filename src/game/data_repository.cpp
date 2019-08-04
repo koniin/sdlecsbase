@@ -78,6 +78,11 @@ void load_fighters() {
     }
     
     if(fighter_data) {
+        std::map<std::string, FighterType> f_type = {
+            {  "FighterType::Interceptor", FighterType::Interceptor } ,
+            {  "FighterType::Cruiser", FighterType::Cruiser } ,
+            {  "FighterType::Destroyer", FighterType::Destroyer }
+        };
         FighterConfig f;
         std::string line;
         std::getline(fighter_data, line); // ignore header
@@ -89,8 +94,33 @@ void load_fighters() {
             f.id = std::stoi(value);
             std::getline(data, value, '|');
             f.name = value;
+            std::getline(data, value, '|');
+            f.type = f_type[value];
+            
+            std::getline(data, value, '|');
+            auto index = value.find_first_of(',');
+            f.cost.resource = std::stoi(value.substr(0, index));
+            f.cost.population = std::stoi(value.substr(index + 1, value.size() - 1));
+            
+            std::getline(data, value, '|');
+            f.energy_cost = std::stoi(value);
+            
+            std::getline(data, value, '|');
+            f.sprite_base = value;
 
             std::getline(data, value, '|');
+            auto defense_index = value.find_first_of(',');
+            f.defense.hp = std::stoi(value.substr(0, defense_index)); 
+            f.defense.shield = std::stoi(value.substr(defense_index + 1, value.size() - 1));
+            
+            std::getline(data, value, '|');
+            auto weapon_index = value.find_first_of(',');
+            WeaponConfig w;
+            w.targeting = (short)std::stoi(value.substr(0, weapon_index)); 
+            w.weapon_id = std::stoi(value.substr(weapon_index + 1, value.size() - 1));
+            f.weapons.push_back(w);
+            
+            _fighters.push_back(f);
         }
     }
     // if(weapon_data) {

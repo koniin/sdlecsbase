@@ -1,4 +1,4 @@
 id|name|type|cost|energy_cost|sprite|defense|weapons
-0|"Lazer Interceptor"|"FighterType::Interceptor"|20,5|20|"interceptor_1"|5,0|2,0
-1|"Lazer Cruiser"|"FighterType::Cruiser"|40,10|40|"cruiser_1"|25,5|2,5
-2|"TEST Destroyer"|"FighterType::Destroyer"|80,20|60|"destroyer_1"|60,10|2,5
+0|Lazer Interceptor|FighterType::Interceptor|20,5|20|interceptor_1|5,0|2,0
+1|Lazer Cruiser|FighterType::Cruiser|40,10|40|cruiser_1|25,5|2,5
+2|TEST Destroyer|FighterType::Destroyer|80,20|60|destroyer_1|60,10|2,5
