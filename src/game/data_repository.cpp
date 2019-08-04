@@ -24,11 +24,12 @@ void load_weapons() {
             {  "ProjectileType::Missile", ProjectileType::Missile } ,
             {  "ProjectileType::SmallBullet", ProjectileType::SmallBullet } 
         };
-        Weapon w;
+        
         
         std::string line;
         std::getline(weapon_data, line); // ignore header
         while (std::getline(weapon_data, line)) {
+            Weapon w;
             std::istringstream data(line);
             std::string value;
             std::getline(data, w.name, '|');
@@ -83,11 +84,12 @@ void load_fighters() {
             {  "FighterType::Cruiser", FighterType::Cruiser } ,
             {  "FighterType::Destroyer", FighterType::Destroyer }
         };
-        FighterConfig f;
+        
         std::string line;
         std::getline(fighter_data, line); // ignore header
         // id|name|type|cost|energy_cost|sprite|defense|weapons
         while (std::getline(fighter_data, line)) {
+            FighterConfig f;
             std::istringstream data(line);
             std::string value;
             std::getline(data, value, '|');
